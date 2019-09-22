@@ -954,7 +954,7 @@ class FormController extends Controller
             $a->lock_user=$request->EmpLockUser;
             if ($request->hasFile('ImgUpp')) {
                 $request->ImgUpp->storeAs('public/employee_photo/', $request->EmpBIOID.".".$request->ImgUpp->getClientOriginalExtension());
-                
+                //added comment
                 $a->photofilename=$request->EmpBIOID.".".$request->ImgUpp->getClientOriginalExtension();
                 
             }
