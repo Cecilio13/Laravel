@@ -938,7 +938,7 @@ class FormController extends Controller
         
     }
     public function update_employee_data(Request $request){
-        //return $request;
+        
         $a=HR_hr_employee_info::find($request->EmpID);
         if(!empty($a)){
             $a->company_id=$request->EmpBIOID;
@@ -950,12 +950,11 @@ class FormController extends Controller
             $a->civil_status=$request->CS;
             $a->date_of_birth=$request->DATE;
             $a->address=$request->EmpAddress;
-            //$a->username=$request->EmpUsername;
-            //$a->password=Hash::make($request->EmpPassword);
+            
             $a->lock_user=$request->EmpLockUser;
             if ($request->hasFile('ImgUpp')) {
                 $request->ImgUpp->storeAs('public/employee_photo/', $request->EmpBIOID.".".$request->ImgUpp->getClientOriginalExtension());
-                //$a->hdmf_cal_loan=$request->ORHDMFCalamityLoan1.".".$request->ImgUpp->getClientOriginalExtension();
+                
                 $a->photofilename=$request->EmpBIOID.".".$request->ImgUpp->getClientOriginalExtension();
                 
             }
