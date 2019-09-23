@@ -86,7 +86,30 @@
                         <thead>
                         <tr>
                             <th colspan="19">
+                            <script>
+                                $(document).ready(function(){
+                                    FetchPayrollEmployee();
+                                })
+                            function FetchPayrollEmployee(){
+                                var x = document.getElementById('SELECTPAROLL').value;
+                                
+                                $.ajax({
+                                    type: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    url: 'get_excluded_employee_from_payroll',                
+                                    data:{id:x,_token: '{{csrf_token()}}'},
+                                    success: function(data) {
+                                        $( "#PayrollEmployeeListDiv" ).replaceWith( data );
+                                    }
+                                })
+                            }
+                            </script>
                             <select class="form-control" id="SELECTPAROLL" style="width:40%;float:right;" onchange="FetchPayrollEmployee()">
+                                @foreach ($unprocessed_payroll_list as $item)
+                                    <option value="{{$item->payroll_id}}">{{"Period : ".$item->period.", ".$item->payroll_year." ".$item->payroll_month." - ".$item->payroll_type." -- ".$item->employee_type}}</option>
+                                @endforeach
                             </select>
                             </th>
                         </tr>
@@ -131,7 +154,8 @@
 						<thead>
 							<tr>
 							<th colspan="19">
-							<select class="form-control" id="SELECTPAROLL22" style="width:40%;float:right;" onchange="FetchPayrollEmployee2()">
+                            <select class="form-control" id="SELECTPAROLL22" style="width:40%;float:right;" onchange="FetchPayrollEmployee2()">
+                                
 							</select>
 							</th>
 							</tr>
