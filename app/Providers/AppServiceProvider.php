@@ -50,6 +50,7 @@ use App\HR_cash_advance_loan_type;
 use App\HR_payroll;
 use App\HR_hr_employee_adjustment;
 use App\HR_hr_employee_attendance;
+use App\HR_hr_cash_advances_payment;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -198,9 +199,11 @@ class AppServiceProvider extends ServiceProvider
         }
         
         view()->share('employee_attendance_list', HR_hr_employee_attendance::all());
+        view()->share('payroll_year_list', HR_payroll::select('payroll_year')->groupBy('payroll_year')->orderBy('payroll_year', 'DESC')->get());
         view()->share('unprocessed_payroll_list', HR_payroll::where([
             ['process_status','=','0']
         ])->get());
+        
         $employee_salary_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_salary JOIN hr_payroll ON hr_payroll.payroll_id=hr_employee_salary.payroll_id");
         view()->share('employee_salary_list', $employee_salary_list);
         $employee_adjustment_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_adjustment 
@@ -257,6 +260,7 @@ class AppServiceProvider extends ServiceProvider
         view()->share('HR_Company_reference_tax_tax_table3', HR_Company_reference_tax_tax_table::where([['tax_table_table_id','=','3']])->first());
         view()->share('HR_Company_reference_tax_tax_table4', HR_Company_reference_tax_tax_table::where([['tax_table_table_id','=','4']])->first());
         view()->share('HR_Company_reference_tax_tax_table5', HR_Company_reference_tax_tax_table::where([['tax_table_table_id','=','5']])->first());
+        view()->share('HR_Company_reference_tax_tax_all()', HR_Company_reference_tax_tax_table::all());
         
         view()->share('reference_sss_table1', HR_Company_reference_sss_table::where([['sss_table_id','=','1']])->first());
         view()->share('reference_sss_table2', HR_Company_reference_sss_table::where([['sss_table_id','=','2']])->first());
@@ -289,6 +293,7 @@ class AppServiceProvider extends ServiceProvider
         view()->share('reference_sss_table29', HR_Company_reference_sss_table::where([['sss_table_id','=','29']])->first());
         view()->share('reference_sss_table30', HR_Company_reference_sss_table::where([['sss_table_id','=','30']])->first());
         view()->share('reference_sss_table31', HR_Company_reference_sss_table::where([['sss_table_id','=','31']])->first());
+        view()->share('reference_sss_all', HR_Company_reference_sss_table::all());
         
         view()->share('payroll_computation', HR_Company_payroll_computation::first());
         view()->share('payroll_computation_thirteen', HR_Company_payroll_computation_thirteen::first());

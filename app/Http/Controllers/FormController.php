@@ -49,6 +49,13 @@ use App\HR_payroll;
 use App\HR_hr_employee_salary;
 use App\HR_hr_a_asset_request; //not yet implemented
 use App\HR_hr_employee_adjustment;
+use DateTime;
+use DatePeriod;
+use DateInterval;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\HR_hr_cash_advances_payment;
 class FormController extends Controller
 {
     public function update_company_setup_data(Request $request){
@@ -1456,7 +1463,7 @@ class FormController extends Controller
                             if($result2=="-"){
                                 
                             }else{
-                                $content.='<button class="btn  btn-danger"><span class="glyphicon glyphicon-flag"></span></button>';
+                                $content.='<button class="btn  btn-danger"><i class="fa fa-flag" aria-hidden="true"></i></button>';
                                 break;
                             }
                         }
@@ -1508,7 +1515,7 @@ class FormController extends Controller
                             if($result2=="-"){
                                 
                             }else{
-                                $content.='<button class="btn  btn-danger"><span class="glyphicon glyphicon-flag"></span></button>';
+                                $content.='<button class="btn  btn-danger"><i class="fa fa-flag" aria-hidden="true"></i></button>';
                                 break;
                             }
                         }
@@ -1564,6 +1571,2131 @@ class FormController extends Controller
     public function disable_employee_saary_adjustment(Request $request){
         $data= HR_hr_employee_adjustment::find($request->id);
         $data->employee_adjustment_active="0";
+        $data->save();
+    }
+    public function review_payroll(Request $request){
+        //load spreadsheet
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load("extra/import_file/payroll_report_template.xlsx");
+
+        //change it
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $index=2;
+        $Sel=$request->id;
+        $tablecontent='<div class="row" id="ReviewAndProcessTable" style="margin-top:10px;">
+        <div class="col-md-12">
+            <table class="table table-bordered table-sm" style="background-color:white;">
+                <thead style="background-color:#124f62; color:white;">
+                  <tr>
+                    <th>ID</th><th>Name</th><th>Period</th><th>Basic</th><th>DeMinimis</th><th>OT / Rest Day Pay</th>
+                    <th>Abs & Late</th><th>SSS</th><th>PhilHealth</th>
+                    <th>Pag-ibig</th><th>Tax</th><th>Adj(+)</th>
+                    <th>Adj(-)</th><th>Net Amount</th>
+                  </tr>
+                </thead>
+                <tbody >';
+        
+        $a=HR_Company_payroll_computation::first();
+        $numofdayspermonth=$a->work_day_per_month;
+        $employee_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_info 
+        JOIN 
+        hr_employee_salary ON hr_employee_info.employee_id=hr_employee_salary.emp_id 
+        JOIN hr_payroll ON hr_payroll.payroll_id=hr_employee_salary.payroll_id 
+        JOIN hr_employee_salary_detail ON hr_employee_salary_detail.emp_id=hr_employee_info.employee_id 
+        WHERE hr_employee_salary.payroll_id='$Sel' AND hr_employee_salary.salary_status='1'");
+        foreach($employee_list as $rows2){
+            if($rows2->payroll_type=="Normal Payroll"){
+                $Basic=$rows2->basic_salary;
+                $PhilhealthCal=0;
+                if($rows2->philhealth_contribution==0){
+						
+                }else{
+                    if($rows2->philhealth_contribution==1){
+                        if($rows2->com_phic==1){
+                            if($rows2->basic_salary<=10000.00){
+                                $PhilhealthCal=137.50;
+                            }
+                            if($rows2->basic_salary>=10000.01 && $rows2->basic_salary<=39999.99){
+                                $PhilhealthCal=(2.75/100)*$rows2->basic_salary;
+                            }
+                            if($rows2->basic_salary>=40000.00){
+                                $PhilhealthCal=550.00;
+                            }
+                            $PhilhealthCal=$PhilhealthCal/2;
+                        }
+                        if($rows2->com_phic==2){
+                            if($rows2->basic_salary<=10000.00){
+                                $PhilhealthCal=137.50;
+                            }
+                            if($rows2->basic_salary>=10000.01 && $rows2->basic_salary<=39999.99){
+                                $PhilhealthCal=(2.75/100)*$rows2->basic_salary;
+                            }
+                            if($rows2->basic_salary>=40000.00){
+                                $PhilhealthCal=550.00;
+                            }
+                        }
+                    }else{
+                        if($rows2->com_phic==1){
+                            
+                            $PhilhealthCal=$rows2->philhealth_contribution/2;
+                        }
+                        if($rows2->com_phic==2){
+                            $PhilhealthCal=$rows2->philhealth_contribution;
+                        }
+                    }
+                }
+                $SSSCal=0;
+					
+				$getsss=HR_Company_reference_sss_table::all();
+				if($rows2->com_sss==1){
+                    //echo "SSS : ".$rows2->sss_contribution." scan";
+					$SSSCal=$rows2->sss_contribution;
+					if($SSSCal=="Let System Decide"){
+						foreach($getsss as $result){
+							$min=$result->min_range;
+							$max=$result->max_range;
+							if($Basic>=$min && $Basic<=$max){		
+								$SSSCal=$result->ss_ee;
+							}
+						}	
+                    }
+                    if($SSSCal=="Let System Decide"){
+                        $SSSCal=0;
+                    }
+					$SSSCal=$SSSCal/2;
+                }
+                if($rows2->com_sss==2){
+                    $SSSCal=$rows2->sss_contribution;
+                    //echo "<-".$rows2->emp_id."->Basic: <".$Basic."> SSS : ".$SSSCal."==Let System Decide"." scan2";
+                    
+                    if($SSSCal=="Let System Decide"){
+                        foreach($getsss as $result){
+                            $min=$result->min_range;
+                            $max=$result->max_range;
+                            if($Basic>=$min && $Basic<=$max){
+                                $SSSCal=$result->ss_ee;
+                            }
+                        }
+                    }
+                    if($SSSCal=="Let System Decide"){
+                        $SSSCal=0;
+                    }
+                }
+                $PagibigCal=0;
+				if($rows2->com_pagibig==1){
+					$PagibigCal=$rows2->pagibigcont;
+					if($PagibigCal=="Let System Decide"){
+						if($Basic>5000 ){
+							$PagibigCal=100;
+						}
+						if($Basic>1500 && $Basic<=5000){
+							$PagibigCal=$Basic*0.02;
+						}
+						if($Basic<=1500){
+							$PagibigCal=$Basic*0.01;
+						}
+					}
+					$PagibigCal=$PagibigCal/2;
+				}
+				if($rows2->com_pagibig==2){
+					$PagibigCal=$rows2->pagibigcont;
+					if($PagibigCal=="Let System Decide"){
+						if($Basic>5000 ){
+							$PagibigCal=100;
+						}
+						if($Basic>1500 && $Basic<=5000){
+							$PagibigCal=$Basic*0.02;
+						}
+						if($Basic<=1500){
+							$PagibigCal=$Basic*0.01;
+						}
+					}
+				}
+                $TaxCal=0;
+				if($rows2->com_tax==1){
+                    $tableget=HR_Company_reference_tax_tax_table::find(4);
+                        $one=$tableget->one;
+						$two=$tableget->two;
+						$three=$tableget->three;
+						$four=$tableget->four;
+						$five=$tableget->five;
+						$six=$tableget->six;
+						if($rows2->basic_salary<$one){
+							
+							
+						}
+						if($rows2->basic_salary<$two){
+							$TaxCal=0;
+							
+						}
+						if($rows2->basic_salary>=$two && $rows2->basic_salary<$three){
+							$TaxCal=(20/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$three && $rows2->basic_salary<$four){
+							$TaxCal=(25/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$four && $rows2->basic_salary<$five){
+							$TaxCal=(30/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$five && $rows2->basic_salary<$six){
+							$TaxCal=(32/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$six){
+							$TaxCal=(35/100)*$rows2->basic_salary;	
+						}
+                    
+
+                }
+                $TransactionFROM=$rows2->transaction_from;
+				$TransactionTO=$rows2->transaction_to;
+				$AdjPlus=0;
+				$AdjNeg=0;
+				$EMPIID=$rows2->employee_id;
+				$SALARYID=$rows2->salary_id;
+                $get_adjustment = DB::connection('mysql')->select("SELECT * FROM hr_employee_adjustment 
+                                WHERE employee_adjustment_emp_id='$EMPIID' AND employee_adjustment_payroll_id='$SALARYID'  AND employee_adjustment_active='1'");
+                foreach($get_adjustment as $result){
+                    if($result->employee_adjustment_amount<0){
+                        $AdjNeg=$AdjNeg+$result->employee_adjustment_amount;
+                    }
+                    if($result->employee_adjustment_amount>-1){
+                        $AdjPlus=$AdjPlus+$result->employee_adjustment_amount;
+                    }
+                }
+                $ot_com_table=$rows2->ot_com_table;
+                $ot_table_rate=HR_Company_reference_hr_ot_table::where(
+                    [
+                        ['data_status','=',NULL],
+                        ['dh_id','=',$ot_com_table]
+                    ]
+                )->first();
+                $DeminimisAmount=$rows2->deminimis_total;
+                $OTcount=0;
+                $OTAmount=0;
+                $EMPII=$rows2->employee_id;
+                $biomentrics=$rows2->biometrics_id;
+                $get_ot = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND 
+                (attendance_type='Normal OT' OR attendance_type='Early OT' ) AND attendance_date BETWEEN '$TransactionFROM' AND '$TransactionTO'");
+                foreach($get_ot as $result2){
+                    $time1 = $result2->attendance_time_in;
+					$time2 = $result2->attendance_time_out;
+					$diff = abs(strtotime($time1) - strtotime($time2));
+					$tmins = $diff/60;
+					$hours = floor($tmins/60);
+					$mins = $tmins%60;
+					$OTcount=$OTcount+$hours;
+					
+					//echo $hours." ";
+					$curdate=strtotime($result2->attendance_date);
+					$Special1=strtotime(date('Y-2-16'));
+					$Special2=strtotime(date('Y-2-25'));
+					$Special3=strtotime(date('Y-4-14'));
+					$Special4=strtotime(date('Y-8-21'));
+					$Special5=strtotime(date('Y-11-01'));
+					$Special6=strtotime(date('Y-11-02'));
+					$Special7=strtotime(date('Y-3-31'));
+					$Special8=strtotime(date('Y-12-24'));
+					$Special9=strtotime(date('Y-12-31'));
+					
+					$Regular1=strtotime(date('Y-1-1'));
+					$Regular2=strtotime(date('Y-1-2'));
+					$Regular3=strtotime(date('Y-3-16'));//davao city day
+					$Regular4=strtotime(date('Y-3-29'));//holy week
+					$Regular5=strtotime(date('Y-3-30'));//holy week
+					$Regular6=strtotime(date('Y-4-9'));
+					$Regular7=strtotime(date('Y-5-1'));
+					$Regular8=strtotime(date('Y-6-12'));
+					$Regular9=strtotime(date('Y-8-27'));
+					$Regular10=strtotime(date('Y-11-30'));
+					$Regular11=strtotime(date('Y-12-25'));
+					$Regular12=strtotime(date('Y-12-30'));
+					
+					$day = date("w", $curdate);
+                    $day++;
+                    $stt="NO";
+                    $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPII' AND day_id='$day' ");
+                    foreach($rest_day_list as $data){
+                        
+						if($result2->is_rest_day==1){
+							$stt="YES";
+						}
+						else{
+							$stt="NO";
+						}
+                    }
+                    $holiday=0;
+					$daily2=$Basic/$numofdayspermonth;
+					$daily=$Basic/$numofdayspermonth;
+					$daily=$daily/8;
+					
+					if($curdate == $Special1 || $curdate == $Special2 || $curdate == $Special3 || $curdate == $Special4
+					|| $curdate == $Special5 || $curdate == $Special6 || $curdate == $Special7 || $curdate == $Special8
+					|| $curdate == $Special9){
+                        if($stt=='YES'){
+                            //special holiday rest day OT
+                            $shrdot=$ot_table_rate->sh_rd_ot;
+                            if($shrdot==""){
+                                $shrdot=0;
+                            }
+                            $OTAmount=$OTAmount+($hours*($daily*$shrdot));
+                        }
+                        if($stt=='NO'){
+                            //special holiday not rest day OT
+                            $sh=$ot_table_rate->sh_ot;
+                            if($sh==""){
+                                $sh=0;
+                            }
+                            $OTAmount=$OTAmount+($hours*($daily*$sh));
+                        }
+                        $holiday=1;
+                    }
+                    else if($curdate == $Regular1 || $curdate == $Regular2 || $curdate == $Regular3 || $curdate == $Regular4 || $curdate == $Regular5 || $curdate == $Regular6 || $curdate == $Regular7 || $curdate == $Regular8
+					|| $curdate == $Regular9 || $curdate == $Regular10 || $curdate == $Regular11 || $curdate == $Regular12){
+                        if($stt=='YES'){
+                            //regular holiday rest day OT
+                            $lhrd=$ot_table_rate->lh_rd_ot;
+                            if($lhrd==""){
+                                $lhrd=0;
+                            }
+                            $OTAmount=$OTAmount+($hours*($daily*$lhrd));
+                        }
+                        if($stt=='NO'){
+                            //regular holiday not rest day OT
+                            $lh=$ot_table_rate->lh_ot;
+                            if($lh==""){
+                                $lh=0;
+                            }
+                            $OTAmount=$OTAmount+($hours*($daily*$lh));
+                        }
+                        $holiday=1;
+                    }
+                    else if($holiday==0 && $stt=="YES"){
+                        // not holiday rest day OT
+                        $rd=$ot_table_rate->rd_ot;
+                        if($rd==""){
+                            $rd=0;
+                        }
+                        $OTAmount=$OTAmount+($hours*($daily*$rd));
+                    }else{
+                        //regular OT
+                        $rr=$ot_table_rate->ord_ot;
+                        if($rr==""){
+                            $rr=0;
+                        }
+                        $OTAmount=$OTAmount+($hours*($daily*$rr));
+                    }
+                }
+                $Late=0;
+				$undertimepenalty=0;
+				$restdaytiminrate=0;
+				$numberofminutesofundertime=0;
+				$numberofminutesofundertimerestday=0;
+				$numberofminutesofundertimeholiday=0;
+				$numberofminutesofundertimeholidayrestday=0;
+				$numberofminutesofundertimeRegularholiday=0;
+				$numberofminutesofundertimeRegularholidayrestday=0;
+				$begin = new DateTime( $TransactionFROM );
+				$end = new DateTime($TransactionTO );
+				$end = $end->modify( '+1 day' ); 
+				
+				$interval = new DateInterval('P1D');
+				$daterange = new DatePeriod($begin, $interval ,$end);
+                $AbsentCount=0;
+                foreach($daterange as $date){
+                    $currentDate=$date->format('Y-m-d');
+                    $Special1=strtotime(date('Y-2-16'));
+                    $Special2=strtotime(date('Y-2-25'));
+                    $Special3=strtotime(date('Y-4-14'));
+                    $Special4=strtotime(date('Y-8-21'));
+                    $Special5=strtotime(date('Y-11-01'));
+                    $Special6=strtotime(date('Y-11-02'));
+                    $Special7=strtotime(date('Y-3-31'));
+                    $Special8=strtotime(date('Y-12-24'));
+                    $Special9=strtotime(date('Y-12-31'));
+                    
+                    $Regular1=strtotime(date('Y-1-1'));
+                    $Regular2=strtotime(date('Y-1-2'));
+                    $Regular3=strtotime(date('Y-3-16'));//davao city day
+                    $Regular4=strtotime(date('Y-3-29'));//holy week
+                    $Regular5=strtotime(date('Y-3-30'));//holy week
+                    $Regular6=strtotime(date('Y-4-9'));
+                    $Regular7=strtotime(date('Y-5-1'));
+                    $Regular8=strtotime(date('Y-6-12'));
+                    $Regular9=strtotime(date('Y-8-27'));
+                    $Regular10=strtotime(date('Y-11-30'));
+                    $Regular11=strtotime(date('Y-12-25'));
+                    $Regular12=strtotime(date('Y-12-30'));
+                    
+                    $curdate2=strtotime($currentDate);
+
+                    if($curdate2 != $Special1 && $curdate2 != $Special2 && $curdate2 != $Special3 && $curdate2 != $Special4
+					&& $curdate2 != $Special5 && $curdate2 != $Special6 && $curdate2 != $Special7 && $curdate2 != $Special8
+					&& $curdate2 != $Special9 && $curdate2 != $Regular1 && $curdate2 != $Regular2 && $curdate2 != $Regular3 
+					&& $curdate2 != $Regular4 && $curdate2 != $Regular5 && $curdate2 != $Regular6 && $curdate2 != $Regular7 
+					&& $curdate2 != $Regular8 && $curdate2 != $Regular9 && $curdate2 != $Regular10 && $curdate2 != $Regular11 
+					&& $curdate2 != $Regular12){
+                        $attendance_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Time In' OR attendance_type='Official Business' OR attendance_type='Undertime') AND attendance_date='$currentDate'");
+                        $COUNT2=count($attendance_list);
+                        if($COUNT2<1){
+                            $timestamp = strtotime($currentDate);
+                            $day = date('w', $timestamp);
+                            $day++;
+                            $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPIID' AND day_id='$day' ");
+                            foreach($rest_day_list as $data){
+                                if($data->is_rest_day==0){	
+                                    $AbsentCount++;
+                                }
+                            }
+                        }
+                        $attendance_undertime_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Time In' OR attendance_type='Undertime') AND attendance_date='$currentDate'");
+                        $co=count($attendance_undertime_list);
+                        if($co<1){
+								
+                        }else{
+                            $timeins=$co;
+                            $currentcount=1;
+                            $numberofminute=0;
+                            $attendance_timein="";
+                            $attendance_timeout="";
+                            foreach($attendance_undertime_list as $data){
+                                if($data->attendance_time_in!="" && $data->attendance_time_out!=""){
+                                    $start=$data->attendance_time_in;
+                                    $end=$data->attendance_time_out;
+                                    $dateStart = new DateTime($start); 
+                                    $dateEnd = new DateTime($end);
+                                    $dateDiff  = $dateStart->diff($dateEnd);
+                                    $time    = explode(':', $dateDiff->format("%H:%I:%S"));
+                                    $minutes = ($time[0] * 60.0 + $time[1] * 1.0);
+                                    $numberofminute=$numberofminute+$minutes;
+                                    //echo $numberofminute."<br>";
+                                }
+                                if($currentcount==1){
+                                    $attendance_timein=$data->attendance_time_in;
+                                }
+                                if($currentcount==$timeins){
+                                    $attendance_timeout=$data->attendance_time_out;
+                                }
+                                
+                                $currentcount++;
+                            }
+                            $timestamp = strtotime($currentDate);
+                            $day = date('w', $timestamp);
+                            $day++;
+                            $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPII' AND day_id='$day' ");
+                            foreach($rest_day_list as $data){
+                                $timestart=$data->core_from;
+                                $timeend=$data->core_to;
+                                $breakstart=$data->break_start;
+                                $breakend=$data->break_end;
+                                if($data->is_rest_day==0){
+                                    $breakstart=$data->break_start;
+                                    $breakend=$data->break_end;
+                                    $breakstartdate = new DateTime($breakstart); 
+                                    $breakenddate = new DateTime($breakend);
+                                    $breakDiff  = $breakstartdate->diff($breakenddate);
+                                    $breaktime    = explode(':', $breakDiff->format("%H:%I:%S"));
+                                    $breakminutes = ($breaktime[0] * 60.0 + $breaktime[1] * 1.0);
+                                    $strStart = $timestart;
+                                    $strEnd   = $timeend; 
+                                    $dteStart = new DateTime($strStart); 
+                                    $dteEnd   = new DateTime($strEnd);
+                                    $dteDiff  = $dteStart->diff($dteEnd);
+                                    $time    = explode(':', $dteDiff->format("%H:%I:%S"));
+                                    $minutes = ($time[0] * 60.0 + $time[1] * 1.0);
+                                    //echo $timestart." : ".$timeend."<br>";
+                                    ///echo ($minutes-$breakminutes)." :".$breakminutes." - - ".($numberofminute-$breakminutes);
+                                    $shedminutesminusbreak=$minutes-$breakminutes;
+                                    $timeinminutesminusbreak=$numberofminute-$breakminutes;
+                                    //echo "<br> time :".$timeinminutesminusbreak." >= ".$shedminutesminusbreak."<br>";
+                                    //calculate 
+                                    if($timeinminutesminusbreak>=$shedminutesminusbreak){
+                                        
+                                        $shiftstart = new DateTime($timestart); 
+                                        $timeinstart = new DateTime($attendance_timein);
+                                        $shiftDiff  = $shiftstart->diff($timeinstart);
+                                        $shifttimediff    = explode(':', $shiftDiff->format("%H:%I:%S"));
+                                        $shifttimemin = ($shifttimediff[0] * 60.0 + $shifttimediff[1] * 1.0);
+                                        
+                                        //$undertimepenalty
+                                    }else{
+                                        
+                                        $lackminutes=$shedminutesminusbreak-$timeinminutesminusbreak;
+                                        $lackminutes=$lackminutes-11;
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/$shedminutesminusbreak;
+                                        $undertimepenalty=$lackminutes*$rateperminute;
+                                        $numberofminutesofundertime=$numberofminutesofundertime+$lackminutes;
+                                        //echo $numberofminutesofundertime." undetiime";
+                                    }
+                                }else{
+                                    $rateperminute=$Basic/$numofdayspermonth;
+									$rateperminute=$rateperminute/8;
+									$rateperminute=$rateperminute/60;
+									//Restday time in
+									$rdrd=$ot_table_rate->rd;
+									if($rdrd==""){
+										$rdrd=0;
+									}
+									$rateperminute=$rateperminute*$rdrd;
+									$restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+									//echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+									$numberofminutesofundertimerestday=$numberofminutesofundertimerestday+$numberofminute;
+                                }
+                            }
+                        }
+
+                    }else{
+                        //holiday
+                        if($currentDate == $Special1 || $currentDate == $Special2 || $currentDate == $Special3 || $currentDate == $Special4
+						|| $currentDate == $Special5 || $currentDate == $Special6 || $currentDate == $Special7 || $currentDate == $Special8
+						|| $currentDate == $Special9){
+                            $attendance_undertime_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Time In' OR attendance_type='Undertime') AND attendance_date='$currentDate'");
+                            $co=count($attendance_undertime_list);
+                            if($co<1){
+                                    
+                            }else{
+                                $timeins=$co;
+								$currentcount=1;
+								$numberofminute=0;
+								$attendance_timein="";
+                                $attendance_timeout="";
+                                foreach($attendance_undertime_list as $data){
+                                    if($data->attendance_time_in!="" && $data->attendance_time_out!=""){
+                                        $start=$data->attendance_time_in;
+                                        $end=$data->attendance_time_out;
+                                        $dateStart = new DateTime($start); 
+                                        $dateEnd = new DateTime($end);
+                                        $dateDiff  = $dateStart->diff($dateEnd);
+                                        $time    = explode(':', $dateDiff->format("%H:%I:%S"));
+                                        $minutes = ($time[0] * 60.0 + $time[1] * 1.0);
+                                        $numberofminute=$numberofminute+$minutes;
+                                        //echo $numberofminute."<br>";
+                                    }
+                                    if($currentcount==1){
+                                        $attendance_timein=$data->attendance_time_in;
+                                    }
+                                    if($currentcount==$timeins){
+                                        $attendance_timeout=$data->attendance_time_out;
+                                    }
+                                    
+                                    $currentcount++;
+                                }
+                                $timestamp = strtotime($currentDate);
+                                $day = date('w', $timestamp);
+                                $day++;
+                                $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPII' AND day_id='$day' ");
+                                foreach($rest_day_list as $data){
+                                    $timestart=$data->core_from;
+                                    $timeend=$data->core_to;
+                                    $breakstart=$data->break_start;
+                                    $breakend=$data->break_end;
+                                    if($data->is_rest_day==0){
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/8;
+                                        $rateperminute=$rateperminute/60;
+                                        //special holiday not rest day
+                                        $shr=$ot_table_rate->sh;
+                                        if($shr==""){
+                                            $shr=0;
+                                        }
+                                        $rateperminute=$rateperminute*$shr;
+                                        $restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+                                        //echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+                                        $numberofminutesofundertimeholiday=$numberofminutesofundertimeholiday+$numberofminute;
+                                    }else{
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/8;
+                                        $rateperminute=$rateperminute/60;
+                                        //special holiday restday
+                                        $shrdr=$ot_table_rate->sh_rd;
+                                        if($shrdr==""){
+                                            $shrdr=0;
+                                        }
+                                        $rateperminute=$rateperminute*$shrdr;
+                                        $restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+                                        //echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+                                        $numberofminutesofundertimeholidayrestday=$numberofminutesofundertimeholidayrestday+$numberofminute;
+                                    }
+                                }
+                            }
+
+                        }else if($currentDate == $Regular1 || $currentDate == $Regular2 || $currentDate == $Regular3 || $currentDate == $Regular4 
+                        || $currentDate == $Regular5 || $currentDate == $Regular6 || $currentDate == $Regular7 || $currentDate == $Regular8
+                        || $currentDate == $Regular9 || $currentDate == $Regular10 || $currentDate == $Regular11 || $currentDate == $Regular12){
+                            $attendance_undertime_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Time In' OR attendance_type='Undertime') AND attendance_date='$currentDate'");
+                            $co=count($attendance_undertime_list);
+                            if($co<1){
+                                    
+                            }else{
+                                $timeins=$co;
+								$currentcount=1;
+								$numberofminute=0;
+								$attendance_timein="";
+                                $attendance_timeout="";
+                                foreach($attendance_undertime_list as $data){
+                                    if($data->attendance_time_in!="" && $data->attendance_time_out!=""){
+                                        $start=$data->attendance_time_in;
+                                        $end=$data->attendance_time_out;
+                                        $dateStart = new DateTime($start); 
+                                        $dateEnd = new DateTime($end);
+                                        $dateDiff  = $dateStart->diff($dateEnd);
+                                        $time    = explode(':', $dateDiff->format("%H:%I:%S"));
+                                        $minutes = ($time[0] * 60.0 + $time[1] * 1.0);
+                                        $numberofminute=$numberofminute+$minutes;
+                                        //echo $numberofminute."<br>";
+                                    }
+                                    if($currentcount==1){
+                                        $attendance_timein=$data->attendance_time_in;
+                                    }
+                                    if($currentcount==$timeins){
+                                        $attendance_timeout=$data->attendance_time_out;
+                                    }
+                                    
+                                    $currentcount++;
+                                }
+                                $timestamp = strtotime($currentDate);
+                                $day = date('w', $timestamp);
+                                $day++;
+                                $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPII' AND day_id='$day' ");
+                                foreach($rest_day_list as $data){
+                                    $timestart=$data->core_from;
+                                    $timeend=$data->core_to;
+                                    $breakstart=$data->break_start;
+                                    $breakend=$data->break_end;
+                                    $timestart=$data->core_from;
+                                    $timeend=$data->core_to;
+                                    $breakstart=$data->break_start;
+                                    $breakend=$data->break_end;
+                                    if($data->is_rest_day==0){
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/8;
+                                        $rateperminute=$rateperminute/60;
+                                        // regular holiday not restday
+                                        $lhr=$ot_table_rate->lh;
+                                        if($lhr==""){
+                                            $lhr=0;
+                                        }
+                                        $rateperminute=$rateperminute*$lhr;
+                                        $restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+                                        //echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+                                        $numberofminutesofundertimeRegularholiday=$numberofminutesofundertimeRegularholiday+$numberofminute;
+                                    }else{
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/8;
+                                        $rateperminute=$rateperminute/60;
+                                        // regular holiday rest day
+                                        $lhrdr=$ot_table_rate->lh_rd;
+                                        if($lhrdr==""){
+                                            $lhrdr=0;
+                                        }
+                                        $rateperminute=$rateperminute*$lhrdr;
+                                        $restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+                                        //echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+                                        $numberofminutesofundertimeRegularholidayrestday=$numberofminutesofundertimeRegularholidayrestday+$numberofminute;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+                $paidleave = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Sick' OR attendance_type='Vacation' OR attendance_type='Maternity / Paternity' OR attendance_type='Solo Parent Leave' OR attendance_type='Violence against Woman (VAWC LEAVE)')
+				AND attendance_date BETWEEN '$TransactionFROM' AND '$TransactionTO' AND attendance_time_in IS NOT NULL");
+                $validleavecount=count($paidleave);
+                $AbsentCount=$AbsentCount-$validleavecount;
+				
+				$DailyRate=$Basic/$numofdayspermonth;
+				
+				//echo $AbsentCount." ".$DailyRate."<br>";
+				
+				$Late=$AbsentCount*$DailyRate;
+				$Late=$Late+$undertimepenalty;
+					
+				$OTAmount=$OTAmount+$restdaytiminrate;
+				//echo $restdaytiminrate." ".$numberofminutesofundertimeholiday." ".$numberofminutesofundertimeholidayrestday." ".$numberofminutesofundertimeRegularholiday." ".$numberofminutesofundertimeRegularholidayrestday."<br>";
+				$Basic2=$Basic/2;
+				$totalNetAmount=0;
+				$TotalAllowance=$rows2->cash_allowance+$rows2->meal_allowance+$rows2->mobile_allowance;
+                $sum=$Basic2+$DeminimisAmount+$OTAmount+$AdjPlus;
+                //echo $Late." ".$SSSCal."<br>".$PhilhealthCal." ".$PagibigCal."<br>".$TaxCal." ".$AdjNeg."<br>";
+                $neg=$Late+$SSSCal+$PhilhealthCal+$PagibigCal+$TaxCal-$AdjNeg;
+                $totalNetAmount=$sum-$neg;
+                
+                
+                $tablecontent.="<tr title='"."Absent : ".$AbsentCount."\n"
+                ."Leave with Pay : ".$validleavecount."\n"
+                ."Overtime Hours : ".$OTcount."\n"
+                ."Undertime minutes : ".$numberofminutesofundertime."\n"
+                ."Rest Day Work minutes : ".$numberofminutesofundertimerestday."\n"
+                ."Special Holiday Work minutes : ".$numberofminutesofundertimeholiday."\n"
+                ."Special Holiday Rest Day Work minutes : ".$numberofminutesofundertimeholidayrestday."\n"
+                ."Regular Holiday Work minutes : ".$numberofminutesofundertimeRegularholiday."\n"
+                ."Regular Holiday Rest Day Work minutes : ".$numberofminutesofundertimeRegularholidayrestday."\n"."'>";
+                    $tablecontent.='<td>';
+                    $tablecontent.=$rows2->employee_id;
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=ucwords(strtolower($rows2->lname.", ".$rows2->fname." ".$rows2->mname));
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=date('m-d-Y',strtotime($rows2->transaction_date));
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($Basic2,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($DeminimisAmount,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($OTAmount,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($Late,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($SSSCal,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($PhilhealthCal,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($PagibigCal,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($TaxCal,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($AdjPlus,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($AdjNeg,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($totalNetAmount,2);
+                    $tablecontent.='</td>';
+                $tablecontent.='</tr>';
+                $sheet->setCellValue('A'.$index, $rows2->employee_id);
+                $sheet->setCellValue('B'.$index,ucwords(strtolower($rows2->lname.", ".$rows2->fname." ".$rows2->mname)));
+                $sheet->setCellValue('C'.$index, date('m-d-Y',strtotime($rows2->transaction_date)));
+                $sheet->setCellValue('D'.$index, number_format($Basic2,2));
+                $sheet->setCellValue('E'.$index, number_format($DeminimisAmount,2));
+                $sheet->setCellValue('F'.$index, number_format($OTAmount,2));
+                $sheet->setCellValue('G'.$index, number_format($Late,2));
+                $sheet->setCellValue('H'.$index, number_format($SSSCal,2));
+                $sheet->setCellValue('I'.$index, number_format($PhilhealthCal,2));
+                $sheet->setCellValue('J'.$index, number_format($PagibigCal,2));
+                $sheet->setCellValue('K'.$index, number_format($TaxCal,2));
+                $sheet->setCellValue('L'.$index, number_format($AdjPlus,2));
+                $sheet->setCellValue('M'.$index, number_format($AdjNeg,2));
+                $sheet->setCellValue('N'.$index, number_format($totalNetAmount,2));
+                $index++;
+
+
+                
+            }else if($rows2->payroll_type=="13th Month"){
+                $Basic=$rows2->basic_salary;
+                $onethreeiet=($Basic*6)/6;
+                $PhilhealthCal=0;
+                if($rows2->philhealth_contribution==0){
+						
+                }else{
+                    if($rows2->philhealth_contribution==1){
+                        if($rows2->com_phic==1){
+                            if($rows2->basic_salary<=10000.00){
+                                $PhilhealthCal=137.50;
+                            }
+                            if($rows2->basic_salary>=10000.01 && $rows2->basic_salary<=39999.99){
+                                $PhilhealthCal=(2.75/100)*$rows2->basic_salary;
+                            }
+                            if($rows2->basic_salary>=40000.00){
+                                $PhilhealthCal=550.00;
+                            }
+                            $PhilhealthCal=$PhilhealthCal/2;
+                        }
+                        if($rows2->com_phic==2){
+                            if($rows2->basic_salary<=10000.00){
+                                $PhilhealthCal=137.50;
+                            }
+                            if($rows2->basic_salary>=10000.01 && $rows2->basic_salary<=39999.99){
+                                $PhilhealthCal=(2.75/100)*$rows2->basic_salary;
+                            }
+                            if($rows2->basic_salary>=40000.00){
+                                $PhilhealthCal=550.00;
+                            }
+                        }
+                    }else{
+                        if($rows2->com_phic==1){
+                            
+                            $PhilhealthCal=$rows2->philhealth_contribution/2;
+                        }
+                        if($rows2->com_phic==2){
+                            $PhilhealthCal=$rows2->philhealth_contribution;
+                        }
+                    }
+                }
+                $SSSCal=0;
+                $getsss=HR_Company_reference_sss_table::all();
+				if($rows2->com_sss==1){
+                    //echo "SSS : ".$rows2->sss_contribution." scan";
+					$SSSCal=$rows2->sss_contribution;
+					if($SSSCal=="Let System Decide"){
+						foreach($getsss as $result){
+							$min=$result->min_range;
+							$max=$result->max_range;
+							if($Basic>=$min && $Basic<=$max){		
+								$SSSCal=$result->ss_ee;
+							}
+						}	
+                    }
+                    if($SSSCal=="Let System Decide"){
+                        $SSSCal=0;
+                    }
+					$SSSCal=$SSSCal/2;
+                }
+                if($rows2->com_sss==2){
+                    $SSSCal=$rows2->sss_contribution;
+                    //echo "<-".$rows2->emp_id."->Basic: <".$Basic."> SSS : ".$SSSCal."==Let System Decide"." scan2";
+                    
+                    if($SSSCal=="Let System Decide"){
+                        foreach($getsss as $result){
+                            $min=$result->min_range;
+                            $max=$result->max_range;
+                            if($Basic>=$min && $Basic<=$max){
+                                $SSSCal=$result->ss_ee;
+                            }
+                        }
+                    }
+                    if($SSSCal=="Let System Decide"){
+                        $SSSCal=0;
+                    }
+                }
+                $PagibigCal=0;
+				if($rows2->com_pagibig==1){
+					$PagibigCal=$rows2->pagibigcont;
+					if($PagibigCal=="Let System Decide"){
+						if($Basic>5000 ){
+							$PagibigCal=100;
+						}
+						if($Basic>1500 && $Basic<=5000){
+							$PagibigCal=$Basic*0.02;
+						}
+						if($Basic<=1500){
+							$PagibigCal=$Basic*0.01;
+						}
+					}
+					$PagibigCal=$PagibigCal/2;
+				}
+				if($rows2->com_pagibig==2){
+					$PagibigCal=$rows2->pagibigcont;
+					if($PagibigCal=="Let System Decide"){
+						if($Basic>5000 ){
+							$PagibigCal=100;
+						}
+						if($Basic>1500 && $Basic<=5000){
+							$PagibigCal=$Basic*0.02;
+						}
+						if($Basic<=1500){
+							$PagibigCal=$Basic*0.01;
+						}
+					}
+				}
+                $TaxCal=0;
+				if($rows2->com_tax==1){
+                    $tableget=HR_Company_reference_tax_tax_table::all();
+                    foreach($tableget as $result){
+                        $one=$result->one;
+						$two=$result->two;
+						$three=$result->three;
+						$four=$result->four;
+						$five=$result->five;
+						$six=$result->six;
+						if($rows2->basic_salary<$one){
+							
+							
+						}
+						if($rows2->basic_salary<$two){
+							$TaxCal=0;
+							
+						}
+						if($rows2->basic_salary>=$two && $rows2->basic_salary<$three){
+							$TaxCal=(20/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$three && $rows2->basic_salary<$four){
+							$TaxCal=(25/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$four && $rows2->basic_salary<$five){
+							$TaxCal=(30/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$five && $rows2->basic_salary<$six){
+							$TaxCal=(32/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$six){
+							$TaxCal=(35/100)*$rows2->basic_salary;	
+						}
+                    }
+
+                }
+                $AdjPlus=0;
+				$AdjNeg=0;
+				$EMPIID=$rows2->employee_id;
+				$SALARYID=$rows2->salary_id;
+                $get_adjustment = DB::connection('mysql')->select("SELECT * FROM hr_employee_adjustment 
+                                WHERE employee_adjustment_emp_id='$EMPIID' AND employee_adjustment_payroll_id='$SALARYID' AND employee_adjustment_active='1'");
+                foreach($get_adjustment as $result){
+                    if($result->employee_adjustment_amount<0){
+                        $AdjNeg=$AdjNeg+$result->employee_adjustment_amount;
+                    }
+                    if($result->employee_adjustment_amount>-1){
+                        $AdjPlus=$AdjPlus+$result->employee_adjustment_amount;
+                    }
+                }
+                $plus=$onethreeiet+$AdjPlus;
+				$neg=$SSSCal+$PhilhealthCal+$PagibigCal+$TaxCal-$AdjNeg;
+				$totalonethree=$plus-$neg;
+                $tablecontent.="<tr>";
+                    $tablecontent.='<td>';
+                    $tablecontent.=$rows2->employee_id;
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=ucwords(strtolower($rows2->lname.", ".$rows2->fname." ".$rows2->mname));
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=date('m-d-Y',strtotime($rows2->transaction_date));
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($onethreeiet,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format(0,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format(0,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format(0,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($SSSCal,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($PhilhealthCal,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($PagibigCal,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($TaxCal,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($AdjPlus,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($AdjNeg,2);
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($totalonethree,2);
+                    $tablecontent.='</td>';
+                $tablecontent.='</tr>';
+                $sheet->setCellValue('A'.$index, $rows2->employee_id);
+                $sheet->setCellValue('B'.$index,ucwords(strtolower($rows2->lname.", ".$rows2->fname." ".$rows2->mname)));
+                $sheet->setCellValue('C'.$index, date('m-d-Y',strtotime($rows2->transaction_date)));
+                $sheet->setCellValue('D'.$index, number_format($onethreeiet,2));
+                $sheet->setCellValue('E'.$index, number_format(0,2));
+                $sheet->setCellValue('F'.$index, number_format(0,2));
+                $sheet->setCellValue('G'.$index, number_format(0,2));
+                $sheet->setCellValue('H'.$index, number_format($SSSCal,2));
+                $sheet->setCellValue('I'.$index, number_format($PhilhealthCal,2));
+                $sheet->setCellValue('J'.$index, number_format($PagibigCal,2));
+                $sheet->setCellValue('K'.$index, number_format($TaxCal,2));
+                $sheet->setCellValue('L'.$index, number_format($AdjPlus,2));
+                $sheet->setCellValue('M'.$index, number_format($AdjNeg,2));
+                $sheet->setCellValue('N'.$index, number_format($totalonethree,2));
+                $index++;
+            }
+        }
+        $tablecontent.='</tbody></table></div></div>';
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('extra/import_file/payroll_report.xlsx');
+        return $tablecontent;
+    }
+    public function process_payroll(Request $request){
+        $data=HR_payroll::find($request->SelectedPayroll);
+        $data->process_status='1';
+        $data->save();
+    }
+    public function get_excluded_employee_from_payroll(Request $request){
+        $tablecontent='<tbody id="PayrollEmployeeListDiv">';
+        $data=HR_hr_employee_salary::where([['payroll_id','=',$request->id]])->get();
+        $data = DB::connection('mysql')->select("SELECT * FROM hr_employee_salary JOIN hr_employee_info ON hr_employee_info.employee_id=hr_employee_salary.emp_id WHERE payroll_id='$request->id' AND  salary_status='0'");
+        foreach($data as $result){
+            $tablecontent.='<tr>';
+            $tablecontent.='<td>';
+            $tablecontent.="";
+            $tablecontent.='</td>';
+            $tablecontent.='<td>';
+            $tablecontent.=$result->biometrics_id!=""? $result->biometrics_id : 'N/A';
+            $tablecontent.='</td>';
+            $tablecontent.='<td>';
+            $tablecontent.=ucwords(strtolower($result->lname." ".$result->fname));
+            $tablecontent.='</td>';
+            $tablecontent.='<td>';
+            
+            $result=DB::connection('mysql')->select("SELECT * FROM hr_a_asset_request WHERE emp_id='$result->emp_id' AND (request_status='2' OR request_status='1.1')");
+            foreach($result as $re){
+                $date1=date_create($re->asset_due_date);
+				$date2=date_create(date("Y-m-d"));
+				$diff=date_diff($date1,$date2);
+                $result2=$diff->format("%R");
+                if($result2=="-"){
+                    
+                }else{
+                    $tablecontent.='<button class="btn  btn-danger"><i class="fa fa-flag" aria-hidden="true"></i></button>';
+                    break;
+                }
+            }
+            $tablecontent.='</td>';
+            $tablecontent.='</tr>';
+        }
+        $tablecontent.='</tbody>'; 
+        return $tablecontent;
+    }
+    public function get_employee_payroll(Request $request){
+        $data = DB::connection('mysql')->select("SELECT * FROM hr_employee_salary JOIN hr_payroll ON hr_payroll.payroll_id=hr_employee_salary.payroll_id WHERE emp_id='$request->id' AND post_status='0' AND process_status='0' ORDER BY `hr_employee_salary`.`salary_id` DESC");
+        $options='<select class="form-control" name="PayrollPeriod" id="PayrollPeriod">';
+        foreach($data as $item){
+            $options.='<option value="'.$item->payroll_id.'">'."Period : ".$item->period.", ".$item->payroll_year." ".$item->payroll_month." - ".$item->payroll_type." -- ".$item->employee_type.'</option>';
+        }
+        $options.='</select>';
+        return $options;
+    }
+    public function add_payment_to_cash_advance(Request $request){
+        //HR_hr_cash_advances_payment;
+        $a= new HR_hr_cash_advances_payment;
+        $a->cash_advance_id=$request->hidden_cash_advance_id;
+        $a->amount=$request->PaymentAmount;
+        $a->date_recorded=date('Y-m-d');
+        $a->payroll_id=$request->PayrollPeriod;
+        if($a->save()){
+            $data=HR_hr_cash_advances::find($request->hidden_cash_advance_id);
+            $data->pay_amount_per_period=$request->PaymentAmount;
+            $data->balance=$request->hidden_balance-$request->PaymentAmount;
+            $data->save();
+
+            $data=new HR_hr_employee_adjustment;
+            $data->employee_adjustment_type="Salary Adjustment";
+            $data->employee_adjustment_name="Cash Advance";
+            $data->employee_adjustment_code="CA";
+            $data->employee_adjustment_amount=-$request->PaymentAmount;
+            $data->employee_adjustment_apply_before='0';
+            $data->employee_adjustment_taxable='0';
+            $data->employee_adjustment_remarks="Auto Generated Adjustment From the Cash Advance";
+            $data->employee_adjustment_payroll_id=$request->PayrollPeriod;
+            $data->employee_adjustment_emp_id=$request->hidden_emp_id;
+            $data->employee_adjustment_active="1";
+            $data->save();
+            if($request->hidden_cash_advance_type=="Colleague"){
+                //hidden_lender_id
+                $data=HR_hr_employee_salary::find($request->PayrollPeriod);
+                $pay_id=$data->payroll_id;
+                $salary_id="";
+                $data = DB::connection('mysql')->select("SELECT * FROM hr_employee_salary WHERE payroll_id='$pay_id' AND emp_id='$request->hidden_lender_id'");
+                foreach($data as $result){
+                    $salary_id=$result->salary_id;
+                    break;
+                }
+                
+                $data=new HR_hr_employee_adjustment;
+                $data->employee_adjustment_type="Salary Adjustment";
+                $data->employee_adjustment_name="Cash Advance";
+                $data->employee_adjustment_code="CA";
+                $data->employee_adjustment_amount=$request->PaymentAmount;
+                $data->employee_adjustment_apply_before='0';
+                $data->employee_adjustment_taxable='0';
+                $data->employee_adjustment_remarks="Auto Generated Adjustment From the Cash Advance";
+                $data->employee_adjustment_payroll_id=$salary_id;
+                $data->employee_adjustment_emp_id=$request->hidden_lender_id;
+                $data->employee_adjustment_active="1";
+                $data->save();
+            }
+        }
+    }
+
+    public function get_payroll_list_summary(Request $request){
+        $year=$request->year;
+        $tablecontent='<div class="row" id="PayrollTable" ><div class="col-md-12" >';
+        $tablecontent.='<table class="table table-bordered table-sm" style="background-color:white;margin-top:10px;">';
+        $tablecontent.='<thead style="background-color:#124f62; color:white;"><tr >';
+        $tablecontent.='<th width="9%" style="text-align:center;">Year</th><th width="9%" style="text-align:center;">Month</th><th width="9%" style="text-align:center;">Period</th><th width="10%" style="text-align:center;">Type</th><th width="10%" style="text-align:center;">Employee Type</th><th width="14%" style="text-align:center;">Description</th><th width="10%" style="text-align:center;">Transaction Date</th><th width="9%" style="text-align:center;">Action</th><th width="9%" style="text-align:center;">Status</th><th width="5%"style="text-align:center;"></th>';
+        $tablecontent.='</tr></thead>';
+        $tablecontent.='<tbody>';
+        $data=HR_payroll::where([
+            ['payroll_year','=',$year]
+        ])->get();
+        foreach($data as $result){
+            $tablecontent.='<tr>';
+                $tablecontent.='<td style="text-align:center;">';
+                $tablecontent.=$result->payroll_year;
+                $tablecontent.='</td>';
+                $tablecontent.='<td style="text-align:center;">';
+                $tablecontent.=$result->payroll_month;
+                $tablecontent.='</td>';
+                $tablecontent.='<td style="text-align:center;">';
+                $tablecontent.=$result->period;
+                $tablecontent.='</td>';
+                $tablecontent.='<td>';
+                $tablecontent.=$result->payroll_type;
+                $tablecontent.='</td>';
+                $tablecontent.='<td style="text-align:center;">';
+                $tablecontent.=$result->employee_type;
+                $tablecontent.='</td>';
+                $tablecontent.='<td>';
+                $tablecontent.=$result->description;
+                $tablecontent.='</td>';
+                $tablecontent.='<td style="text-align:center;">';
+                $tablecontent.=$result->transaction_date;
+                $tablecontent.='</td>';
+                $tablecontent.='<td style="text-align:center;">';
+                if($result->post_status=="1"){
+                    $tablecontent.='<button type="button" onclick="UnPostPayroll(\''.$result->payroll_id.'\')" class="btn btn-link btn-sm">UNPOST</button>';
+                }else{
+                    $tablecontent.='<button type="button" onclick="PostPayroll(\''.$result->payroll_id.'\')" class="btn btn-link btn-sm">POST</button>';
+                }
+                
+                $tablecontent.='</td>';
+                $tablecontent.='<td style="text-align:center;">';
+                if($result->process_status=="1"){
+                    $tablecontent.='<button type="button" class="btn btn-link btn-sm">Processed</button>';
+                }else{
+                    $tablecontent.='<button type="button" class="btn btn-link btn-sm">Unprocessed</button>';
+                }
+                $tablecontent.='</td>';
+                $tablecontent.='<td style="text-align:center;">';
+                $tablecontent.='<button type="button" onclick="ShowPayrollSummary(\''.$result->payroll_id.'\')" class="btn btn-link btn-sm">SUMMARY</button>';
+                $tablecontent.='</td>';
+            $tablecontent.='</tr>';
+        }
+        
+        $tablecontent.='</tbody>';
+        $tablecontent.='</table>';
+        $tablecontent.='</div></div>';
+
+
+        return $tablecontent;
+    }
+    public function post_payroll(Request $request){
+        $data=HR_payroll::find($request->id);
+        $data->post_status=$request->stat;
+        $data->save();
+    }
+    public function view_payroll_summary_modal(Request $request){
+        $data=HR_payroll::find($request->id);
+        $tablecontent='<div id="ViewSummaryPayrollModal" class="modal fade" role="dialog"><div class="modal-dialog modal-lg">';
+            $tablecontent.='<div class="modal-content">';
+
+                $tablecontent.='<div class="modal-header"><h5 class="modal-title" style="color:#083240;">Payroll Summary</h5><button type="button" class="close" data-dismiss="modal">&times;</button></div>';
+
+                $tablecontent.='<div class="modal-body">';
+                    $tablecontent.='<div class="row"><div class="col-md-12">';
+                        $tablecontent.='<table class="table borderless table-sm" style=" background-color:white;">';
+                        $tablecontent.='<thead style="background-color:#124f62; color:white;"><tr><th colspan="4">Payroll Period</th></tr></thead>';
+                        $tablecontent.='<tbody>';
+                            $tablecontent.='<tr>';
+                            $tablecontent.='<td width="15%" >Year</td>';
+                            $tablecontent.='<td  width="35%"><input style="width:80%;" type="number" min="2018" step="1" value="2018" class="form-control" name="PayrollYear" value="'.$data->payroll_year.'" readonly></td>';
+                            $tablecontent.='<td width="15%" >Payroll Type</td>';
+                            $tablecontent.='<td width="35%" ><select style="width:80%;" class="form-control" name="PayrollType" readonly><option>'.$data->payroll_type.'</option></select></td>';
+                            $tablecontent.='</tr>';
+                            $tablecontent.='<tr>';
+                            $tablecontent.='<td >Month</td>';
+                            $tablecontent.='<td>
+                            <select style="width:80%;" class="form-control" name="PayrollMonth" readonly>
+                                <option>'.$data->payroll_month.'</option>
+                            </select></td>';
+                            $tablecontent.='<td >Transaction Date</td>';
+                            $tablecontent.='<td>
+                                <input style="width:80%;" type="date" class="form-control" name="PayrollTransactionDate" value="'.$data->transaction_date.'" readonly>
+                            </td>';
+                            $tablecontent.='</tr>';
+                            $tablecontent.='<tr>';
+                            $tablecontent.='<td >Employee Type </td>';
+                            $tablecontent.='<td><select style="width:80%;" class="form-control" name="EmployeeType" readonly>
+                                <option>'.$data->employee_type.'</option>
+                            </select></td>';
+                            $tablecontent.='<td >From</td>';
+                            $tablecontent.='<td>
+                            <input type="date" style="width:80%;" class="form-control" name="PayrollFrom" value="'.$data->transaction_from.'" readonly>
+                            </td>';
+                            $tablecontent.='</tr>';
+                            $tablecontent.='<tr>';
+                            $tablecontent.='<td >Period</td>';
+                            $tablecontent.='<td><select style="width:80%;" class="form-control" name="PayrollPeriod" readonly>
+                                <option>'.$data->period.'</option>
+                            </select></td>';
+                            $tablecontent.='<td >To</td>';
+                            $tablecontent.='<td>
+                            <input type="date" style="width:80%;" class="form-control" name="PayrollTo" value="'.$data->transaction_to.'" readonly>
+                            </td>';
+                            $tablecontent.='</tr>';
+                            $tablecontent.='<tr>';
+                            $tablecontent.='<td >Description</td>';
+                            $tablecontent.='<td colspan="3"><textarea class="form-control" rows="3" name="PayrollDescription" readonly>'.$data->description.'</textarea></td>';
+                            $tablecontent.='</tr>';
+                        $tablecontent.='</tbody>';
+                        $tablecontent.='</table>';
+                        $tablecontent.='<table class="table borderless table-sm" style=" background-color:white;margin-bottom:10px;">';
+                        $tablecontent.='<thead style="background-color:#124f62; color:white;"><tr><th colspan="4">Payroll Option</th></tr></thead>';
+                        $tablecontent.='<tbody>';
+                            $tablecontent.='<tr>';
+                            $tablecontent.='<td width="15%" >Compute PHIC</td>';
+                            $tablecontent.='<td  width="35%"><select style="width:80%;" class="form-control" name="ComputePHIC" readonly>
+                            '.($data->com_phic=="1"? '<option>YES</option>' : ($data->com_phic=="2"? '<option>YES FULL</option>' : '<option>NO</option>')).'
+                            </select></td>';
+                            $tablecontent.='<td width="15%" >Compute Tax</td>';
+                            $tablecontent.='<td width="35%" ><select style="width:80%;" class="form-control" name="ComputeTax" readonly>
+                            '.($data->com_tax=="1"? '<option>YES</option>' : '<option>NO</option>').'</select></td>';
+                            $tablecontent.='</tr>';
+                            $tablecontent.='<tr>';
+                            $tablecontent.='<td >Compute SSS</td>';
+                            $tablecontent.='<td ><select style="width:80%;" class="form-control" name="ComputeSSS" readonly>
+                            '.($data->com_sss=="1"? '<option>YES</option>' : ($data->com_sss=="2"? '<option>YES FULL</option>' : '<option>NO</option>')).'
+                            </select></td>';
+                            $tablecontent.='<td >Force End of Month</td>';
+                            $tablecontent.='<td ><select style="width:80%;" class="form-control" name="ForceEnd" readonly>
+                            '.($data->com_end_of_month=="1"? '<option>YES</option>' : '<option>NO</option>').'</select></td>';
+                            $tablecontent.='</tr>';
+                            $tablecontent.='<tr>';
+                            $tablecontent.='<td >Compute Pag-Ibig</td>';
+                            $tablecontent.='<td ><select style="width:80%;" class="form-control" name="ComputePagibig" readonly>
+                            '.($data->com_pagibig=="1"? '<option>YES</option>' : ($data->com_pagibig=="2"? '<option>YES FULL</option>' : '<option>NO</option>')).'
+                            </select></td>';
+                            $tablecontent.='<td >Use Annual Calculation</td>';
+                            $tablecontent.='<td ><select style="width:80%;" class="form-control" name="UseAnnualCal" readonly>
+                            '.($data->use_annual_calculation=="1"? '<option>YES</option>' : '<option>NO</option>').'</select></td>';
+                            $tablecontent.='</tr>';
+                        $tablecontent.='</tbody>';
+                        $tablecontent.='</table>';
+                    $tablecontent.='</div></div>';
+
+                    $tablecontent.='<div class="row" >';
+                        $tablecontent.='<div class="col-md-6 table-responsive">';
+                            $tablecontent.='<div class="row">
+                                <div class="col-md-12">
+                                    <h3 style="color:#083240;">INCLUDED EMPLOYEES</h3>
+                                </div>
+                            </div>';
+
+                            $tablecontent.=$this->setpayroll_review($request->id);
+                            $tablecontent.='';
+                        $tablecontent.='</div>';
+                        $tablecontent.='<div class="col-md-6 table-responsive">';
+                        $tablecontent.='<div class="row">
+                                <div class="col-md-12">
+                                    <h3 style="color:#083240;">EXLUDED EMPLOYEES</h3>
+                                </div>
+                            </div>';
+                        $tablecontent.=$this->setexcluded_emp_payroll_review($request->id);
+                        $tablecontent.='</div>';
+                $tablecontent.='</div>';
+
+                $tablecontent.='</div>';
+
+                $tablecontent.='<div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div>';
+
+            $tablecontent.='</div>';
+        $tablecontent.='</div></div>';
+
+
+        return $tablecontent;
+    }
+    private function setpayroll_review($Selected){
+        $Sel=$Selected;
+        $tablecontent='<table class="table table-bordered table-sm" style="background-color:white;">
+                <thead style="background-color:#124f62; color:white;">
+                  <tr>
+                    <th>ID</th><th>Name</th><th>Net Amount</th>
+                  </tr>
+                </thead>
+                <tbody >';
+        
+        $a=HR_Company_payroll_computation::first();
+        $numofdayspermonth=$a->work_day_per_month;
+        $employee_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_info 
+        JOIN 
+        hr_employee_salary ON hr_employee_info.employee_id=hr_employee_salary.emp_id 
+        JOIN hr_payroll ON hr_payroll.payroll_id=hr_employee_salary.payroll_id 
+        JOIN hr_employee_salary_detail ON hr_employee_salary_detail.emp_id=hr_employee_info.employee_id 
+        WHERE hr_employee_salary.payroll_id='$Sel' AND hr_employee_salary.salary_status='1'");
+        foreach($employee_list as $rows2){
+            if($rows2->payroll_type=="Normal Payroll"){
+                $Basic=$rows2->basic_salary;
+                $PhilhealthCal=0;
+                if($rows2->philhealth_contribution==0){
+						
+                }else{
+                    if($rows2->philhealth_contribution==1){
+                        if($rows2->com_phic==1){
+                            if($rows2->basic_salary<=10000.00){
+                                $PhilhealthCal=137.50;
+                            }
+                            if($rows2->basic_salary>=10000.01 && $rows2->basic_salary<=39999.99){
+                                $PhilhealthCal=(2.75/100)*$rows2->basic_salary;
+                            }
+                            if($rows2->basic_salary>=40000.00){
+                                $PhilhealthCal=550.00;
+                            }
+                            $PhilhealthCal=$PhilhealthCal/2;
+                        }
+                        if($rows2->com_phic==2){
+                            if($rows2->basic_salary<=10000.00){
+                                $PhilhealthCal=137.50;
+                            }
+                            if($rows2->basic_salary>=10000.01 && $rows2->basic_salary<=39999.99){
+                                $PhilhealthCal=(2.75/100)*$rows2->basic_salary;
+                            }
+                            if($rows2->basic_salary>=40000.00){
+                                $PhilhealthCal=550.00;
+                            }
+                        }
+                    }else{
+                        if($rows2->com_phic==1){
+                            
+                            $PhilhealthCal=$rows2->philhealth_contribution/2;
+                        }
+                        if($rows2->com_phic==2){
+                            $PhilhealthCal=$rows2->philhealth_contribution;
+                        }
+                    }
+                }
+                $SSSCal=0;
+					
+				$getsss=HR_Company_reference_sss_table::all();
+				if($rows2->com_sss==1){
+                    //echo "SSS : ".$rows2->sss_contribution." scan";
+					$SSSCal=$rows2->sss_contribution;
+					if($SSSCal=="Let System Decide"){
+						foreach($getsss as $result){
+							$min=$result->min_range;
+							$max=$result->max_range;
+							if($Basic>=$min && $Basic<=$max){		
+								$SSSCal=$result->ss_ee;
+							}
+						}	
+                    }
+                    if($SSSCal=="Let System Decide"){
+                        $SSSCal=0;
+                    }
+					$SSSCal=$SSSCal/2;
+                }
+                if($rows2->com_sss==2){
+                    $SSSCal=$rows2->sss_contribution;
+                    //echo "<-".$rows2->emp_id."->Basic: <".$Basic."> SSS : ".$SSSCal."==Let System Decide"." scan2";
+                    
+                    if($SSSCal=="Let System Decide"){
+                        foreach($getsss as $result){
+                            $min=$result->min_range;
+                            $max=$result->max_range;
+                            if($Basic>=$min && $Basic<=$max){
+                                $SSSCal=$result->ss_ee;
+                            }
+                        }
+                    }
+                    if($SSSCal=="Let System Decide"){
+                        $SSSCal=0;
+                    }
+                }
+                $PagibigCal=0;
+				if($rows2->com_pagibig==1){
+					$PagibigCal=$rows2->pagibigcont;
+					if($PagibigCal=="Let System Decide"){
+						if($Basic>5000 ){
+							$PagibigCal=100;
+						}
+						if($Basic>1500 && $Basic<=5000){
+							$PagibigCal=$Basic*0.02;
+						}
+						if($Basic<=1500){
+							$PagibigCal=$Basic*0.01;
+						}
+					}
+					$PagibigCal=$PagibigCal/2;
+				}
+				if($rows2->com_pagibig==2){
+					$PagibigCal=$rows2->pagibigcont;
+					if($PagibigCal=="Let System Decide"){
+						if($Basic>5000 ){
+							$PagibigCal=100;
+						}
+						if($Basic>1500 && $Basic<=5000){
+							$PagibigCal=$Basic*0.02;
+						}
+						if($Basic<=1500){
+							$PagibigCal=$Basic*0.01;
+						}
+					}
+				}
+                $TaxCal=0;
+				if($rows2->com_tax==1){
+                    $tableget=HR_Company_reference_tax_tax_table::find(4);
+                        $one=$tableget->one;
+						$two=$tableget->two;
+						$three=$tableget->three;
+						$four=$tableget->four;
+						$five=$tableget->five;
+						$six=$tableget->six;
+						if($rows2->basic_salary<$one){
+							
+							
+						}
+						if($rows2->basic_salary<$two){
+							$TaxCal=0;
+							
+						}
+						if($rows2->basic_salary>=$two && $rows2->basic_salary<$three){
+							$TaxCal=(20/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$three && $rows2->basic_salary<$four){
+							$TaxCal=(25/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$four && $rows2->basic_salary<$five){
+							$TaxCal=(30/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$five && $rows2->basic_salary<$six){
+							$TaxCal=(32/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$six){
+							$TaxCal=(35/100)*$rows2->basic_salary;	
+						}
+                    
+
+                }
+                $TransactionFROM=$rows2->transaction_from;
+				$TransactionTO=$rows2->transaction_to;
+				$AdjPlus=0;
+				$AdjNeg=0;
+				$EMPIID=$rows2->employee_id;
+				$SALARYID=$rows2->salary_id;
+                $get_adjustment = DB::connection('mysql')->select("SELECT * FROM hr_employee_adjustment 
+                                WHERE employee_adjustment_emp_id='$EMPIID' AND employee_adjustment_payroll_id='$SALARYID'  AND employee_adjustment_active='1'");
+                foreach($get_adjustment as $result){
+                    if($result->employee_adjustment_amount<0){
+                        $AdjNeg=$AdjNeg+$result->employee_adjustment_amount;
+                    }
+                    if($result->employee_adjustment_amount>-1){
+                        $AdjPlus=$AdjPlus+$result->employee_adjustment_amount;
+                    }
+                }
+                $ot_com_table=$rows2->ot_com_table;
+                $ot_table_rate=HR_Company_reference_hr_ot_table::where(
+                    [
+                        ['data_status','=',NULL],
+                        ['dh_id','=',$ot_com_table]
+                    ]
+                )->first();
+                $DeminimisAmount=$rows2->deminimis_total;
+                $OTcount=0;
+                $OTAmount=0;
+                $EMPII=$rows2->employee_id;
+                $biomentrics=$rows2->biometrics_id;
+                $get_ot = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND 
+                (attendance_type='Normal OT' OR attendance_type='Early OT' ) AND attendance_date BETWEEN '$TransactionFROM' AND '$TransactionTO'");
+                foreach($get_ot as $result2){
+                    $time1 = $result2->attendance_time_in;
+					$time2 = $result2->attendance_time_out;
+					$diff = abs(strtotime($time1) - strtotime($time2));
+					$tmins = $diff/60;
+					$hours = floor($tmins/60);
+					$mins = $tmins%60;
+					$OTcount=$OTcount+$hours;
+					
+					//echo $hours." ";
+					$curdate=strtotime($result2->attendance_date);
+					$Special1=strtotime(date('Y-2-16'));
+					$Special2=strtotime(date('Y-2-25'));
+					$Special3=strtotime(date('Y-4-14'));
+					$Special4=strtotime(date('Y-8-21'));
+					$Special5=strtotime(date('Y-11-01'));
+					$Special6=strtotime(date('Y-11-02'));
+					$Special7=strtotime(date('Y-3-31'));
+					$Special8=strtotime(date('Y-12-24'));
+					$Special9=strtotime(date('Y-12-31'));
+					
+					$Regular1=strtotime(date('Y-1-1'));
+					$Regular2=strtotime(date('Y-1-2'));
+					$Regular3=strtotime(date('Y-3-16'));//davao city day
+					$Regular4=strtotime(date('Y-3-29'));//holy week
+					$Regular5=strtotime(date('Y-3-30'));//holy week
+					$Regular6=strtotime(date('Y-4-9'));
+					$Regular7=strtotime(date('Y-5-1'));
+					$Regular8=strtotime(date('Y-6-12'));
+					$Regular9=strtotime(date('Y-8-27'));
+					$Regular10=strtotime(date('Y-11-30'));
+					$Regular11=strtotime(date('Y-12-25'));
+					$Regular12=strtotime(date('Y-12-30'));
+					
+					$day = date("w", $curdate);
+                    $day++;
+                    $stt="NO";
+                    $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPII' AND day_id='$day' ");
+                    foreach($rest_day_list as $data){
+                        
+						if($result2->is_rest_day==1){
+							$stt="YES";
+						}
+						else{
+							$stt="NO";
+						}
+                    }
+                    $holiday=0;
+					$daily2=$Basic/$numofdayspermonth;
+					$daily=$Basic/$numofdayspermonth;
+					$daily=$daily/8;
+					
+					if($curdate == $Special1 || $curdate == $Special2 || $curdate == $Special3 || $curdate == $Special4
+					|| $curdate == $Special5 || $curdate == $Special6 || $curdate == $Special7 || $curdate == $Special8
+					|| $curdate == $Special9){
+                        if($stt=='YES'){
+                            //special holiday rest day OT
+                            $shrdot=$ot_table_rate->sh_rd_ot;
+                            if($shrdot==""){
+                                $shrdot=0;
+                            }
+                            $OTAmount=$OTAmount+($hours*($daily*$shrdot));
+                        }
+                        if($stt=='NO'){
+                            //special holiday not rest day OT
+                            $sh=$ot_table_rate->sh_ot;
+                            if($sh==""){
+                                $sh=0;
+                            }
+                            $OTAmount=$OTAmount+($hours*($daily*$sh));
+                        }
+                        $holiday=1;
+                    }
+                    else if($curdate == $Regular1 || $curdate == $Regular2 || $curdate == $Regular3 || $curdate == $Regular4 || $curdate == $Regular5 || $curdate == $Regular6 || $curdate == $Regular7 || $curdate == $Regular8
+					|| $curdate == $Regular9 || $curdate == $Regular10 || $curdate == $Regular11 || $curdate == $Regular12){
+                        if($stt=='YES'){
+                            //regular holiday rest day OT
+                            $lhrd=$ot_table_rate->lh_rd_ot;
+                            if($lhrd==""){
+                                $lhrd=0;
+                            }
+                            $OTAmount=$OTAmount+($hours*($daily*$lhrd));
+                        }
+                        if($stt=='NO'){
+                            //regular holiday not rest day OT
+                            $lh=$ot_table_rate->lh_ot;
+                            if($lh==""){
+                                $lh=0;
+                            }
+                            $OTAmount=$OTAmount+($hours*($daily*$lh));
+                        }
+                        $holiday=1;
+                    }
+                    else if($holiday==0 && $stt=="YES"){
+                        // not holiday rest day OT
+                        $rd=$ot_table_rate->rd_ot;
+                        if($rd==""){
+                            $rd=0;
+                        }
+                        $OTAmount=$OTAmount+($hours*($daily*$rd));
+                    }else{
+                        //regular OT
+                        $rr=$ot_table_rate->ord_ot;
+                        if($rr==""){
+                            $rr=0;
+                        }
+                        $OTAmount=$OTAmount+($hours*($daily*$rr));
+                    }
+                }
+                $Late=0;
+				$undertimepenalty=0;
+				$restdaytiminrate=0;
+				$numberofminutesofundertime=0;
+				$numberofminutesofundertimerestday=0;
+				$numberofminutesofundertimeholiday=0;
+				$numberofminutesofundertimeholidayrestday=0;
+				$numberofminutesofundertimeRegularholiday=0;
+				$numberofminutesofundertimeRegularholidayrestday=0;
+				$begin = new DateTime( $TransactionFROM );
+				$end = new DateTime($TransactionTO );
+				$end = $end->modify( '+1 day' ); 
+				
+				$interval = new DateInterval('P1D');
+				$daterange = new DatePeriod($begin, $interval ,$end);
+                $AbsentCount=0;
+                foreach($daterange as $date){
+                    $currentDate=$date->format('Y-m-d');
+                    $Special1=strtotime(date('Y-2-16'));
+                    $Special2=strtotime(date('Y-2-25'));
+                    $Special3=strtotime(date('Y-4-14'));
+                    $Special4=strtotime(date('Y-8-21'));
+                    $Special5=strtotime(date('Y-11-01'));
+                    $Special6=strtotime(date('Y-11-02'));
+                    $Special7=strtotime(date('Y-3-31'));
+                    $Special8=strtotime(date('Y-12-24'));
+                    $Special9=strtotime(date('Y-12-31'));
+                    
+                    $Regular1=strtotime(date('Y-1-1'));
+                    $Regular2=strtotime(date('Y-1-2'));
+                    $Regular3=strtotime(date('Y-3-16'));//davao city day
+                    $Regular4=strtotime(date('Y-3-29'));//holy week
+                    $Regular5=strtotime(date('Y-3-30'));//holy week
+                    $Regular6=strtotime(date('Y-4-9'));
+                    $Regular7=strtotime(date('Y-5-1'));
+                    $Regular8=strtotime(date('Y-6-12'));
+                    $Regular9=strtotime(date('Y-8-27'));
+                    $Regular10=strtotime(date('Y-11-30'));
+                    $Regular11=strtotime(date('Y-12-25'));
+                    $Regular12=strtotime(date('Y-12-30'));
+                    
+                    $curdate2=strtotime($currentDate);
+
+                    if($curdate2 != $Special1 && $curdate2 != $Special2 && $curdate2 != $Special3 && $curdate2 != $Special4
+					&& $curdate2 != $Special5 && $curdate2 != $Special6 && $curdate2 != $Special7 && $curdate2 != $Special8
+					&& $curdate2 != $Special9 && $curdate2 != $Regular1 && $curdate2 != $Regular2 && $curdate2 != $Regular3 
+					&& $curdate2 != $Regular4 && $curdate2 != $Regular5 && $curdate2 != $Regular6 && $curdate2 != $Regular7 
+					&& $curdate2 != $Regular8 && $curdate2 != $Regular9 && $curdate2 != $Regular10 && $curdate2 != $Regular11 
+					&& $curdate2 != $Regular12){
+                        $attendance_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Time In' OR attendance_type='Official Business' OR attendance_type='Undertime') AND attendance_date='$currentDate'");
+                        $COUNT2=count($attendance_list);
+                        if($COUNT2<1){
+                            $timestamp = strtotime($currentDate);
+                            $day = date('w', $timestamp);
+                            $day++;
+                            $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPIID' AND day_id='$day' ");
+                            foreach($rest_day_list as $data){
+                                if($data->is_rest_day==0){	
+                                    $AbsentCount++;
+                                }
+                            }
+                        }
+                        $attendance_undertime_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Time In' OR attendance_type='Undertime') AND attendance_date='$currentDate'");
+                        $co=count($attendance_undertime_list);
+                        if($co<1){
+								
+                        }else{
+                            $timeins=$co;
+                            $currentcount=1;
+                            $numberofminute=0;
+                            $attendance_timein="";
+                            $attendance_timeout="";
+                            foreach($attendance_undertime_list as $data){
+                                if($data->attendance_time_in!="" && $data->attendance_time_out!=""){
+                                    $start=$data->attendance_time_in;
+                                    $end=$data->attendance_time_out;
+                                    $dateStart = new DateTime($start); 
+                                    $dateEnd = new DateTime($end);
+                                    $dateDiff  = $dateStart->diff($dateEnd);
+                                    $time    = explode(':', $dateDiff->format("%H:%I:%S"));
+                                    $minutes = ($time[0] * 60.0 + $time[1] * 1.0);
+                                    $numberofminute=$numberofminute+$minutes;
+                                    //echo $numberofminute."<br>";
+                                }
+                                if($currentcount==1){
+                                    $attendance_timein=$data->attendance_time_in;
+                                }
+                                if($currentcount==$timeins){
+                                    $attendance_timeout=$data->attendance_time_out;
+                                }
+                                
+                                $currentcount++;
+                            }
+                            $timestamp = strtotime($currentDate);
+                            $day = date('w', $timestamp);
+                            $day++;
+                            $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPII' AND day_id='$day' ");
+                            foreach($rest_day_list as $data){
+                                $timestart=$data->core_from;
+                                $timeend=$data->core_to;
+                                $breakstart=$data->break_start;
+                                $breakend=$data->break_end;
+                                if($data->is_rest_day==0){
+                                    $breakstart=$data->break_start;
+                                    $breakend=$data->break_end;
+                                    $breakstartdate = new DateTime($breakstart); 
+                                    $breakenddate = new DateTime($breakend);
+                                    $breakDiff  = $breakstartdate->diff($breakenddate);
+                                    $breaktime    = explode(':', $breakDiff->format("%H:%I:%S"));
+                                    $breakminutes = ($breaktime[0] * 60.0 + $breaktime[1] * 1.0);
+                                    $strStart = $timestart;
+                                    $strEnd   = $timeend; 
+                                    $dteStart = new DateTime($strStart); 
+                                    $dteEnd   = new DateTime($strEnd);
+                                    $dteDiff  = $dteStart->diff($dteEnd);
+                                    $time    = explode(':', $dteDiff->format("%H:%I:%S"));
+                                    $minutes = ($time[0] * 60.0 + $time[1] * 1.0);
+                                    //echo $timestart." : ".$timeend."<br>";
+                                    ///echo ($minutes-$breakminutes)." :".$breakminutes." - - ".($numberofminute-$breakminutes);
+                                    $shedminutesminusbreak=$minutes-$breakminutes;
+                                    $timeinminutesminusbreak=$numberofminute-$breakminutes;
+                                    //echo "<br> time :".$timeinminutesminusbreak." >= ".$shedminutesminusbreak."<br>";
+                                    //calculate 
+                                    if($timeinminutesminusbreak>=$shedminutesminusbreak){
+                                        
+                                        $shiftstart = new DateTime($timestart); 
+                                        $timeinstart = new DateTime($attendance_timein);
+                                        $shiftDiff  = $shiftstart->diff($timeinstart);
+                                        $shifttimediff    = explode(':', $shiftDiff->format("%H:%I:%S"));
+                                        $shifttimemin = ($shifttimediff[0] * 60.0 + $shifttimediff[1] * 1.0);
+                                        
+                                        //$undertimepenalty
+                                    }else{
+                                        
+                                        $lackminutes=$shedminutesminusbreak-$timeinminutesminusbreak;
+                                        $lackminutes=$lackminutes-11;
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/$shedminutesminusbreak;
+                                        $undertimepenalty=$lackminutes*$rateperminute;
+                                        $numberofminutesofundertime=$numberofminutesofundertime+$lackminutes;
+                                        //echo $numberofminutesofundertime." undetiime";
+                                    }
+                                }else{
+                                    $rateperminute=$Basic/$numofdayspermonth;
+									$rateperminute=$rateperminute/8;
+									$rateperminute=$rateperminute/60;
+									//Restday time in
+									$rdrd=$ot_table_rate->rd;
+									if($rdrd==""){
+										$rdrd=0;
+									}
+									$rateperminute=$rateperminute*$rdrd;
+									$restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+									//echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+									$numberofminutesofundertimerestday=$numberofminutesofundertimerestday+$numberofminute;
+                                }
+                            }
+                        }
+
+                    }else{
+                        //holiday
+                        if($currentDate == $Special1 || $currentDate == $Special2 || $currentDate == $Special3 || $currentDate == $Special4
+						|| $currentDate == $Special5 || $currentDate == $Special6 || $currentDate == $Special7 || $currentDate == $Special8
+						|| $currentDate == $Special9){
+                            $attendance_undertime_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Time In' OR attendance_type='Undertime') AND attendance_date='$currentDate'");
+                            $co=count($attendance_undertime_list);
+                            if($co<1){
+                                    
+                            }else{
+                                $timeins=$co;
+								$currentcount=1;
+								$numberofminute=0;
+								$attendance_timein="";
+                                $attendance_timeout="";
+                                foreach($attendance_undertime_list as $data){
+                                    if($data->attendance_time_in!="" && $data->attendance_time_out!=""){
+                                        $start=$data->attendance_time_in;
+                                        $end=$data->attendance_time_out;
+                                        $dateStart = new DateTime($start); 
+                                        $dateEnd = new DateTime($end);
+                                        $dateDiff  = $dateStart->diff($dateEnd);
+                                        $time    = explode(':', $dateDiff->format("%H:%I:%S"));
+                                        $minutes = ($time[0] * 60.0 + $time[1] * 1.0);
+                                        $numberofminute=$numberofminute+$minutes;
+                                        //echo $numberofminute."<br>";
+                                    }
+                                    if($currentcount==1){
+                                        $attendance_timein=$data->attendance_time_in;
+                                    }
+                                    if($currentcount==$timeins){
+                                        $attendance_timeout=$data->attendance_time_out;
+                                    }
+                                    
+                                    $currentcount++;
+                                }
+                                $timestamp = strtotime($currentDate);
+                                $day = date('w', $timestamp);
+                                $day++;
+                                $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPII' AND day_id='$day' ");
+                                foreach($rest_day_list as $data){
+                                    $timestart=$data->core_from;
+                                    $timeend=$data->core_to;
+                                    $breakstart=$data->break_start;
+                                    $breakend=$data->break_end;
+                                    if($data->is_rest_day==0){
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/8;
+                                        $rateperminute=$rateperminute/60;
+                                        //special holiday not rest day
+                                        $shr=$ot_table_rate->sh;
+                                        if($shr==""){
+                                            $shr=0;
+                                        }
+                                        $rateperminute=$rateperminute*$shr;
+                                        $restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+                                        //echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+                                        $numberofminutesofundertimeholiday=$numberofminutesofundertimeholiday+$numberofminute;
+                                    }else{
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/8;
+                                        $rateperminute=$rateperminute/60;
+                                        //special holiday restday
+                                        $shrdr=$ot_table_rate->sh_rd;
+                                        if($shrdr==""){
+                                            $shrdr=0;
+                                        }
+                                        $rateperminute=$rateperminute*$shrdr;
+                                        $restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+                                        //echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+                                        $numberofminutesofundertimeholidayrestday=$numberofminutesofundertimeholidayrestday+$numberofminute;
+                                    }
+                                }
+                            }
+
+                        }else if($currentDate == $Regular1 || $currentDate == $Regular2 || $currentDate == $Regular3 || $currentDate == $Regular4 
+                        || $currentDate == $Regular5 || $currentDate == $Regular6 || $currentDate == $Regular7 || $currentDate == $Regular8
+                        || $currentDate == $Regular9 || $currentDate == $Regular10 || $currentDate == $Regular11 || $currentDate == $Regular12){
+                            $attendance_undertime_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Time In' OR attendance_type='Undertime') AND attendance_date='$currentDate'");
+                            $co=count($attendance_undertime_list);
+                            if($co<1){
+                                    
+                            }else{
+                                $timeins=$co;
+								$currentcount=1;
+								$numberofminute=0;
+								$attendance_timein="";
+                                $attendance_timeout="";
+                                foreach($attendance_undertime_list as $data){
+                                    if($data->attendance_time_in!="" && $data->attendance_time_out!=""){
+                                        $start=$data->attendance_time_in;
+                                        $end=$data->attendance_time_out;
+                                        $dateStart = new DateTime($start); 
+                                        $dateEnd = new DateTime($end);
+                                        $dateDiff  = $dateStart->diff($dateEnd);
+                                        $time    = explode(':', $dateDiff->format("%H:%I:%S"));
+                                        $minutes = ($time[0] * 60.0 + $time[1] * 1.0);
+                                        $numberofminute=$numberofminute+$minutes;
+                                        //echo $numberofminute."<br>";
+                                    }
+                                    if($currentcount==1){
+                                        $attendance_timein=$data->attendance_time_in;
+                                    }
+                                    if($currentcount==$timeins){
+                                        $attendance_timeout=$data->attendance_time_out;
+                                    }
+                                    
+                                    $currentcount++;
+                                }
+                                $timestamp = strtotime($currentDate);
+                                $day = date('w', $timestamp);
+                                $day++;
+                                $rest_day_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_schedule_detail WHERE emp_id='$EMPII' AND day_id='$day' ");
+                                foreach($rest_day_list as $data){
+                                    $timestart=$data->core_from;
+                                    $timeend=$data->core_to;
+                                    $breakstart=$data->break_start;
+                                    $breakend=$data->break_end;
+                                    $timestart=$data->core_from;
+                                    $timeend=$data->core_to;
+                                    $breakstart=$data->break_start;
+                                    $breakend=$data->break_end;
+                                    if($data->is_rest_day==0){
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/8;
+                                        $rateperminute=$rateperminute/60;
+                                        // regular holiday not restday
+                                        $lhr=$ot_table_rate->lh;
+                                        if($lhr==""){
+                                            $lhr=0;
+                                        }
+                                        $rateperminute=$rateperminute*$lhr;
+                                        $restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+                                        //echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+                                        $numberofminutesofundertimeRegularholiday=$numberofminutesofundertimeRegularholiday+$numberofminute;
+                                    }else{
+                                        $rateperminute=$Basic/$numofdayspermonth;
+                                        $rateperminute=$rateperminute/8;
+                                        $rateperminute=$rateperminute/60;
+                                        // regular holiday rest day
+                                        $lhrdr=$ot_table_rate->lh_rd;
+                                        if($lhrdr==""){
+                                            $lhrdr=0;
+                                        }
+                                        $rateperminute=$rateperminute*$lhrdr;
+                                        $restdaytiminrate=$restdaytiminrate+($rateperminute*$numberofminute);
+                                        //echo $rateperminute." ".$numberofminute." ".$restdaytiminrate."<br>";
+                                        $numberofminutesofundertimeRegularholidayrestday=$numberofminutesofundertimeRegularholidayrestday+$numberofminute;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+                $paidleave = DB::connection('mysql')->select("SELECT * FROM hr_employee_attendance WHERE emp_id='$biomentrics' AND (attendance_type='Sick' OR attendance_type='Vacation' OR attendance_type='Maternity / Paternity' OR attendance_type='Solo Parent Leave' OR attendance_type='Violence against Woman (VAWC LEAVE)')
+				AND attendance_date BETWEEN '$TransactionFROM' AND '$TransactionTO' AND attendance_time_in IS NOT NULL");
+                $validleavecount=count($paidleave);
+                $AbsentCount=$AbsentCount-$validleavecount;
+				
+				$DailyRate=$Basic/$numofdayspermonth;
+				
+				//echo $AbsentCount." ".$DailyRate."<br>";
+				
+				$Late=$AbsentCount*$DailyRate;
+				$Late=$Late+$undertimepenalty;
+					
+				$OTAmount=$OTAmount+$restdaytiminrate;
+				//echo $restdaytiminrate." ".$numberofminutesofundertimeholiday." ".$numberofminutesofundertimeholidayrestday." ".$numberofminutesofundertimeRegularholiday." ".$numberofminutesofundertimeRegularholidayrestday."<br>";
+				$Basic2=$Basic/2;
+				$totalNetAmount=0;
+				$TotalAllowance=$rows2->cash_allowance+$rows2->meal_allowance+$rows2->mobile_allowance;
+                $sum=$Basic2+$DeminimisAmount+$OTAmount+$AdjPlus;
+                //echo $Late." ".$SSSCal."<br>".$PhilhealthCal." ".$PagibigCal."<br>".$TaxCal." ".$AdjNeg."<br>";
+                $neg=$Late+$SSSCal+$PhilhealthCal+$PagibigCal+$TaxCal-$AdjNeg;
+                $totalNetAmount=$sum-$neg;
+                
+                
+                $tablecontent.="<tr>";
+                    $tablecontent.='<td>';
+                    $tablecontent.=$rows2->employee_id;
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=ucwords(strtolower($rows2->lname.", ".$rows2->fname." ".$rows2->mname));
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($totalNetAmount,2);
+                    $tablecontent.='</td>';
+                $tablecontent.='</tr>';
+                
+
+
+                
+            }else if($rows2->payroll_type=="13th Month"){
+                $Basic=$rows2->basic_salary;
+                $onethreeiet=($Basic*6)/6;
+                $PhilhealthCal=0;
+                if($rows2->philhealth_contribution==0){
+						
+                }else{
+                    if($rows2->philhealth_contribution==1){
+                        if($rows2->com_phic==1){
+                            if($rows2->basic_salary<=10000.00){
+                                $PhilhealthCal=137.50;
+                            }
+                            if($rows2->basic_salary>=10000.01 && $rows2->basic_salary<=39999.99){
+                                $PhilhealthCal=(2.75/100)*$rows2->basic_salary;
+                            }
+                            if($rows2->basic_salary>=40000.00){
+                                $PhilhealthCal=550.00;
+                            }
+                            $PhilhealthCal=$PhilhealthCal/2;
+                        }
+                        if($rows2->com_phic==2){
+                            if($rows2->basic_salary<=10000.00){
+                                $PhilhealthCal=137.50;
+                            }
+                            if($rows2->basic_salary>=10000.01 && $rows2->basic_salary<=39999.99){
+                                $PhilhealthCal=(2.75/100)*$rows2->basic_salary;
+                            }
+                            if($rows2->basic_salary>=40000.00){
+                                $PhilhealthCal=550.00;
+                            }
+                        }
+                    }else{
+                        if($rows2->com_phic==1){
+                            
+                            $PhilhealthCal=$rows2->philhealth_contribution/2;
+                        }
+                        if($rows2->com_phic==2){
+                            $PhilhealthCal=$rows2->philhealth_contribution;
+                        }
+                    }
+                }
+                $SSSCal=0;
+                $getsss=HR_Company_reference_sss_table::all();
+				if($rows2->com_sss==1){
+                    //echo "SSS : ".$rows2->sss_contribution." scan";
+					$SSSCal=$rows2->sss_contribution;
+					if($SSSCal=="Let System Decide"){
+						foreach($getsss as $result){
+							$min=$result->min_range;
+							$max=$result->max_range;
+							if($Basic>=$min && $Basic<=$max){		
+								$SSSCal=$result->ss_ee;
+							}
+						}	
+                    }
+                    if($SSSCal=="Let System Decide"){
+                        $SSSCal=0;
+                    }
+					$SSSCal=$SSSCal/2;
+                }
+                if($rows2->com_sss==2){
+                    $SSSCal=$rows2->sss_contribution;
+                    //echo "<-".$rows2->emp_id."->Basic: <".$Basic."> SSS : ".$SSSCal."==Let System Decide"." scan2";
+                    
+                    if($SSSCal=="Let System Decide"){
+                        foreach($getsss as $result){
+                            $min=$result->min_range;
+                            $max=$result->max_range;
+                            if($Basic>=$min && $Basic<=$max){
+                                $SSSCal=$result->ss_ee;
+                            }
+                        }
+                    }
+                    if($SSSCal=="Let System Decide"){
+                        $SSSCal=0;
+                    }
+                }
+                $PagibigCal=0;
+				if($rows2->com_pagibig==1){
+					$PagibigCal=$rows2->pagibigcont;
+					if($PagibigCal=="Let System Decide"){
+						if($Basic>5000 ){
+							$PagibigCal=100;
+						}
+						if($Basic>1500 && $Basic<=5000){
+							$PagibigCal=$Basic*0.02;
+						}
+						if($Basic<=1500){
+							$PagibigCal=$Basic*0.01;
+						}
+					}
+					$PagibigCal=$PagibigCal/2;
+				}
+				if($rows2->com_pagibig==2){
+					$PagibigCal=$rows2->pagibigcont;
+					if($PagibigCal=="Let System Decide"){
+						if($Basic>5000 ){
+							$PagibigCal=100;
+						}
+						if($Basic>1500 && $Basic<=5000){
+							$PagibigCal=$Basic*0.02;
+						}
+						if($Basic<=1500){
+							$PagibigCal=$Basic*0.01;
+						}
+					}
+				}
+                $TaxCal=0;
+				if($rows2->com_tax==1){
+                    $tableget=HR_Company_reference_tax_tax_table::all();
+                    foreach($tableget as $result){
+                        $one=$result->one;
+						$two=$result->two;
+						$three=$result->three;
+						$four=$result->four;
+						$five=$result->five;
+						$six=$result->six;
+						if($rows2->basic_salary<$one){
+							
+							
+						}
+						if($rows2->basic_salary<$two){
+							$TaxCal=0;
+							
+						}
+						if($rows2->basic_salary>=$two && $rows2->basic_salary<$three){
+							$TaxCal=(20/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$three && $rows2->basic_salary<$four){
+							$TaxCal=(25/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$four && $rows2->basic_salary<$five){
+							$TaxCal=(30/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$five && $rows2->basic_salary<$six){
+							$TaxCal=(32/100)*$rows2->basic_salary;
+							
+						}
+						if($rows2->basic_salary>=$six){
+							$TaxCal=(35/100)*$rows2->basic_salary;	
+						}
+                    }
+
+                }
+                $AdjPlus=0;
+				$AdjNeg=0;
+				$EMPIID=$rows2->employee_id;
+				$SALARYID=$rows2->salary_id;
+                $get_adjustment = DB::connection('mysql')->select("SELECT * FROM hr_employee_adjustment 
+                                WHERE employee_adjustment_emp_id='$EMPIID' AND employee_adjustment_payroll_id='$SALARYID' AND employee_adjustment_active='1'");
+                foreach($get_adjustment as $result){
+                    if($result->employee_adjustment_amount<0){
+                        $AdjNeg=$AdjNeg+$result->employee_adjustment_amount;
+                    }
+                    if($result->employee_adjustment_amount>-1){
+                        $AdjPlus=$AdjPlus+$result->employee_adjustment_amount;
+                    }
+                }
+                $plus=$onethreeiet+$AdjPlus;
+				$neg=$SSSCal+$PhilhealthCal+$PagibigCal+$TaxCal-$AdjNeg;
+				$totalonethree=$plus-$neg;
+                $tablecontent.="<tr>";
+                    $tablecontent.='<td>';
+                    $tablecontent.=$rows2->employee_id;
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=ucwords(strtolower($rows2->lname.", ".$rows2->fname." ".$rows2->mname));
+                    $tablecontent.='</td>';
+                    
+                    $tablecontent.='<td>';
+                    $tablecontent.=number_format($totalonethree,2);
+                    $tablecontent.='</td>';
+                $tablecontent.='</tr>';
+                
+            }
+        }
+        $tablecontent.='</tbody></table>';
+        return $tablecontent;
+    }
+    private function setexcluded_emp_payroll_review($Selected){
+        $Sel=$Selected;
+        $tablecontent='<table class="table table-bordered table-sm" style="background-color:white;">
+                <thead style="background-color:#124f62; color:white;">
+                  <tr>
+                    <th>ID</th><th>Name</th><th></th>
+                  </tr>
+                </thead>
+                <tbody >';
+        
+        $a=HR_Company_payroll_computation::first();
+        $numofdayspermonth=$a->work_day_per_month;
+        $employee_list = DB::connection('mysql')->select("SELECT * FROM hr_employee_info 
+        JOIN 
+        hr_employee_salary ON hr_employee_info.employee_id=hr_employee_salary.emp_id 
+        JOIN hr_payroll ON hr_payroll.payroll_id=hr_employee_salary.payroll_id 
+        JOIN hr_employee_salary_detail ON hr_employee_salary_detail.emp_id=hr_employee_info.employee_id 
+        WHERE hr_employee_salary.payroll_id='$Sel' AND hr_employee_salary.salary_status='0'");
+        foreach($employee_list as $rows2){
+                $tablecontent.="<tr>";
+                    $tablecontent.='<td>';
+                    $tablecontent.=$rows2->employee_id;
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.=ucwords(strtolower($rows2->lname.", ".$rows2->fname." ".$rows2->mname));
+                    $tablecontent.='</td>';
+                    $tablecontent.='<td>';
+                    $tablecontent.='<button onclick="includeEmp(\''.$rows2->employee_id.'\',\''.$Selected.'\')" class="btn btn-xs btn-success"><i class="fa fa-share" aria-hidden="true"></i></button>';
+                    $tablecontent.='</td>';
+                $tablecontent.='</tr>';
+            
+        }
+        $tablecontent.='</tbody></table>';
+        return $tablecontent;
+    }
+    public function include_emp_salary(Request $request){
+        $data=HR_hr_employee_salary::where([
+            ['emp_id','=',$request->emp_id],
+            ['payroll_id','=',$request->id]
+        ])->first();
+        
+        $data->salary_status='1';
+        $data->salary_include_note=$request->reason;
         $data->save();
     }
 }

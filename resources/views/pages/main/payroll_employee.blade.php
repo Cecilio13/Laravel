@@ -517,12 +517,135 @@
             </div>
         </div>
         <div class="tab-pane fade {{($page=='4'? 'active show' : '' )}}" id="REVIEW" role="tabpanel" aria-labelledby="REVIEW-tab">
-            <div class="container-fluid" >
+            <div class="container-fluid" style="padding-bottom:10px;">
                 <div class="row">
                     <div class="col-md-12">
                         <h2 style="font-weight:bold;color:#083240;margin-top:10px;margin-bottom:0px;">REVIEW AND PROCESS</h2>
                     </div>
                 </div>
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-6">
+                    
+                    <a class="btn btn-primary" id="downloadexcelbuttonpayrollindividual" href="{{asset('extra/import_file/payroll_report.xlsx')}}" download>Download Excel</a>
+                    <script>
+                    function GeneratePayrollSummaryExcel(){
+                        var x = document.getElementById('SelectReviewAndProcess').value;
+                        
+                        // $.ajax({
+                        //     type: 'POST',
+                        //     url: ' extra/edit_excel/summary.php',                
+                        //     data: {INPUT:x},
+                        // success: function(data) {
+                        // //	console.log(data);
+                        // location.href='download2.php?file=extra/edit_excel/'+x+'.xlsx';	
+                        // } 											 
+                        // })
+                        
+                    }
+                    </script>
+                    <script>
+                        $(document).ready(function(){
+                            ChangeReviewAndProcess();
+                        })
+                        function ChangeReviewAndProcess(){
+                            var x = document.getElementById('SelectReviewAndProcess').value;
+                            //review_payroll
+                            // $.ajax({
+                            //     type: 'POST',
+                            //     url: ' ReplaceReviewAndProcess.php',                
+                            //     data: {INPUT:x},
+                            // success: function(data) {
+                            //     $( "#ReviewAndProcessTable" ).replaceWith( data );
+                                
+                            // } 											 
+                            // })
+                            $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'review_payroll',                
+                                data:{id:x,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    $( "#ReviewAndProcessTable" ).replaceWith( data );
+                                    var a = document.getElementById('downloadexcelbuttonpayrollindividual'); //or grab it by tagname etc
+                                    a.href = "{{asset('extra/import_file/payroll_report.xlsx')}}";   
+                                }
+                            })
+                        }
+                    </script>
+                    </div>
+                    <div class="col-md-6" >
+                        <script>
+                        $(document).ready(function(){
+                            
+                            $("#process_payroll_form").submit(function(e) {
+                            e.preventDefault();
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'process_payroll',                
+                                data: $('#process_payroll_form').serialize(),
+                                success: function(data) {
+                                    console.log(data);
+                                    Swal.fire({
+                                    type: 'success',
+                                    title: 'Success',
+                                    text: 'Successfully Processed Payroll',
+                                    
+                                    }).then((result) => {
+                                        location.href="employee?page=4";
+                                    })
+                                }  
+                                }) 
+                            });
+                        })
+                        </script>
+                        <form id="process_payroll_form">
+                        <div class="form-inline" style="float:right">
+                        <select class="form-control" id="SelectReviewAndProcess" name="SelectedPayroll" onchange="ChangeReviewAndProcess()" style="margin-right:10px;">
+                            @foreach ($unprocessed_payroll_list as $item)
+                                <option value="{{$item->payroll_id}}">{{"Period : ".$item->period.", ".$item->payroll_year." ".$item->payroll_month." - ".$item->payroll_type." -- ".$item->employee_type}}</option>
+                            @endforeach
+                        </select>
+                        <input type="submit" class="btn btn-primary" name="SubmitProcessPayroll" value="Process Payroll">
+                        </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row" id="ReviewAndProcessTable" style="margin-top:10px;">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-sm" style="background-color:white;">
+                            <thead style="background-color:#124f62; color:white;">
+                              <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Period</th>
+                                <th>Basic</th>
+                                <th>DeMinimis</th>
+                                <th>OT / Rest Day Pay</th>
+                                <th>Abs &amp; Late</th>
+                                <th>SSS</th>
+                                <th>PhilHealth</th>
+                                <th>Pag-ibig</th>
+                                <th>Tax</th>
+                                
+                                <th>Adj(+)</th>
+                                <th>Adj(-)</th>
+                                <th>Net Amount</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                          
+                            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

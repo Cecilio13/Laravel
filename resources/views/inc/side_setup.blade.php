@@ -6,7 +6,7 @@
         <li>
         <a style="color:white;text-align:center;width:100%;background-color:rgb(8, 50, 64);" class="btn btn-link" href="#">
             <img src="{{asset('images/noimage.png')}}"  style="width:50%; border-radius: 50%;border:solid 2px white;margin-bottom:10px;">
-            <br><span style="font-weight:bold;">Cecilio Frederico Deticio</span><br><span>HR</span>
+            <br><span style="font-weight:bold;">{{$user_position->name}}</span><br><span>"{{$user_position->position!=""? $user_position->position :' '}}"</span>
         </a>
         </li>
         <li class="nav-divider"></li>

@@ -56,6 +56,11 @@
         url: 'get_cash_advance_data',                
         data: {id:id,_token: '{{csrf_token()}}'},
         success: function(data) {
+            document.getElementById('hidden_cash_advance_id').value=data['cash_advance_id'];
+            document.getElementById('hidden_balance').value=data['balance'];
+            document.getElementById('hidden_emp_id').value=data['emp_id'];
+            document.getElementById('hidden_lender_id').value=data['lender_id'];
+            document.getElementById('hidden_cash_advance_type').value=data['loan_type'];
             document.getElementById('cashadvance_emp_name').value=data['emp_id'];
             document.getElementById('PaymentAmount').value=data['balance'];
             document.getElementById('PaymentAmount').max=data['balance'];
@@ -66,6 +71,17 @@
             document.getElementById('cash_advance_enddeduction').innerHTML=formatDate(data['end_of_deduction']);
             document.getElementById('cashadvance_balance').innerHTML=number_format(data['balance']);
             document.getElementById('cashadvance_total_amount_paid').innerHTML=number_format(data['total_amount']-data['balance']);
+            $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: 'get_employee_payroll',                
+            data: {id:data['emp_id'],_token: '{{csrf_token()}}'},
+            success: function(data) {
+                $( "#PayrollPeriod" ).replaceWith( data );
+            }  
+            }) 
             $('#AddPaymentModal').modal('show');
         }  
         }) 

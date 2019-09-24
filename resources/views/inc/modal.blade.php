@@ -1386,25 +1386,25 @@ $(document).ready(function(){
     
     $("#add_payment_to_cash_advance_form").submit(function(e) {
     e.preventDefault();
-        // $.ajax({
-        // type: 'POST',
-        // headers: {
-        //     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        // },
-        // url: 'add_cash_advance',                
-        // data: $('#add_payment_to_cash_advance_form').serialize(),
-        // success: function(data) {
-        //     console.log(data);
-        //     Swal.fire({
-        //     type: 'success',
-        //     title: 'Success',
-        //     text: 'Successfully Added Cash Advance',
+        $.ajax({
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: 'add_payment_to_cash_advance',                
+        data: $('#add_payment_to_cash_advance_form').serialize(),
+        success: function(data) {
+            console.log(data);
+            Swal.fire({
+            type: 'success',
+            title: 'Success',
+            text: 'Successfully Added Payment',
             
-        //     }).then((result) => {
-        //         location.href="cash_advance";
-        //     })
-        // }  
-        // }) 
+            }).then((result) => {
+                location.href="cash_advance";
+            })
+        }  
+        }) 
     });
 })
 </script>
@@ -1418,11 +1418,11 @@ $(document).ready(function(){
         
       </div>
       <form id="add_payment_to_cash_advance_form">
-      <input type="hidden" name="hidden_cash_advance_id" value="1">
-      <input type="hidden" name="hidden_balance" value="20000">
-      <input type="hidden" name="hidden_emp_id" value="jbalagot06">
-      <input type="hidden" name="hidden_lender_id" value="kkc.ccastillo">
-      <input type="hidden" name="hidden_cash_advance_type" value="Colleague">
+      <input type="hidden" name="hidden_cash_advance_id" id="hidden_cash_advance_id" value="1">
+      <input type="hidden" name="hidden_balance" id="hidden_balance" value="">
+      <input type="hidden" name="hidden_emp_id" id="hidden_emp_id" value="">
+      <input type="hidden" name="hidden_lender_id" id="hidden_lender_id" value="">
+      <input type="hidden" name="hidden_cash_advance_type" id="hidden_cash_advance_type" value="">
       <div class="modal-body">
         <h3>Overview</h3>
         <table class="table" style="width:50%">
@@ -1449,8 +1449,10 @@ $(document).ready(function(){
             <tr>
                 <td style="vertical-align:middle;font-weight:bold;">Payroll</td>
                 <td style="vertical-align:middle;">
-                <select class="form-control" name="PayrollPeriod">
-                                                
+                <select class="form-control" name="PayrollPeriod" id="PayrollPeriod">
+                        @foreach ($unprocessed_payroll_list as $item)
+                            <option value="{{$item->payroll_id}}">{{"Period : ".$item->period.", ".$item->payroll_year." ".$item->payroll_month." - ".$item->payroll_type." -- ".$item->employee_type}}</option>
+                        @endforeach                          
                 </select>
                 </td>
             </tr>
@@ -1834,3 +1836,23 @@ $(document).ready(function(){
       </div>
     </div>
   </div>
+
+
+<div id="ViewSummaryPayrollModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal Header</h5>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        
+      </div>
+      <div class="modal-body">
+        <p>Some text in the modal.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
