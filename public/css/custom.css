@@ -2821,6 +2821,15 @@ display: none;
   background-color:#d74575;
   font-weight:bold;
 }
+.govt_report_tabs li>a {
+  padding:10px 15px;
+}
+#govtreporttabpane .tab-pane{
+  /* background-color: transparent !important; */
+}
+.form-custom-govt{
+  margin-right:5px;
+}
 
 
 

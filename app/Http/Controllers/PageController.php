@@ -1356,7 +1356,7 @@ class PageController extends Controller
     }
     public function govt_report(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
+        return view('pages.main.govt_report', compact('None'));
     
     }
     public function asset_management(Request $request){
