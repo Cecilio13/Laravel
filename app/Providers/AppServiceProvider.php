@@ -50,6 +50,7 @@ use App\HR_cash_advance_loan_type;
 use App\HR_payroll;
 use App\HR_hr_employee_adjustment;
 use App\HR_hr_employee_attendance;
+use App\HR_hr_cash_advances_payment;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -198,6 +199,7 @@ class AppServiceProvider extends ServiceProvider
         }
         
         view()->share('employee_attendance_list', HR_hr_employee_attendance::all());
+        view()->share('payroll_year_list', HR_payroll::select('payroll_year')->groupBy('payroll_year')->orderBy('payroll_year', 'DESC')->get());
         view()->share('unprocessed_payroll_list', HR_payroll::where([
             ['process_status','=','0']
         ])->get());

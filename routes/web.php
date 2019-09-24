@@ -111,6 +111,12 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/review_payroll', 'FormController@review_payroll');
     Route::post('/process_payroll', 'FormController@process_payroll');
     Route::post('/get_excluded_employee_from_payroll', 'FormController@get_excluded_employee_from_payroll');
+    Route::post('/get_employee_payroll', 'FormController@get_employee_payroll');
+    Route::post('/add_payment_to_cash_advance', 'FormController@add_payment_to_cash_advance');
+    Route::post('/get_payroll_list_summary', 'FormController@get_payroll_list_summary');
+    Route::post('/post_payroll', 'FormController@post_payroll');
+    Route::post('/view_payroll_summary_modal', 'FormController@view_payroll_summary_modal');
+    Route::post('/include_emp_salary', 'FormController@include_emp_salary');
     
 
     

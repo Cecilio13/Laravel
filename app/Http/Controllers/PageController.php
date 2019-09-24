@@ -55,6 +55,7 @@ use App\HR_hr_employee_adjustment;
 use DateTime;
 use DatePeriod;
 use DateInterval;
+use App\HR_hr_cash_advances_payment;
 class PageController extends Controller
 {
     public function access_denied(Request $request){
@@ -153,7 +154,7 @@ class PageController extends Controller
     }
     public function payroll(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
+        return view('pages.main.payroll_dashboard', compact('None'));
     
     }
     public function create_payroll(Request $request){
