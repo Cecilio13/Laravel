@@ -10,12 +10,13 @@
         </a>
         </li>
         <li class="nav-divider"></li>
-
+        @if ($user_position->access_bulletin=='1')
 		<li id="Z"><a style="color:white;" href="bulletin"><i class="fa fa-calendar" aria-hidden="true"></i> Bulletin</a></li>
-        
-        
+        @endif
+        @if ($user_position->access_ceo=='1')
         <li id="A"><a style="color:white;" href="ceo"><i class="fa fa-bar-chart" aria-hidden="true"></i> CEO</a></li>
-		
+        @endif
+        @if ($user_position->access_hr=='1')
         <li id="B" class="btn-group" >
 			<a style="color:white;text-align:left;width:80%;white-space: normal;" class="btn btn-link" id="HRBTN" href="hr"  ><i class="fa fa-user" aria-hidden="true"></i> HR</a>
 			<a style="color:white;border-left:1px solid #124f62;" class="btn btn-link" id="HRBTN"  onclick="Showsubmenu('HR');list()"><i class="fa fa-chevron-down" aria-hidden="true"></i></a>
@@ -26,7 +27,8 @@
         <li  id="subHR3"><a style="color:white;padding-left:20%;" href="memo"><i class="fa fa-file-text" aria-hidden="true"></i> Memo</a></li>
         <li  id="subHR5"><a style="color:white;padding-left:20%;" href="form_generator"><i class="fa fa-folder" aria-hidden="true"></i> Form Generator</a></li>
         <li  id="subHR7"><a style="color:white;padding-left:20%;" href="cash_advance"><i class="fa fa-bolt" aria-hidden="true"></i> Cash Advance</a></li>
-        
+        @endif
+        @if ($user_position->access_payroll=='1')
         {{-- <li id="C"><a style="color:white;" href="#"><span class="glyphicon glyphicon-list-alt"></span> Accounting</a></li> 
         <li id="C2"><a style="color:white;" href="purchase_order.php"><span class="glyphicon glyphicon-search"></span> Purchase Order</a></li>  --}}
         <li id="D" class="btn-group">
@@ -38,6 +40,8 @@
         <li id="subPayroll3"><a style="color:white;padding-left:20%;" href="employee"><i class="fa fa-user" aria-hidden="true"></i> Employee</a></li>
         <li id="subPayroll4"><a style="color:white;padding-left:20%;" href="payroll_report"><i class="fa fa-folder" aria-hidden="true"></i>  Payroll Report</a></li>
         <li id="subPayroll5"><a style="color:white;padding-left:20%;" href="govt_report"><i class="fa fa-server" aria-hidden="true"></i>  Gov't Report</a></li>
+        @endif
+        @if ($user_position->access_asset_namagement=='1')
         <li id="E" class="btn-group">
         <a style="color:white;text-align:left;width:80%;white-space: normal;border-radius:0px" class="btn " href="asset_management" id="INVBTN"><i class="fa fa-archive" aria-hidden="true"></i> Asset Management</a>
         <a style="color:white;border-left:1px solid #124f62;" class="btn btn-link" id="HRBTN"  onclick="Showsubmenu('INV');"><i class="fa fa-chevron-down" aria-hidden="true"></i></a>
@@ -48,12 +52,16 @@
         <li id="subInv4" ><a style="color:white;padding-left:20%;" href="audit"><i class="fa fa-list-alt" aria-hidden="true"></i> Audit</a></li>
         <li id="subInv5" ><a style="color:white;padding-left:20%;" href="report"><i class="fa fa-clipboard" aria-hidden="true"></i> Report</a></li>
         <li id="subInv6" ><a style="color:white;padding-left:20%;" href="print_qr"><i class="fa fa-print" aria-hidden="true"></i> Print QR</a></li>
-
+        @endif
+        @if ($user_position->access_company_setup=='1123')
         <li id="F"><a style="color:white;" href="#"><i class="fa fa-tasks" aria-hidden="true"></i> Department</a></li>
-
+        @endif
+        @if ($user_position->access_company_setup=='1123')
         <li id="G"><a style="color:white;" href="#"><i class="fa fa-briefcase" aria-hidden="true"></i> Project Management</a></li>
-
+        @endif
+        @if ($user_position->access_company_setup=='123')
         <li id="H"><a style="color:white;" id="" href="employee_dashboard"><i class="fa fa-tachometer" aria-hidden="true"></i> Employee</a></li>
+        @endif
     </ul>
     <style>
         #subHR2,#subHR3,#subHR4,#subHR5  ,#subPayroll,#subPayroll2,#subPayroll3,#subPayroll4,#subPayroll5 

@@ -10,6 +10,13 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+use App\Http\Middleware\HRMiddleWare;
+use App\Http\Middleware\PayrollMiddleWare;
+use App\Http\Middleware\SetupMiddleWare;
+use App\Http\Middleware\BulletinMiddleWare;
+use App\Http\Middleware\CEOMiddleWare;
+use App\Http\Middleware\AssetMiddleWare;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -17,38 +24,41 @@ Route::group(['middleware'=>['auth']], function() {
     Route::get('/router', 'HomeController@router');
     Route::get('/access_denied', 'PageController@access_denied');
     Route::get('/test_page', 'PageController@test_page');
-    Route::get('/bulletin', 'PageController@bulletin');
-    Route::get('/ceo', 'PageController@ceo');
-    Route::get('/hr', 'PageController@hr');
-    Route::get('/employee_list', 'PageController@employee_list');
-    Route::get('/add_employee', 'PageController@add_employee');
-    Route::get('/view_employee', 'PageController@view_employee');
-    Route::get('/memo', 'PageController@memo');
-    Route::get('/form_generator', 'PageController@form_generator');
-    Route::get('/cash_advance', 'PageController@cash_advance');
-    Route::get('/payroll', 'PageController@payroll');
-    Route::get('/create_payroll', 'PageController@create_payroll');
-    Route::get('/employee', 'PageController@employee');
-    Route::get('/payroll_report', 'PageController@payroll_report');
-    Route::get('/govt_report', 'PageController@govt_report');
-    Route::get('/asset_management', 'PageController@asset_management');
-    Route::get('/asset_management_dispose', 'PageController@asset_management_dispose');
-    Route::get('/asset', 'PageController@asset');
-    Route::get('/transaction', 'PageController@transaction');
-    Route::get('/audit', 'PageController@audit');
-    Route::get('/audit_detail', 'PageController@audit_detail');
-    Route::get('/report', 'PageController@report');
-    Route::get('/print_qr', 'PageController@print_qr');
+    Route::get('/bulletin', 'PageController@bulletin')->middleware(BulletinMiddleWare::class);
+    Route::get('/ceo', 'PageController@ceo')->middleware(CEOMiddleWare::class);
+
+    Route::get('/employee_list', 'PageController@employee_list')->middleware(HRMiddleWare::class);
+    Route::get('/add_employee', 'PageController@add_employee')->middleware(HRMiddleWare::class);
+    Route::get('/view_employee', 'PageController@view_employee')->middleware(HRMiddleWare::class);
+    Route::get('/memo', 'PageController@memo')->middleware(HRMiddleWare::class);
+    Route::get('/form_generator', 'PageController@form_generator')->middleware(HRMiddleWare::class);
+    Route::get('/hr', 'PageController@hr')->middleware(HRMiddleWare::class);
+    Route::get('/cash_advance', 'PageController@cash_advance')->middleware(HRMiddleWare::class);
+
+    Route::get('/payroll', 'PageController@payroll')->middleware(PayrollMiddleWare::class);
+    Route::get('/create_payroll', 'PageController@create_payroll')->middleware(PayrollMiddleWare::class);
+    Route::get('/employee', 'PageController@employee')->middleware(PayrollMiddleWare::class);
+    Route::get('/payroll_report', 'PageController@payroll_report')->middleware(PayrollMiddleWare::class);
+    Route::get('/govt_report', 'PageController@govt_report')->middleware(PayrollMiddleWare::class);
+
+    Route::get('/asset_management', 'PageController@asset_management')->middleware(AssetMiddleWare::class);
+    Route::get('/asset_management_dispose', 'PageController@asset_management_dispose')->middleware(AssetMiddleWare::class);
+    Route::get('/asset', 'PageController@asset')->middleware(AssetMiddleWare::class);
+    Route::get('/transaction', 'PageController@transaction')->middleware(AssetMiddleWare::class);
+    Route::get('/audit', 'PageController@audit')->middleware(AssetMiddleWare::class);
+    Route::get('/audit_detail', 'PageController@audit_detail')->middleware(AssetMiddleWare::class);
+    Route::get('/report', 'PageController@report')->middleware(AssetMiddleWare::class);
+    Route::get('/print_qr', 'PageController@print_qr')->middleware(AssetMiddleWare::class);
     Route::get('/department', 'PageController@department');
     Route::get('/project_management', 'PageController@project_management');
-    Route::get('/hr', 'PageController@hr');
+    
     
     Route::get('/employee_dashboard', 'PageController@employee_dashboard');
 
     
-    Route::get('/setup_company', 'PageController@setup_company');
-    Route::get('/setup_payroll', 'PageController@setup_payroll');
-    Route::get('/setup_references', 'PageController@setup_references');
+    Route::get('/setup_company', 'PageController@setup_company')->middleware(SetupMiddleWare::class);
+    Route::get('/setup_payroll', 'PageController@setup_payroll')->middleware(SetupMiddleWare::class);
+    Route::get('/setup_references', 'PageController@setup_references')->middleware(SetupMiddleWare::class);
 
     Route::post('/update_company_setup_data', 'FormController@update_company_setup_data');
     Route::post('/update_company_bank_data', 'FormController@update_company_bank_data');

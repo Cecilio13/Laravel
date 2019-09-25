@@ -10,12 +10,15 @@
         </a>
         </li>
         <li class="nav-divider"></li>
-
+        @if ($user_position->access_company_setup=='1')
+            
+        
 		<li id="setup_companyli"><a style="color:white;" href="setup_company"><i class="fa fa-building" aria-hidden="true"></i> Company</a></li>
         
         
         <li id="setup_payrollli"><a style="color:white;" href="setup_payroll"><i class="fa fa-money" aria-hidden="true"></i> Payroll</a></li>
         <li id="setup_referencesli"><a style="color:white;" href="setup_references"><i class="fa fa-cogs" aria-hidden="true"></i> References</a></li>
+        
 		<script>
         $(document).ready(function(){
             var url = document.location.href;
@@ -44,4 +47,5 @@
         
         });
         </script>
+        @endif
 </div>

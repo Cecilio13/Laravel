@@ -4,23 +4,22 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
-
-class RedirectIfAuthenticated
+class CEOMiddleWare
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @param  string|null  $guard
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle($request, Closure $next)
     {
-        if (Auth::guard($guard)->check()) {
-            return redirect('/home');
+        if(Auth::check() && Auth::user()->access_ceo=='1'){
+            
+            return $next($request);
+            
         }
-        
-        return $next($request);
+            return redirect('/access_denied');
     }
 }

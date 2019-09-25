@@ -42,7 +42,27 @@ class HomeController extends Controller
         }
 
         if($AccessTrue==1){
-            return redirect('/test_page');
+            if(Auth::user()->access_bulletin=='1'){
+                return redirect('/bulletin');
+            }
+            if(Auth::user()->access_ceo=='1'){
+                return redirect('/ceo');
+            }
+            if(Auth::user()->access_hr=='1'){
+                return redirect('/hr');
+            }
+            if(Auth::user()->access_payroll=='1'){
+                return redirect('/payroll');
+            }
+            if(Auth::user()->access_asset_namagement=='1'){
+                return redirect('/asset_management');
+            }
+            if(Auth::user()->access_company_setup=='1'){
+                return redirect('/setup_company');
+            }else{
+                return redirect('/access_denied');
+            }
+            
         }else{
             return redirect('/access_denied');
         }
