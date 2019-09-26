@@ -1413,8 +1413,48 @@ class PageController extends Controller
     }
     public function employee_dashboard(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
-    
+        $id=$request->id;
+        $emp_info= HR_hr_employee_info::find($id);
+        $emp_emergency_contact= HR_hr_employee_emergency_contact::where([
+            ['emp_id','=',$id]
+        ])->get();
+        $emp_alt_contact= HR_hr_employee_alt_contact::where([
+            ['emp_id','=',$id]
+        ])->get();
+        $emp_email_address= HR_hr_employee_email::where([
+            ['emp_id','=',$id]
+        ])->get();
+        
+        $emp_educ= HR_hr_employee_education::where([
+            ['emp_id','=',$id]
+        ])->get();
+        $emp_trainer= HR_hr_employee_trainer::where([
+            ['emp_id','=',$id]
+        ])->get();
+        $emp_seminar= HR_hr_employee_seminar::where([
+            ['emp_id','=',$id]
+        ])->get();
+        $emp_salary_detail= HR_hr_employee_salary_detail::where([
+            ['emp_id','=',$id]
+        ])->first();
+        $emp_job_detail= HR_hr_employee_job_detail::where([
+            ['emp_id','=',$id]
+        ])->first();
+        $emp_files="";
+        if($id!=""){
+            $path = '/public/employee_file/'.$id;
+            $emp_files = Storage::allFiles($path);
+        }
+        
+        
+        $emp_leave= HR_hr_employee_leavemanagement::where([
+            ['emp_id','=',$id]
+        ])->first();
+        $emp_sched= HR_hr_employee_schedule_detail::where([
+            ['emp_id','=',$id]
+        ])->get();
+        
+        return view('pages.main.employee_dashboard', compact('emp_sched','emp_leave','emp_job_detail','emp_files','emp_salary_detail','None','id','emp_info','emp_emergency_contact','emp_alt_contact','emp_email_address','emp_educ','emp_trainer','emp_seminar'));    
     }
 
     public function setup_company(Request $request){
