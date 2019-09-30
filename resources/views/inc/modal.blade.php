@@ -1,5 +1,45 @@
 <div class="loading" id="loading_spinner"></div>
 <script>
+    function dropdown_toggle_inter(e){
+        e.click();
+        e.click();
+
+    }
+    var notifcount=0;
+    function load_unseen_notification(){
+		console.log('Refreshing Notification...');
+		$.ajax({
+            url:"fetch_notif",
+            method:"POST",
+            data:{id:'<?php echo $user_position->id; ?>',_token: '{{csrf_token()}}'},
+            dataType:"json",
+            success:function(data){
+                $('.notif-drop').html(data.notification);
+            
+                if(data.unseen_notification > 0){
+                    $('.notif_count').html(data.unseen_notification);
+                    if(notifcount!=data.unseen_notification){
+                        //play();
+                        notifcount=data.unseen_notification;
+                    }
+                }
+            }
+		});
+		 
+	}
+    function clearnotif(){
+		$.ajax({
+			type: 'POST',
+			url: ' clearnotif',                
+			data: {id:'<?php echo $user_position->id; ?>',_token: '{{csrf_token()}}'},
+		success: function(data) {
+			$( "#notifbadge" ).replaceWith('<span class="badge count" id="notifbadge"></span>');
+			load_unseen_notification();
+			
+		} 											 
+		})
+
+	}
     function start_spinner(){
         document.getElementById('loading_spinner').style.display="block";
     }
@@ -7,6 +47,12 @@
         document.getElementById('loading_spinner').style.display="none";
     }
     $(document).ready(function(){
+        load_unseen_notification();
+        setInterval(function(){
+		 
+		 load_unseen_notification();
+		 
+		}, 5000);
         stop_spinner();
     });
     function formatDate (input) {
