@@ -17,10 +17,13 @@ use App\Http\Middleware\BulletinMiddleWare;
 use App\Http\Middleware\CEOMiddleWare;
 use App\Http\Middleware\AssetMiddleWare;
 
+
 Route::get('/', function () {
     return view('welcome');
 });
+
 Route::group(['middleware'=>['auth']], function() {
+
     Route::get('/router', 'HomeController@router');
     Route::get('/access_denied', 'PageController@access_denied');
     Route::get('/test_page', 'PageController@test_page');
@@ -127,8 +130,10 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/post_payroll', 'FormController@post_payroll');
     Route::post('/view_payroll_summary_modal', 'FormController@view_payroll_summary_modal');
     Route::post('/include_emp_salary', 'FormController@include_emp_salary');
+    Route::post('/fetch_notif', 'NotifController@fetch_notif');
+    Route::post('/clearnotif', 'NotifController@clearnotif');
     
-
+    
     
 });
 
@@ -137,6 +142,7 @@ Route::get('/clear-cache', function() {
     Artisan::call('cache:clear');
     return redirect('/');
 });
+
 Auth::routes();
 Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 

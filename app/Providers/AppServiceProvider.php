@@ -51,6 +51,7 @@ use App\HR_payroll;
 use App\HR_hr_employee_adjustment;
 use App\HR_hr_employee_attendance;
 use App\HR_hr_cash_advances_payment;
+use App\HR_hr_notification;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -198,6 +199,7 @@ class AppServiceProvider extends ServiceProvider
             $a->save();
         }
         
+        
         view()->share('employee_attendance_list', HR_hr_employee_attendance::all());
         view()->share('payroll_year_list', HR_payroll::select('payroll_year')->groupBy('payroll_year')->orderBy('payroll_year', 'DESC')->get());
         view()->share('unprocessed_payroll_list', HR_payroll::where([
@@ -321,6 +323,10 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('user_position', Auth::user());
                 $view->with('UserAccessList', UserAccess::where('user_id',Auth::user()->id)->get());
                 $view->with('UserAccessCostCenterList', UserCostCenterAccess::where('use_id',Auth::user()->id)->get());
+                $view->with('notif_count', count(HR_hr_notification::where([
+                    ['notif_target','=',Auth::user()->id],
+                    ['notif_status','=','1']
+                ])->get()));
                 
             }else {
                 $view->with('user_position', null);

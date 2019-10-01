@@ -2,7 +2,7 @@
 <html lang="{{ app()->getLocale() }}">
     <link rel="apple-touch-icon" href="{{asset('images/icon.png')}}">
     <link rel="shortcut icon" href="{{asset('images/icon.png')}}">
-<?php
+<?php    
     //auto refresh
     //echo "<meta http-equiv='refresh' content='1' >";
 ?>
@@ -22,6 +22,7 @@
             @include('inc.modal')
         
             @yield('content')
+
             @include('inc.footer')
         </div>
     </body>
