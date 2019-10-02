@@ -56,6 +56,7 @@ use DateTime;
 use DatePeriod;
 use DateInterval;
 use App\HR_hr_cash_advances_payment;
+use App\HR_hr_asset_transaction_log;
 class PageController extends Controller
 {
     public function access_denied(Request $request){
@@ -1357,11 +1358,12 @@ class PageController extends Controller
     public function govt_report(Request $request){
         $None="";
         return view('pages.main.govt_report', compact('None'));
-    
+        
     }
     public function asset_management(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
+        $asset_transaction_log=HR_hr_asset_transaction_log::all();
+        return view('pages.test', compact('None','asset_transaction_log'));
     
     }
     public function asset_management_dispose(Request $request){
