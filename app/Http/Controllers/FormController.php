@@ -61,7 +61,7 @@ class FormController extends Controller
     public function update_company_setup_data(Request $request){
         $company = HR_Company_Basic_Info::first();
         if(!empty($company)){
-
+            //added comment via github editorr
 
         }else{
             $company = new HR_Company_Basic_Info;
