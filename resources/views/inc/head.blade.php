@@ -27,3 +27,7 @@
 
         <link rel="stylesheet" type="text/css" href="{{asset('css/jquery-te-1.4.0.css')}}">
         <script src="{{asset('js/jquery-te-1.4.0.min.js')}}"></script>
+
+        <script src="{{asset('js/jq_mark.min.js')}}"></script>
+        <script type="text/javascript" src="{{asset('js/jquery.formatCurrency.js')}}"></script>
+        <script type="text/javascript" src="https://cdn.rawgit.com/asvd/dragscroll/master/dragscroll.js"></script>

@@ -1902,3 +1902,588 @@ $(document).ready(function(){
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="AssetSetupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog  modal-lg" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-borderless table-sm" style="background-color:white;">
+                <thead style="background-color:#124f62; color:white;">
+                    <tr>
+                        <th colspan="5">Asset Setup and Reference</th>
+                    </tr>
+                    <tr style="background-color:white; color:#124f62;">
+                        <th colspan="4"></th>
+                        <th colspan="1">
+                        <select class="form-control" onchange="ChangeForm(this)">
+                            <option>Asset Tag</option>
+                            <option>Site & Location</option>
+                        </select>
+                        <script>
+                            function ChangeForm(e){
+                                // document.getElementById('SaveBtnAssetSetup').disabled=false;
+                                // $.ajax({
+                                //     type: 'POST',
+                                //     url: 'SetAssetSetup.php',                
+                                //     data: {Set:e.value},
+                                // success: function(data) {
+                                //     $( "#AssetSetup_TBody" ).replaceWith( data );
+                                // } 											 
+                                // })
+                                
+                            }
+                        </script>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="AssetSetup_TBody">
+                    <tr style="display:none;">
+                        <td  style="vertical-align: middle;text-align:right;color:#083240;">Asset Tag *</td>
+                        <td  style="vertical-align: middle;"><input type="text" class="form-control" name="AssetTagSetup"  oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" ></td>
+                        <td  ></td>
+                        <td  ></td>
+                    </tr>
+                    <tr style="display:none;">
+                        <td style="vertical-align: middle;text-align:right;color:#083240;">Asset Type *</td>
+                        <td style="vertical-align: middle;">
+                        <select class="form-control"  name="AssetTypeSetup" id="setuptype"  >
+                        <option value="Current Asset">Current Asset</option>
+                        <option value="Non-Current Asset">Non-Current Asset</option>
+                        </select>
+                        </td>
+                        
+                    </tr>
+                    <tr>
+                        <td width="15%" style="vertical-align: middle;text-align:right;color:#083240;">Asset Description</td>
+                        <td width="25%" style="vertical-align: middle;"><input type="text" required class="form-control" id="Descrrrr2" style="text-transform: capitalize" onclick="ShowSearchAssetDesc(),CheckAssetTagaCombination()" onkeyup="CheckAssetTagaCombination(),ShowSearchAssetDesc(),CheckCOde()"  onkeypress="return alphaOnly(event)" title="Characters(A-Z) Only" name="AssetDescriptionSetup" >
+                        <div id="AssetDescSearchREsult"></div>
+                        <script>
+                            function CheckAssetTagaCombination(){
+                                
+                                var desc=document.getElementById('Descrrrr2').value;
+                                var CN=document.getElementById('CN').value;
+                                var SC=document.getElementById('SC').value;
+                                //alert(desc+" "+CN+" "+SC);
+                                // $.ajax({
+                                //     type: 'POST',
+                                //     url: 'CheckCombination.php',                
+                                //     data: {desc:desc,CN:CN,SC:SC},
+                                // success: function(data) {
+                                //     //alert(data);
+                                //     if(data>0){
+                                        
+                                //         document.getElementById('ADCODE').style.borderColor='red';
+                                //         document.getElementById('CNCODE').style.borderColor='red';
+                                //         document.getElementById('SCCODE').style.borderColor='red';
+                                //         document.getElementById('Descrrrr2').style.borderColor='red';
+                                //         document.getElementById('CN').style.borderColor='red';
+                                //         document.getElementById('SC').style.borderColor='red';
+                                //         document.getElementById('SaveBtnAssetSetup').disabled=true;
+                                        
+                                //     }
+                                //     else{
+                                //         document.getElementById('ADCODE').style.borderColor='#ccc';
+                                //         document.getElementById('CNCODE').style.borderColor='#ccc';
+                                //         document.getElementById('SCCODE').style.borderColor='#ccc';
+                                //         document.getElementById('Descrrrr2').style.borderColor='#ccc';
+                                //         document.getElementById('CN').style.borderColor='#ccc';
+                                //         document.getElementById('SC').style.borderColor='#ccc';
+                                //         document.getElementById('SaveBtnAssetSetup').disabled=false;
+                                //     }
+                                // } 											 
+                                // })
+                                
+                            }
+                            function ShowSearchAssetDesc(){
+                                var desc=document.getElementById('Descrrrr2').value;
+                                $.ajax({
+                                    type: 'POST',
+                                    url: 'ShowSearchAssetDesc.php',                
+                                    data: {INPUT:desc},
+                                success: function(data) {
+                                    $( "#AssetDescSearchREsult" ).replaceWith( data );
+                                } 											 
+                                })
+                                
+                            }
+                        </script>
+                        </td>
+                        <td width="15%"style="vertical-align: middle;text-align:right;color:#083240;" >AD CODE</td>
+                        <td width="20%"style="vertical-align: middle;"><input type="text" required class="form-control" maxlength="5" id="ADCODE" style="text-transform: uppercase" onkeyup="AssetDescCOdeSearchREsult(),CheckAssetTagaCombination()" onclick="AssetDescCOdeSearchREsult(),CheckAssetTagaCombination()"  onkeypress="return alphaOnly(event)" title="Characters(A-Z) Only" name="AD_COde" value="">
+                        <div id="AssetDescCOdeSearchREsult"></div>
+                        <script>
+                            function AssetDescCOdeSearchREsult(){
+                                var desc=document.getElementById('ADCODE').value;
+                                
+                                // $.ajax({
+                                //     type: 'POST',
+                                //     url: 'AssetDescCOdeSearchREsult.php',                
+                                //     data: {INPUT:desc},
+                                // success: function(data) {
+                                //     $( "#AssetDescCOdeSearchREsult" ).replaceWith( data );
+                                // } 											 
+                                // })
+                                
+                            }
+                        </script>
+                        </td>
+                        <td width="40%"></td>
+                    </tr>
+                    
+                    <script>
+                        function CheckCOde(){
+                            var desc=document.getElementById('Descrrrr2').value;
+                            // $.ajax({
+                            //     type: 'POST',
+                            //     url: 'GetADCode.php',                
+                            //     data: {desc:desc},
+                            // success: function(data) {
+                            //     document.getElementById('ADCODE').value=data;
+                            //     if(data==""){
+                            //         document.getElementById('ADCODE').readOnly=false;
+                            //     }else{
+                            //         document.getElementById('ADCODE').readOnly=true;
+                            //     }
+                            // } 											 
+                            // })
+                        }
+                        function CheckCOdeCN(){
+                            var desc=document.getElementById('CN').value;
+                            // $.ajax({
+                            //     type: 'POST',
+                            //     url: 'GetCNCode.php',                
+                            //     data: {desc:desc},
+                            // success: function(data) {
+                            //     document.getElementById('CNCODE').value=data;
+                            //     if(data==""){
+                            //         document.getElementById('CNCODE').readOnly=false;
+                            //     }else{
+                            //         document.getElementById('CNCODE').readOnly=true;
+                            //     }
+                            // } 											 
+                            // })
+                        }
+                        function CheckCOdeSC(){
+                            var desc=document.getElementById('SC').value;
+                            // $.ajax({
+                            //     type: 'POST',
+                            //     url: 'GetSCCode.php',                
+                            //     data: {desc:desc},
+                            // success: function(data) {
+                            //     document.getElementById('SCCODE').value=data;
+                            //     if(data==""){
+                            //         document.getElementById('SCCODE').readOnly=false;
+                            //     }else{
+                            //         document.getElementById('SCCODE').readOnly=true;
+                            //     }
+                            // } 											 
+                            // })
+                        }
+                    </script>
+                    <tr style="display:none;">
+                        <td style="vertical-align: middle;text-align:right;color:#083240;">SKU</td>
+                        <td style="vertical-align: middle;"><input type="text" class="form-control" onkeypress="return alphaOnly(event)"  title="Characters(A-Z) Only"  name="AssetSKUSetup" ></td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="vertical-align: middle;text-align:right;color:#083240;">Category</td>
+                        <td style="vertical-align: middle;"><input type="text" class="form-control" required onkeyup="AssetCategorySearchREsult(),CheckCOdeCN(),CheckAssetTagaCombination()" id="CN" style="text-transform: capitalize" onclick="AssetCategorySearchREsult(),CheckAssetTagaCombination()"  name="CategoryNameSetup" >
+                        <div id="AssetCategorySearchREsult"></div>
+                        <script>
+                            function blurs2(){
+                                if(document.getElementById("listsearchsad")){
+                                    document.getElementById("listsearchsad").style.display="none";
+                                }
+                                if(document.getElementById("listsearcssshsads")){
+                                    document.getElementById("listsearcssshsads").style.display="none";
+                                }
+                                if(document.getElementById("listsearch123")){
+                                    document.getElementById("listsearch123").style.display="none";
+                                }
+                                if(document.getElementById("listsearcssshsadsssdsds")){
+                                    document.getElementById("listsearcssshsadsssdsds").style.display="none";
+                                }
+                                if(document.getElementById("AssetSubCategoryCodeSearchResult")){
+                                    document.getElementById("AssetSubCategoryCodeSearchResult").style.display="none";
+                                }
+                                
+                            }
+                            function AssetCategorySearchREsult(){
+                                var desc=document.getElementById('CN').value;
+                                var desc2=document.getElementById('Descrrrr2').value;
+                                // $.ajax({
+                                //     type: 'POST',
+                                //     url: 'AssetCategorySearchREsult.php',                
+                                //     data: {INPUT:desc,desc2:desc2},
+                                // success: function(data) {
+                                //     $( "#AssetCategorySearchREsult" ).replaceWith( data );
+                                // } 											 
+                                // })
+                                
+                            }
+                            function AssetCNCodeSearchREsult(){
+                                var desc=document.getElementById('CNCODE').value;
+                                var desc2=document.getElementById('Descrrrr2').value;
+                                // $.ajax({
+                                //     type: 'POST',
+                                //     url: 'AssetCNCodeSearchREsult.php',                
+                                //     data: {INPUT:desc,desc2:desc2},
+                                // success: function(data) {
+                                //     $( "#AssetCNCodeSearchREsult" ).replaceWith( data );
+                                // } 											 
+                                // })
+                                
+                            }
+                        </script>
+                        </td>
+                        <td  style="vertical-align: middle;text-align:right;color:#083240;" >CN CODE</td>
+                        <td width="15%"style="vertical-align: middle;"><input type="text" required class="form-control" maxlength="5" style="text-transform: uppercase" onkeyup="AssetCNCodeSearchREsult(),CheckAssetTagaCombination()" onclick="AssetCNCodeSearchREsult(),CheckAssetTagaCombination()"  id="CNCODE" onkeypress="return alphaOnly(event)" title="Characters(A-Z) Only" name="CN_COde" value="">
+                        <div id="AssetCNCodeSearchREsult"></div>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle;text-align:right;color:#083240;">Sub Category</td>
+                        <td style="vertical-align: middle;"><input type="text" class="form-control"  id="SC" onkeyup="ShowSubCat,CheckCOdeSC(),CheckAssetTagaCombination()" onclick="ShowSubCat()" style="text-transform: capitalize" name="SubCategorySetup" >
+                        <div id="AssetSubCategorySearchResult"></div>
+                        </td>
+                        <td style="vertical-align: middle;text-align:right;color:#083240;" >SC CODE</td>
+                        <td width="15%"style="vertical-align: middle;"><input type="text"  class="form-control" maxlength="5" style="text-transform: uppercase" id="SCCODE" onkeypress="return alphaOnly(event)" onkeyup="ShowSubCatCode()" onclick="ShowSubCatCode()" title="Characters(A-Z) Only" name="SC_COde" value="">
+                        <div id="AssetSubCategoryCodeSearchResult"></div>
+                        </td>
+                        <td></td>
+                        <script>
+                            function ShowSubCat(){
+                                var CN=document.getElementById('CN').value;
+                                var desc=document.getElementById('Descrrrr2').value;
+                                var SC=document.getElementById('SC').value;
+                                
+                                // $.ajax({
+                                //     type: 'POST',
+                                //     url: 'AssetSubCategorySearchResult.php',                
+                                //     data: {desc:desc,SC:SC,CN:CN},
+                                // success: function(data) {
+                                //     $( "#AssetSubCategorySearchResult" ).replaceWith( data );
+                                // } 											 
+                                // })
+                            }
+                            function ShowSubCatCode(){
+                                var CN=document.getElementById('CN').value;
+                                var desc=document.getElementById('Descrrrr2').value;
+                                var SC=document.getElementById('SCCODE').value;
+                                
+                                // $.ajax({
+                                //     type: 'POST',
+                                //     url: 'AssetSubCategoryCodeSearchResult.php',                
+                                //     data: {desc:desc,SC:SC,CN:CN},
+                                // success: function(data) {
+                                //     $( "#AssetSubCategoryCodeSearchResult" ).replaceWith( data );
+                                // } 											 
+                                // })
+                            }
+                        </script>
+                    </tr>
+                    <tr>
+                        <td style="padding-top:11px;margin-top:10px;text-align:right;color:#083240;">Required Fields</td>
+                        <td colspan="2" >
+                        <div class="form-inline">
+                            <div class="form-check" style="margin-bottom:0px !important;margin-top:10px;">
+                            <input type="checkbox" class="form-check-input" id="SerialCheck" name="RequireSerial" value="Serial">
+                            <label class="form-check-label" for="SerialCheck">Serial Number</label>
+                            </div>
+                            <div class="form-check" style="margin-bottom:0px !important;margin-top:10px;margin-left:10px;">
+                            <input type="checkbox" class="form-check-input" id="PlateCheck" name="RequirePlateNumber" value="Plate">
+                            <label class="form-check-label" for="PlateCheck">Plate Number</label>
+                            </div>
+                        </div>
+                        
+                        </td>
+                        
+                        <td colspan="1" style="vertical-align: middle">
+                        
+                        </td>
+                    </tr>
+                    <tr>
+
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-borderless table-sm">
+                <tr>
+                    <td style="text-align:right;">
+                        <label for="excel-upload-asset_stup" style="opacity:1;" id="FIleImportExcelLabel" class="custom-excel-upload btn btn-primary btn-sm">
+							Import
+                        </label>
+                        <style>
+                        #excel-upload-asset_stup{
+							display: none;
+						}
+                        </style>
+                        <input id="excel-upload-asset_stup" type="file" onchange="ImportExcelFile()"  name="excelimport" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                        <input type="submit" class="btn btn-primary btn-sm" name="SaveSetup" id="SaveBtnAssetSetup" value="Save" >
+						<input type="reset" class="btn btn-primary btn-sm" class="close" data-dismiss="modal" value="Cancel">
+                    </td>
+                </tr>
+            </table>
+
+            <table class="table table-bordered table-sm" style="background-color:white;">
+                <thead>
+                <tr style="background-color:#124f62; color:white;">
+                    <th colspan="7"><b>Asset Info Tagging Example</b></th>
+
+                </tr>
+                <tr>
+                    <th>ASSET</th>
+                    <th>AD CODE</th>
+                    <th>CATEGORY</th>
+                    <th>CN CODE</th>
+                    <th>SUB-CATEGORY</th>
+                    <th>SC CODE</th>
+                    <th>ASSET TAG</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td title="Computer">Computer</td>
+                    <td title="COMP">COMP</td>
+                    <td title="Desktop">Desktop</td>
+                    <td title="DESK">DESK</td>
+                    <td title=""></td>
+                    <td title=""></td>
+                    <td>COMP-DESK-000-001</td>                
+                </tr>
+                <tr>
+                    <td title="Computer"></td>
+                    <td title="COMP"></td>
+                    <td title="Laptop">Laptop</td>
+                    <td title="LAP">LAP</td>
+                    <td title=""></td>
+                    <td title=""></td>
+                    <td>COMP-LAP-000-001</td>                                
+                </tr>
+                <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                </tr>
+                <tr>
+                    <td title="Furniture">Furniture</td>
+                    <td title="FUR">FUR</td>
+                    <td title="Chair">Chair</td>
+                    <td title="CHR">CHR</td>
+                    <td title="GASLIFT">GASLIFT</td>
+                    <td title="GAS">GAS</td>
+                    <td>FUR-CHR-GAS-000-001</td>                       
+                </tr>
+                <tr>
+                    <td title="Furniture"></td>
+                    <td title="FUR"></td>
+                    <td title="Chair"></td>
+                    <td title="CHR"></td>
+                    <td title="MONOBLOCK">MONOBLOCK</td>
+                    <td title="MON">MON</td>
+                    <td>FUR-CHR-MON-000-001</td>                       
+                </tr>
+                <tr>
+                    <td title="Furniture"></td>
+                    <td title="FUR"></td>
+                    <td title="Table">Table</td>
+                    <td title="TBL">TBL</td>
+                    <td title=""></td>
+                    <td title=""></td>
+                    <td>FUR-TBL-000-001</td>                    
+                </tr>
+                <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                </tr>
+                <tr>
+                    <td title="Mobile Device">Mobile Device</td>
+                    <td title="MOB">MOB</td>
+                    <td title="Phone">Phone</td>
+                    <td title="PHON">PHON</td>
+                    <td title=""></td>
+                    <td title=""></td>
+                    <td>MOB-PHON-000-001</td>                     
+                </tr>
+                <tr>
+                    <td title="Mobile Device"></td>
+                    <td title="MOB"></td>
+                    <td title="Tablet">Tablet</td>
+                    <td title="TAB">TAB</td>
+                    <td title=""></td>
+                    <td title=""></td>
+                    <td>MOB-TAB-000-001</td>                                
+                </tr>
+                <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>                            
+                <td></td>
+                <td></td>
+                </tr>
+                <tr>
+                    <td title="Vehicle">Vehicle</td>
+                    <td title="VEH">VEH</td>
+                    <td title="Heavy Equipment">Heavy Equipment</td>
+                    <td title="HEAVY">HEAVY</td>
+                    <td title="BULLDOZER">BULLDOZER</td>
+                    <td title="BUL">BUL</td>
+                    <td>VEH-HEAVY-BUL-000-001</td>                            
+                </tr>
+                <tr>
+                    <td title="Vehicle"></td>
+                    <td title="VEH"></td>
+                    <td title="Heavy Equipment"></td>
+                    <td title="HEAVY"></td>
+                    <td title="DUMPTRUCK">DUMPTRUCK</td>
+                    <td title="DUM">DUM</td>
+                    <td>VEH-HEAVY-DUM-000-001</td>
+                </tr>
+                <tr>
+                    <td title="Vehicle"></td>
+                    <td title="VEH"></td>
+                    <td title="Heavy Equipment"></td>
+                    <td title="HEAVY"></td>
+                    <td title="GRADER">GRADER</td>
+                    <td title="GRAD">GRAD</td>
+                    <td>VEH-HEAVY-GRAD-000-001</td>                       
+                </tr>
+                <tr>
+                    <td title="Vehicle"></td>
+                    <td title="VEH"></td>
+                    <td title="SUV">SUV</td>
+                    <td title="SUV">SUV</td>
+                    <td title=""></td>
+                    <td title=""></td>
+                    <td>VEH-SUV-000-001</td>                       
+                </tr>
+                <tr>
+                    <td title="Vehicle"></td>
+                    <td title="VEH"></td>
+                    <td title="Van">Van</td>
+                    <td title="VAN">VAN</td>
+                    <td title=""></td>
+                    <td title=""></td>
+                    <td>VEH-VAN-000-001</td>                           
+                </tr>
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-md-3">
+                <table class="table table-bordered table-sm" style="background-color:white;">
+                <thead>
+                    <tr>
+                    <th>Site</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Davao City</td>
+                    </tr>
+                </tbody>
+                </table>
+                </div>
+                <div class="col-md-3">
+                <table class="table table-bordered table-sm" style="background-color:white;">
+                <thead>
+                    <tr>
+                    <th>Location</th>
+                </tr>
+                </thead>
+                    <tbody>
+                    <tr>
+                        <td>Bajada</td>
+                    </tr>
+                    <tr>
+                        <td>Buhangin</td>
+                    </tr>
+                    <tr>
+                        <td>Cabantian</td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            {{-- table of asset setup list --}}
+            <table class="table table-bordered table-sm" style="background-color:white;" tabindex="1">
+                <thead>
+                <tr style="background-color:#124f62; color:white;">
+                    <th colspan="7"><b>Company Defined Tagging</b></th>
+                    
+                </tr>
+                <tr>
+                    <th>ASSET</th>
+                    <th>AD CODE</th>
+                    <th>CATEGORY</th>
+                    <th>CN CODE</th>
+                    <th>SUB-CATEGORY</th>
+                    <th>SC CODE</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr id="XX1">
+                    <td contenteditable="true" id="A1" style="text-transform: capitalize" title="CUTTING OUTFIT">CUTTING OUTFIT</td>
+                    <td contenteditable="true" onkeyup="limit(this)" id="B1" style="text-transform: uppercase" title="ME">ME</td>
+                    <td contenteditable="true" id="C1" style="text-transform: capitalize" title="MINOR EQUIPMENT">MINOR EQUIPMENT</td>
+                    <td contenteditable="true" onkeyup="limit(this)" id="D1" style="text-transform: uppercase" title="CO">CO</td>
+                    <td contenteditable="true" id="E1" style="text-transform: capitalize" title=""></td>
+                    <td contenteditable="true" onkeyup="limit(this)" id="F1" style="text-transform: uppercase" title=""></td>
+                    <td>
+                        <select class="form-control" onchange="SelectAction('1','207')" id="SelectedAction1">
+                            <option value="">--Action--</option>
+                            <option value="Save">Save Changes</option>
+                            <option value="Delete">Delete</option>
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="row">
+				
+                <div class="col-md-10">
+                <table class="table table-bordered table-sm" style="background-color:white;">
+                <thead>
+                <tr>
+                    <th>Location</th>
+                    <th>Site</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>ANTIQUE</td>
+                    <td>BUGASONG</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>RDF S. JOSE ANTIQUE PPA ILOILO 014</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>PANGALCAGAN SADSADAN  ROAD DPWH ANTIQUE 013</td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+            
+            </div>
+        </div>
+        
+        </div>
+    </div>
+</div>
