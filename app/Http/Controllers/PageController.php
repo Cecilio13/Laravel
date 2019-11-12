@@ -1374,7 +1374,7 @@ class PageController extends Controller
     
     public function asset(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
+        return view('pages.main.asset', compact('None'));
     
     }
     public function transaction(Request $request){
