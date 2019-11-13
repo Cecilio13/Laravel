@@ -67,6 +67,7 @@ class PageController extends Controller
         return view('pages.test');
     }
     public function bulletin(Request $request){
+        
         $None="";
         return view('pages.test', compact('None'));
     

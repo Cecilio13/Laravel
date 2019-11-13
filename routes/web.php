@@ -132,6 +132,17 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/include_emp_salary', 'FormController@include_emp_salary');
     Route::post('/fetch_notif', 'NotifController@fetch_notif');
     Route::post('/clearnotif', 'NotifController@clearnotif');
+    Route::post('/get_asset_desc', 'GetController@get_asset_desc');
+    Route::post('/get_asset_desc_code', 'GetController@get_asset_desc_code');
+    Route::post('/check_asset_setup_asset_tag_combination', 'GetController@check_asset_setup_asset_tag_combination');
+    Route::post('/get_asset_desc_code_list', 'GetController@get_asset_desc_code_list');
+    Route::post('/get_asset_category', 'GetController@get_asset_category');
+    Route::post('/get_asset_cat_code', 'GetController@get_asset_cat_code');
+    Route::post('/get_asset_category_code_list', 'GetController@get_asset_category_code_list');
+    Route::post('/get_asset_sub_cat', 'GetController@get_asset_sub_cat');
+    Route::post('/get_asset_sub_cat_code', 'GetController@get_asset_sub_cat_code');
+    Route::post('/get_asset_sub_cat_code_list', 'GetController@get_asset_sub_cat_code_list');
+    Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
     
     
     

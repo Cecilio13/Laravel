@@ -52,6 +52,12 @@ use App\HR_hr_employee_adjustment;
 use App\HR_hr_employee_attendance;
 use App\HR_hr_cash_advances_payment;
 use App\HR_hr_notification;
+
+use App\HR_hr_Asset;
+use App\HR_hr_Asset_setup;
+use App\HR_hr_a_digit;
+use App\HR_hr_asset_photo;
+use App\HR_hr_asset_request;
 class AppServiceProvider extends ServiceProvider
 {
     /**

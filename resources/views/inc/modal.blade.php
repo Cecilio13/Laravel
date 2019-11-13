@@ -1912,6 +1912,62 @@ $(document).ready(function(){
             </button>
         </div>
         <div class="modal-body">
+            <script>
+            $(document).ready(function(){
+                
+                $("#asset_setup_form").submit(function(e) {
+                e.preventDefault();
+                    var SC=document.getElementById('SC').value;
+                    var SCCODE=document.getElementById('SCCODE').value;
+                    var valid=0;
+                    if(SC!=""){
+                        if(SCCODE==""){
+
+                        }else{
+                            valid=1;
+                        }
+                        
+                    }else{
+                        valid=1;
+                    }
+
+                        if(valid==1){
+                            $.ajax({
+                            type: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: 'add_asset_setup_request',                
+                            data: $('#asset_setup_form').serialize(),
+                            success: function(data) {
+                                console.log(data);
+                                Swal.fire({
+                                type: 'success',
+                                title: 'Success',
+                                text: 'Successfully Submitted New Asset Setup Request',
+                                
+                                }).then((result) => {
+                                    location.href="asset";
+                                })
+                            }  
+                            }) 
+                        }else{
+                            Swal.fire({
+                            type: 'error',
+                            title: 'Error',
+                            text: 'SC Code cannot be blank..',
+                            
+                            }).then((result) => {
+                            
+                            })
+                        }
+                        
+
+                        
+                });
+            })
+            </script>
+            <form id="asset_setup_form">
             <table class="table table-borderless table-sm" style="background-color:white;">
                 <thead style="background-color:#124f62; color:white;">
                     <tr>
@@ -1920,11 +1976,13 @@ $(document).ready(function(){
                     <tr style="background-color:white; color:#124f62;">
                         <th colspan="4"></th>
                         <th colspan="1">
-                        <select class="form-control" onchange="ChangeForm(this)">
+                        {{-- <select class="form-control selectpicker" data-live-search="true" onchange="ChangeForm(this)"> --}}
+                        <select class="form-control " onchange="ChangeForm(this)" id="asset_setup_type" name="asset_setup_type">
                             <option>Asset Tag</option>
                             <option>Site & Location</option>
                         </select>
                         <script>
+                            
                             function ChangeForm(e){
                                 // document.getElementById('SaveBtnAssetSetup').disabled=false;
                                 // $.ajax({
@@ -1942,92 +2000,93 @@ $(document).ready(function(){
                     </tr>
                 </thead>
                 <tbody id="AssetSetup_TBody">
-                    <tr style="display:none;">
-                        <td  style="vertical-align: middle;text-align:right;color:#083240;">Asset Tag *</td>
-                        <td  style="vertical-align: middle;"><input type="text" class="form-control" name="AssetTagSetup"  oninput="this.value = this.value.replace(/[^0-9.]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');" ></td>
-                        <td  ></td>
-                        <td  ></td>
-                    </tr>
-                    <tr style="display:none;">
-                        <td style="vertical-align: middle;text-align:right;color:#083240;">Asset Type *</td>
-                        <td style="vertical-align: middle;">
-                        <select class="form-control"  name="AssetTypeSetup" id="setuptype"  >
-                        <option value="Current Asset">Current Asset</option>
-                        <option value="Non-Current Asset">Non-Current Asset</option>
-                        </select>
-                        </td>
-                        
-                    </tr>
+                    
                     <tr>
                         <td width="15%" style="vertical-align: middle;text-align:right;color:#083240;">Asset Description</td>
-                        <td width="25%" style="vertical-align: middle;"><input type="text" required class="form-control" id="Descrrrr2" style="text-transform: capitalize" onclick="ShowSearchAssetDesc(),CheckAssetTagaCombination()" onkeyup="CheckAssetTagaCombination(),ShowSearchAssetDesc(),CheckCOde()"  onkeypress="return alphaOnly(event)" title="Characters(A-Z) Only" name="AssetDescriptionSetup" >
-                        <div id="AssetDescSearchREsult"></div>
+                        <td width="25%" style="vertical-align: middle;"><input type="text" list="AssetDescSearchREsult" required class="form-control" id="Descrrrr2" style="text-transform: capitalize" onclick="ShowSearchAssetDesc(),CheckAssetTagaCombination()" onkeyup="CheckAssetTagaCombination(),CheckCOde()"  onkeypress="return alphaOnly(event)" title="Characters(A-Z) Only" name="AssetDescriptionSetup" >
+                        <datalist id="AssetDescSearchREsult">
+                            
+                        </datalist>
                         <script>
                             function CheckAssetTagaCombination(){
                                 
                                 var desc=document.getElementById('Descrrrr2').value;
                                 var CN=document.getElementById('CN').value;
                                 var SC=document.getElementById('SC').value;
-                                //alert(desc+" "+CN+" "+SC);
-                                // $.ajax({
-                                //     type: 'POST',
-                                //     url: 'CheckCombination.php',                
-                                //     data: {desc:desc,CN:CN,SC:SC},
-                                // success: function(data) {
-                                //     //alert(data);
-                                //     if(data>0){
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'check_asset_setup_asset_tag_combination',                
+                                data:{desc:desc,CN:CN,SC:SC,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    if(data>0){
+                                    
+                                        document.getElementById('ADCODE').style.borderColor='red';
+                                        document.getElementById('CNCODE').style.borderColor='red';
+                                        document.getElementById('SCCODE').style.borderColor='red';
+                                        document.getElementById('Descrrrr2').style.borderColor='red';
+                                        document.getElementById('CN').style.borderColor='red';
+                                        document.getElementById('SC').style.borderColor='red';
+                                        document.getElementById('SaveBtnAssetSetup').disabled=true;
                                         
-                                //         document.getElementById('ADCODE').style.borderColor='red';
-                                //         document.getElementById('CNCODE').style.borderColor='red';
-                                //         document.getElementById('SCCODE').style.borderColor='red';
-                                //         document.getElementById('Descrrrr2').style.borderColor='red';
-                                //         document.getElementById('CN').style.borderColor='red';
-                                //         document.getElementById('SC').style.borderColor='red';
-                                //         document.getElementById('SaveBtnAssetSetup').disabled=true;
-                                        
-                                //     }
-                                //     else{
-                                //         document.getElementById('ADCODE').style.borderColor='#ccc';
-                                //         document.getElementById('CNCODE').style.borderColor='#ccc';
-                                //         document.getElementById('SCCODE').style.borderColor='#ccc';
-                                //         document.getElementById('Descrrrr2').style.borderColor='#ccc';
-                                //         document.getElementById('CN').style.borderColor='#ccc';
-                                //         document.getElementById('SC').style.borderColor='#ccc';
-                                //         document.getElementById('SaveBtnAssetSetup').disabled=false;
-                                //     }
-                                // } 											 
-                                // })
-                                
+                                    }
+                                    else{
+                                        document.getElementById('ADCODE').style.borderColor='#ccc';
+                                        document.getElementById('CNCODE').style.borderColor='#ccc';
+                                        document.getElementById('SCCODE').style.borderColor='#ccc';
+                                        document.getElementById('Descrrrr2').style.borderColor='#ccc';
+                                        document.getElementById('CN').style.borderColor='#ccc';
+                                        document.getElementById('SC').style.borderColor='#ccc';
+                                        document.getElementById('SaveBtnAssetSetup').disabled=false;
+                                    }
+                                    
+                                }  
+                                })
                             }
                             function ShowSearchAssetDesc(){
                                 var desc=document.getElementById('Descrrrr2').value;
                                 $.ajax({
-                                    type: 'POST',
-                                    url: 'ShowSearchAssetDesc.php',                
-                                    data: {INPUT:desc},
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_desc',                
+                                data:{value:desc,_token: '{{csrf_token()}}'},
                                 success: function(data) {
-                                    $( "#AssetDescSearchREsult" ).replaceWith( data );
-                                } 											 
-                                })
-                                
+                                    var element="<datalist id='AssetDescSearchREsult'>";
+                                        element=element+data;
+                                        element=element+"</datalist>";
+                                    $( "#AssetDescSearchREsult" ).replaceWith( element );
+                                    
+                                }  
+                                }) 
                             }
+                            
                         </script>
                         </td>
                         <td width="15%"style="vertical-align: middle;text-align:right;color:#083240;" >AD CODE</td>
-                        <td width="20%"style="vertical-align: middle;"><input type="text" required class="form-control" maxlength="5" id="ADCODE" style="text-transform: uppercase" onkeyup="AssetDescCOdeSearchREsult(),CheckAssetTagaCombination()" onclick="AssetDescCOdeSearchREsult(),CheckAssetTagaCombination()"  onkeypress="return alphaOnly(event)" title="Characters(A-Z) Only" name="AD_COde" value="">
-                        <div id="AssetDescCOdeSearchREsult"></div>
+                        <td width="20%"style="vertical-align: middle;"><input type="text" required class="form-control" maxlength="5" id="ADCODE" style="text-transform: uppercase" onkeyup="CheckAssetTagaCombination()" list="AssetDescCOdeSearchREsult" onclick="AssetDescCOdeSearchREsult(),CheckAssetTagaCombination()"  onkeypress="return alphaOnly(event)" title="Characters(A-Z) Only" name="AD_COde" value="">
+                        <datalist id="AssetDescCOdeSearchREsult"></datalist>
                         <script>
                             function AssetDescCOdeSearchREsult(){
                                 var desc=document.getElementById('ADCODE').value;
-                                
-                                // $.ajax({
-                                //     type: 'POST',
-                                //     url: 'AssetDescCOdeSearchREsult.php',                
-                                //     data: {INPUT:desc},
-                                // success: function(data) {
-                                //     $( "#AssetDescCOdeSearchREsult" ).replaceWith( data );
-                                // } 											 
-                                // })
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_desc_code_list',                
+                                data:{value:desc,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    var element="<datalist id='AssetDescCOdeSearchREsult'>";
+                                        element=element+data;
+                                        element=element+"</datalist>";
+                                    $( "#AssetDescCOdeSearchREsult" ).replaceWith( element );
+                                    
+                                }  
+                                }) 
                                 
                             }
                         </script>
@@ -2038,63 +2097,70 @@ $(document).ready(function(){
                     <script>
                         function CheckCOde(){
                             var desc=document.getElementById('Descrrrr2').value;
-                            // $.ajax({
-                            //     type: 'POST',
-                            //     url: 'GetADCode.php',                
-                            //     data: {desc:desc},
-                            // success: function(data) {
-                            //     document.getElementById('ADCODE').value=data;
-                            //     if(data==""){
-                            //         document.getElementById('ADCODE').readOnly=false;
-                            //     }else{
-                            //         document.getElementById('ADCODE').readOnly=true;
-                            //     }
-                            // } 											 
-                            // })
+                            $.ajax({
+                            type: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: 'get_asset_desc_code',             
+                            data:{value:desc,_token: '{{csrf_token()}}'},
+                            success: function(data) {
+                                document.getElementById('ADCODE').value=data;
+                                if(data==""){
+                                    document.getElementById('ADCODE').readOnly=false;
+                                }else{
+                                    document.getElementById('ADCODE').readOnly=true;
+                                }
+                            }  
+                            }) 
+                            
                         }
                         function CheckCOdeCN(){
                             var desc=document.getElementById('CN').value;
-                            // $.ajax({
-                            //     type: 'POST',
-                            //     url: 'GetCNCode.php',                
-                            //     data: {desc:desc},
-                            // success: function(data) {
-                            //     document.getElementById('CNCODE').value=data;
-                            //     if(data==""){
-                            //         document.getElementById('CNCODE').readOnly=false;
-                            //     }else{
-                            //         document.getElementById('CNCODE').readOnly=true;
-                            //     }
-                            // } 											 
-                            // })
+                            $.ajax({
+                            type: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: 'get_asset_cat_code',             
+                            data:{value:desc,_token: '{{csrf_token()}}'},
+                            success: function(data) {
+                                document.getElementById('CNCODE').value=data;
+                                if(data==""){
+                                    document.getElementById('CNCODE').readOnly=false;
+                                }else{
+                                    document.getElementById('CNCODE').readOnly=true;
+                                }
+                            }  
+                            })
+                            
                         }
                         function CheckCOdeSC(){
                             var desc=document.getElementById('SC').value;
-                            // $.ajax({
-                            //     type: 'POST',
-                            //     url: 'GetSCCode.php',                
-                            //     data: {desc:desc},
-                            // success: function(data) {
-                            //     document.getElementById('SCCODE').value=data;
-                            //     if(data==""){
-                            //         document.getElementById('SCCODE').readOnly=false;
-                            //     }else{
-                            //         document.getElementById('SCCODE').readOnly=true;
-                            //     }
-                            // } 											 
-                            // })
+                            $.ajax({
+                            type: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: 'get_asset_sub_cat_code',             
+                            data:{value:desc,_token: '{{csrf_token()}}'},
+                            success: function(data) {
+                                document.getElementById('SCCODE').value=data;
+                                if(data==""){
+                                    document.getElementById('SCCODE').readOnly=false;
+                                }else{
+                                    document.getElementById('SCCODE').readOnly=true;
+                                }
+                            }  
+                            })
+                            
                         }
                     </script>
-                    <tr style="display:none;">
-                        <td style="vertical-align: middle;text-align:right;color:#083240;">SKU</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" onkeypress="return alphaOnly(event)"  title="Characters(A-Z) Only"  name="AssetSKUSetup" ></td>
-                        <td></td>
-                    </tr>
                     
                     <tr>
                         <td style="vertical-align: middle;text-align:right;color:#083240;">Category</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" required onkeyup="AssetCategorySearchREsult(),CheckCOdeCN(),CheckAssetTagaCombination()" id="CN" style="text-transform: capitalize" onclick="AssetCategorySearchREsult(),CheckAssetTagaCombination()"  name="CategoryNameSetup" >
-                        <div id="AssetCategorySearchREsult"></div>
+                        <td style="vertical-align: middle;"><input type="text" class="form-control" required onkeyup="AssetCategorySearchREsult(),CheckCOdeCN(),CheckAssetTagaCombination()" id="CN" style="text-transform: capitalize"  onclick="AssetCategorySearchREsult(),CheckAssetTagaCombination()"  name="CategoryNameSetup" list="AssetCategorySearchREsult">
+                        <datalist id="AssetCategorySearchREsult"></datalist>
                         <script>
                             function blurs2(){
                                 if(document.getElementById("listsearchsad")){
@@ -2117,45 +2183,62 @@ $(document).ready(function(){
                             function AssetCategorySearchREsult(){
                                 var desc=document.getElementById('CN').value;
                                 var desc2=document.getElementById('Descrrrr2').value;
-                                // $.ajax({
-                                //     type: 'POST',
-                                //     url: 'AssetCategorySearchREsult.php',                
-                                //     data: {INPUT:desc,desc2:desc2},
-                                // success: function(data) {
-                                //     $( "#AssetCategorySearchREsult" ).replaceWith( data );
-                                // } 											 
-                                // })
+                                
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_category',                
+                                data:{value:desc2,category:desc,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    var element="<datalist id='AssetCategorySearchREsult'>";
+                                        element=element+data;
+                                        element=element+"</datalist>";
+                                    $( "#AssetCategorySearchREsult" ).replaceWith( element );
+                                    
+                                }  
+                                }) 
+                                
                                 
                             }
                             function AssetCNCodeSearchREsult(){
                                 var desc=document.getElementById('CNCODE').value;
                                 var desc2=document.getElementById('Descrrrr2').value;
-                                // $.ajax({
-                                //     type: 'POST',
-                                //     url: 'AssetCNCodeSearchREsult.php',                
-                                //     data: {INPUT:desc,desc2:desc2},
-                                // success: function(data) {
-                                //     $( "#AssetCNCodeSearchREsult" ).replaceWith( data );
-                                // } 											 
-                                // })
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_category_code_list',                
+                                data:{value:desc2,category:desc,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    var element="<datalist id='AssetCNCodeSearchREsult'>";
+                                        element=element+data;
+                                        element=element+"</datalist>";
+                                    $( "#AssetCNCodeSearchREsult" ).replaceWith( element );
+                                    
+                                }  
+                                }) 
+                                
                                 
                             }
                         </script>
                         </td>
                         <td  style="vertical-align: middle;text-align:right;color:#083240;" >CN CODE</td>
-                        <td width="15%"style="vertical-align: middle;"><input type="text" required class="form-control" maxlength="5" style="text-transform: uppercase" onkeyup="AssetCNCodeSearchREsult(),CheckAssetTagaCombination()" onclick="AssetCNCodeSearchREsult(),CheckAssetTagaCombination()"  id="CNCODE" onkeypress="return alphaOnly(event)" title="Characters(A-Z) Only" name="CN_COde" value="">
-                        <div id="AssetCNCodeSearchREsult"></div>
+                        <td width="15%"style="vertical-align: middle;"><input type="text" required class="form-control" maxlength="5" style="text-transform: uppercase" onkeyup="AssetCNCodeSearchREsult(),CheckAssetTagaCombination()" onclick="AssetCNCodeSearchREsult(),CheckAssetTagaCombination()"  id="CNCODE" onkeypress="return alphaOnly(event)" list="AssetCNCodeSearchREsult" title="Characters(A-Z) Only" name="CN_COde" value="">
+                        <datalist id="AssetCNCodeSearchREsult"></datalist>
                         </td>
                         <td></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;color:#083240;">Sub Category</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control"  id="SC" onkeyup="ShowSubCat,CheckCOdeSC(),CheckAssetTagaCombination()" onclick="ShowSubCat()" style="text-transform: capitalize" name="SubCategorySetup" >
-                        <div id="AssetSubCategorySearchResult"></div>
+                        <td style="vertical-align: middle;"><input type="text" class="form-control"  id="SC" onkeyup="ShowSubCat,CheckCOdeSC(),CheckAssetTagaCombination()" onclick="ShowSubCat()" style="text-transform: capitalize" name="SubCategorySetup" list="AssetSubCategorySearchResult">
+                        <datalist id="AssetSubCategorySearchResult"></datalist>
                         </td>
                         <td style="vertical-align: middle;text-align:right;color:#083240;" >SC CODE</td>
-                        <td width="15%"style="vertical-align: middle;"><input type="text"  class="form-control" maxlength="5" style="text-transform: uppercase" id="SCCODE" onkeypress="return alphaOnly(event)" onkeyup="ShowSubCatCode()" onclick="ShowSubCatCode()" title="Characters(A-Z) Only" name="SC_COde" value="">
-                        <div id="AssetSubCategoryCodeSearchResult"></div>
+                        <td width="15%"style="vertical-align: middle;"><input type="text"  class="form-control" maxlength="5" style="text-transform: uppercase" id="SCCODE" onkeypress="return alphaOnly(event)" onkeyup="ShowSubCatCode()" list="AssetSubCategoryCodeSearchResult" onclick="ShowSubCatCode()" title="Characters(A-Z) Only" name="SC_COde" value="">
+                        <datalist id="AssetSubCategoryCodeSearchResult"></datalist>
                         </td>
                         <td></td>
                         <script>
@@ -2163,29 +2246,43 @@ $(document).ready(function(){
                                 var CN=document.getElementById('CN').value;
                                 var desc=document.getElementById('Descrrrr2').value;
                                 var SC=document.getElementById('SC').value;
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_sub_cat',                
+                                data:{value:desc,CN:CN,SC:SC,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    var element="<datalist id='AssetSubCategorySearchResult'>";
+                                        element=element+data;
+                                        element=element+"</datalist>";
+                                    $( "#AssetSubCategorySearchResult" ).replaceWith( element );
+                                    
+                                }  
+                                }) 
                                 
-                                // $.ajax({
-                                //     type: 'POST',
-                                //     url: 'AssetSubCategorySearchResult.php',                
-                                //     data: {desc:desc,SC:SC,CN:CN},
-                                // success: function(data) {
-                                //     $( "#AssetSubCategorySearchResult" ).replaceWith( data );
-                                // } 											 
-                                // })
                             }
                             function ShowSubCatCode(){
                                 var CN=document.getElementById('CN').value;
                                 var desc=document.getElementById('Descrrrr2').value;
                                 var SC=document.getElementById('SCCODE').value;
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_sub_cat_code_list',                
+                                data:{value:desc,CN:CN,SC:SC,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    var element="<datalist id='AssetSubCategoryCodeSearchResult'>";
+                                        element=element+data;
+                                        element=element+"</datalist>";
+                                    $( "#AssetSubCategoryCodeSearchResult" ).replaceWith( element );
+                                    
+                                }  
+                                }) 
                                 
-                                // $.ajax({
-                                //     type: 'POST',
-                                //     url: 'AssetSubCategoryCodeSearchResult.php',                
-                                //     data: {desc:desc,SC:SC,CN:CN},
-                                // success: function(data) {
-                                //     $( "#AssetSubCategoryCodeSearchResult" ).replaceWith( data );
-                                // } 											 
-                                // })
                             }
                         </script>
                     </tr>
@@ -2231,7 +2328,7 @@ $(document).ready(function(){
                     </td>
                 </tr>
             </table>
-
+            </form>
             <table class="table table-bordered table-sm" style="background-color:white;">
                 <thead>
                 <tr style="background-color:#124f62; color:white;">
