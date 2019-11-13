@@ -1979,27 +1979,131 @@ $(document).ready(function(){
                         {{-- <select class="form-control selectpicker" data-live-search="true" onchange="ChangeForm(this)"> --}}
                         <select class="form-control " onchange="ChangeForm(this)" id="asset_setup_type" name="asset_setup_type">
                             <option>Asset Tag</option>
-                            <option>Site & Location</option>
+                            <option>Site And Location</option>
                         </select>
                         <script>
                             
                             function ChangeForm(e){
-                                // document.getElementById('SaveBtnAssetSetup').disabled=false;
-                                // $.ajax({
-                                //     type: 'POST',
-                                //     url: 'SetAssetSetup.php',                
-                                //     data: {Set:e.value},
-                                // success: function(data) {
-                                //     $( "#AssetSetup_TBody" ).replaceWith( data );
-                                // } 											 
-                                // })
+                                if(e.value=="Asset Tag"){
+                                    document.getElementById('AssetSetup_Tag_TBody').style.display="table-row-group";
+                                    document.getElementById('AssetSetup_Location_TBody').style.display="none";
+                                    document.getElementById('LocationSetup').required=false;
+                                    document.getElementById('SiteSetup').required=false;
+
+                                    document.getElementById('Descrrrr2').required=true;
+                                    document.getElementById('CN').required=true;
+                                    document.getElementById('ADCODE').required=true;
+                                    document.getElementById('CNCODE').required=true;
+                                    
+                                }else{
+                                    document.getElementById('AssetSetup_Location_TBody').style.display="table-row-group";
+                                    document.getElementById('AssetSetup_Tag_TBody').style.display="none";
+
+                                    document.getElementById('LocationSetup').required=true;
+                                    document.getElementById('SiteSetup').required=true;
+                                    document.getElementById('Descrrrr2').required=false;
+                                    document.getElementById('CN').required=false;
+                                    document.getElementById('ADCODE').required=false;
+                                    document.getElementById('CNCODE').required=false;
+                                }
                                 
                             }
                         </script>
                         </th>
                     </tr>
                 </thead>
-                <tbody id="AssetSetup_TBody">
+                <tbody id="AssetSetup_Location_TBody" style="display:none;">
+                    <tr>
+                        <td width="15%" style="vertical-align:top !important;text-align:right;color:#083240;">Location</td>
+                        <td width="20%" style="vertical-align:top !important;">
+                        <input type="text" class="form-control" list="LocSearchReultDiv"  id="LocationSetup" onclick="GetExistingLocation()" onkeyup="GetExistingLocation(),CheckSite()" name="LocationSetup2" value="">
+                        <datalist id="LocSearchReultDiv"></datalist>
+                        </td>
+                        <script>
+                            function GetExistingLocation(){
+                                var Location=document.getElementById('LocationSetup').value;
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_setup_location',                
+                                data:{value:Location,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    var element="<datalist id='LocSearchReultDiv'>";
+                                        element=element+data;
+                                        element=element+"</datalist>";
+                                    $( "#LocSearchReultDiv" ).replaceWith( element );
+                                    
+                                }  
+                                }) 
+                                
+                                CheckSite();
+                            }
+                            function GetExistingSites(){
+                                var Site=document.getElementById('SiteSetup').value;
+                                var Location=document.getElementById('LocationSetup').value;
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_setup_site',                
+                                data:{value:Location,Site:Site,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    var element="<datalist id='siteSearchReultDiv'>";
+                                        element=element+data;
+                                        element=element+"</datalist>";
+                                    $( "#siteSearchReultDiv" ).replaceWith( element );
+                                    
+                                }  
+                                }) 
+                                // $.ajax({
+                                //     type: 'POST',
+                                //     url: 'ShowSearchSite.php',                
+                                //     data: {INPUT:Site,Loc:Location},
+                                // success: function(data) {
+                                //     $( "#siteSearchReultDiv" ).replaceWith( data );
+                                // } 											 
+                                // })
+                                CheckSite();
+                            }
+                            function CheckSite(){
+                                var site=document.getElementById('SiteSetup').value;
+                                var LocationSetup=document.getElementById('LocationSetup').value;
+                                console.log(LocationSetup+" ----"+LocationSetup);
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'check_site',                
+                                data:{value:LocationSetup,site:site,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    if(data==0){
+                                        
+                                        document.getElementById('SaveBtnAssetSetup').disabled=false;
+                                        document.getElementById('SiteSetup').style.borderColor="green";
+                                        document.getElementById('LocationSetup').style.borderColor="green";
+                                    }else{
+                                        document.getElementById('SiteSetup').style.borderColor="red";
+                                        document.getElementById('LocationSetup').style.borderColor="red";
+                                        document.getElementById('SaveBtnAssetSetup').disabled=true;
+                                        
+                                    }
+                                }  
+                                }) 
+                                
+                                
+                            }
+                        </script>
+                        <td width="10%" style="vertical-align:top !important;text-align:right;color:#083240;">Site</td>
+                        <td width="30%" style="vertical-align:top !important;"><input type="text" class="form-control" onclick="GetExistingSites()"  id="SiteSetup" name="SiteSetup2" rows="2" onkeyup="GetExistingSites(),CheckSite()" list="siteSearchReultDiv">
+                        <datalist id="siteSearchReultDiv"></datalist></td>
+                        <td width="30%"></td>
+                    </tr>
+                </tbody>
+                <tbody id="AssetSetup_Tag_TBody">
                     
                     <tr>
                         <td width="15%" style="vertical-align: middle;text-align:right;color:#083240;">Asset Description</td>

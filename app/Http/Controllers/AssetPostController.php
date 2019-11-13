@@ -94,12 +94,13 @@ class AssetPostController extends Controller
             
             
         }else{
-
+            $data->asset_setup_site=$request->SiteSetup2;
+            $data->asset_setup_location=$request->LocationSetup2;
         }
         $data->ticket_no=$gen;
         $data->requested_by=Auth::user()->id;
         if($data->save()){
-            $this->generate_transaction_log($gen,$request->asset_setup_type,'Asset Tag','Queued on AM',$data->id,'');
+            $this->generate_transaction_log($gen,$request->asset_setup_type,'Asset Setup','Queued on AM',$data->id,'');
         }
     }
 }

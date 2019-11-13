@@ -142,6 +142,10 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/get_asset_sub_cat', 'GetController@get_asset_sub_cat');
     Route::post('/get_asset_sub_cat_code', 'GetController@get_asset_sub_cat_code');
     Route::post('/get_asset_sub_cat_code_list', 'GetController@get_asset_sub_cat_code_list');
+    Route::post('/get_asset_setup_location', 'GetController@get_asset_setup_location');
+    Route::post('/check_site', 'GetController@check_site');
+    Route::post('/get_asset_setup_site', 'GetController@get_asset_setup_site');
+    
     Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
     
     

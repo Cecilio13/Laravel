@@ -38,7 +38,7 @@ class Controller extends BaseController
             $data->save();
             return "AM-".$id; //return the id.
     }
-    protected function generate_transaction_log($request_no,$action,$request_tag,$status,$transaction_ticket_no,$deny_reason){
+    protected function generate_transaction_log($request_no,$request_tag,$action,$status,$transaction_ticket_no,$deny_reason){
         date_default_timezone_set("Asia/Manila");
 		$date = new DateTime();
 		$result = $date->format('Y-m-d H:i:s');

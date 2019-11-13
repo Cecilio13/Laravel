@@ -61,6 +61,48 @@ use App\HR_hr_asset_request;
 class GetController extends Controller
 {
     //
+    public function get_asset_setup_site(Request $request){
+        $value=$request->value;
+        $Site=$request->Site;
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_location','=',$value],
+            ['asset_setup_site','like','%'.$Site.'%'],
+            ['asset_setup_tag','=','Site And Location'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_site')->get();
+        $rr="";
+        foreach($data as $ss){
+            $rr.='<option>'.$ss->asset_setup_site.'</option>';
+        }
+        return $rr;
+    }
+    public function check_site(Request $request){
+        $value=$request->value;
+        $site=$request->site;
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_location','=',$value],
+            ['asset_setup_site','=',$site],
+            ['asset_setup_tag','=','Site And Location']
+        ])->first();
+        $result="0";
+        if(!empty($data)){
+            $result='1';
+        }
+        return $result;
+    }
+    public function get_asset_setup_location(Request $request){
+        $value=$request->value;
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_location','like','%'.$value.'%'],
+            ['asset_setup_tag','=','Site And Location'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_location')->get();
+        $rr="";
+        foreach($data as $ss){
+            $rr.='<option>'.$ss->asset_setup_location.'</option>';
+        }
+        return $rr;
+    }
     public function get_asset_desc(Request $request){
         $value=$request->value;
         $data=HR_hr_Asset_setup::where([
