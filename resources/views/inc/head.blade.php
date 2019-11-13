@@ -9,7 +9,7 @@
         <script src="{{asset('js/JQuery.js')}}"></script>
         <script src="{{asset('js/app.js')}}"></script>
         <link rel="stylesheet" href="{{asset('dist/css/bootstrap.min.css')}}" >
-        <script src="{{asset('dist/js/bootstrap.min.js')}}" ></script>
+        {{-- <script src="{{asset('dist/js/bootstrap.min.js')}}" ></script> --}}
         <link rel="stylesheet" href="{{asset('css/font-awesome.min.css')}}">
         
         <script src="{{asset('js/popper.js')}}"></script>
@@ -30,4 +30,4 @@
 
         <script src="{{asset('js/jq_mark.min.js')}}"></script>
         <script type="text/javascript" src="{{asset('js/jquery.formatCurrency.js')}}"></script>
-        <script type="text/javascript" src="https://cdn.rawgit.com/asvd/dragscroll/master/dragscroll.js"></script>
+        <script type="text/javascript" src="{{asset('js/drag.js')}}"></script>
