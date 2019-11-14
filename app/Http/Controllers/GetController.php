@@ -76,6 +76,21 @@ class GetController extends Controller
         }
         return $rr;
     }
+    public function GetSiteNewAsset(Request $request){
+        $value=$request->value2;
+        $Site=$request->value;
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_location','=',$value],
+            ['asset_setup_site','like','%'.$Site.'%'],
+            ['asset_setup_tag','=','Site And Location'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_site')->get();
+        $rr="";
+        foreach($data as $ss){
+            $rr.='<option>'.$ss->asset_setup_site.'</option>';
+        }
+        return $rr;
+    }
     public function check_site(Request $request){
         $value=$request->value;
         $site=$request->site;
@@ -91,6 +106,19 @@ class GetController extends Controller
         return $result;
     }
     public function get_asset_setup_location(Request $request){
+        $value=$request->value;
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_location','like','%'.$value.'%'],
+            ['asset_setup_tag','=','Site And Location'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_location')->get();
+        $rr="";
+        foreach($data as $ss){
+            $rr.='<option>'.$ss->asset_setup_location.'</option>';
+        }
+        return $rr;
+    }
+    public function GetLocationNewAsset(Request $request){
         $value=$request->value;
         $data=HR_hr_Asset_setup::where([
             ['asset_setup_location','like','%'.$value.'%'],
@@ -162,6 +190,134 @@ class GetController extends Controller
         }
         return $rr;
     }
+    public function getCategoryNewAsset(Request $request){
+        $value=$request->value;
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_ad','=',$value],
+            ['asset_setup_tag','=','Asset Tag'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_category')->get();
+        $rr="";
+        foreach($data as $ss){
+            $rr.='<option value="'.$ss->asset_setup_ac.'">'.$ss->asset_setup_category.'</option>';
+        }
+        return $rr;
+    }
+    public function GetAssetCount(Request $request){
+        $count=count(HR_hr_Asset::all());
+        $count++;
+        $oldstr= sprintf("%'.06d\n", $count);
+        $newstr = substr_replace($oldstr,"-",3, 0);
+        return $newstr;
+    }
+    public function checkserialunique(Request $request){
+        $serial=$request->serial;
+        if($serial!=''){
+            $count=count(HR_hr_Asset::where([
+                ['asset_serial_number','=',$serial]
+            ])->get());
+        }else{
+            $count=0;
+        }
+        return $count;
+    }
+    public function checkplateunique(Request $request){
+        $serial=$request->serial;
+        if($serial!=''){
+            $count=count(HR_hr_Asset::where([
+                ['invoice_number','=',$serial]
+            ])->get());
+        }else{
+            $count=0;
+        }
+        return $count;
+    }
+    public function checkinvoicenumbernewasset(Request $request){
+        $serial=$request->serial;
+        if($serial!=''){
+            $count=count(HR_hr_Asset::where([
+                ['sku_code','=',$serial]
+            ])->get());
+        }else{
+            $count=0;
+        }
+        return $count;
+    }
+    public function SetSerialAndUOM(Request $request){
+        $Desc=$request->Desc;
+        $Cat=$request->Cat;
+        $Sub=$request->Sub;
+        $SCUB="";
+        if($Sub!=""){
+            $SCUB="AND asset_setup_sc='$Sub'";
+        }
+        $scripts='<div id="requireserial_div">';
+        
+        $get = DB::connection('mysql')->select("SELECT * FROM hr_asset_setup WHERE asset_setup_ad='$Desc' AND asset_setup_ac='$Cat' $SCUB AND asset_setup_status='1'");
+        foreach($get as $gg){
+            $require_serial=$gg->uom;
+            $require_plate=$gg->asset_setup_sku;
+            $scripts.="<script>console.log('INPUT ".$Desc." ".$Cat." ".$Sub."');</script>";
+            $scripts.="<script>console.log('SSOOP ".$require_serial." ".$require_plate."');</script>";
+            if($require_serial!="" || $require_plate!=''){
+                    if($require_plate=="0" || $require_plate==""){
+                    $scripts.='<script>';
+                    $scripts.='document.getElementById(\'PlateLabel\').innerHTML="Plate Number";';
+                    $scripts.='document.getElementById("SKUCODE").required = false;';
+                    $scripts.='</script>';
+                    
+                    }else{
+                    
+                        $scripts.='<script>';
+                        $scripts.='document.getElementById(\'PlateLabel\').innerHTML="Plate Number *";';
+                        $scripts.='document.getElementById("SKUCODE").required = true;';
+                        $scripts.='</script>';
+                    
+                    }
+                    if($require_serial=="0" || $require_serial==""){
+                    $scripts.='<script>';
+                    $scripts.='document.getElementById(\'SerialLabel\').innerHTML="Serial Number";';
+                    $scripts.='document.getElementById("SerialCode").required = false;';
+                    $scripts.='</script>';
+                    
+                    }else{
+                    
+                        $scripts.='<script>';
+                        $scripts.='document.getElementById(\'SerialLabel\').innerHTML="Serial Number *";';
+                        $scripts.='document.getElementById("SerialCode").required = true;';
+                        $scripts.='</script>';
+                    
+                    }
+            }else{
+                $scripts.='<script>';
+                $scripts.='document.getElementById(\'SerialLabel\').innerHTML="Serial Number";';
+                $scripts.='document.getElementById("SerialCode").required = false;';
+                $scripts.='document.getElementById(\'PlateLabel\').innerHTML="Plate Number";';
+                $scripts.='document.getElementById("SKUCODE").required = false;';
+                $scripts.='</script>';
+            }
+            
+        }
+        $scripts.='</div>';
+        return $scripts;
+    }
+    public function GetSubNewAsset(Request $request){
+        
+        $value=$request->value;
+        $value2=$request->value2;
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_ad','=',$value],
+            ['asset_setup_ac','=',$value2],
+            ['asset_setup_tag','=','Asset Tag'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_category')->get();
+        $rr="";
+        foreach($data as $ss){
+            $rr.='<option value="'.$ss->asset_setup_sc.'">'.$ss->asset_setup_sub_cat.'</option>';
+        }
+        return $rr;
+    }
+    
     public function get_asset_category_code_list(Request $request){
         $value=$request->value;
         $cat_code=$request->category;
@@ -252,5 +408,126 @@ class GetController extends Controller
         }else{
             return 0;
         }
+    }
+    public function getComapny_defined_Tagging(Request $request){
+        $table='<tbody id="Company_Defined_Tagging_Tbody">';
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_tag','=','Asset Tag'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_description')->get();
+        if(count($data)>0){
+            $i=0;
+			$desccount=0;
+            $rowcount=0;
+            foreach($data as $de){
+                $Asset_Desc=$de->asset_setup_description;
+                $Asset_Desc_code=$de->asset_setup_ad;
+                $catcount=0;
+                $data_cat=HR_hr_Asset_setup::where([
+                    ['asset_setup_description','=',$Asset_Desc],
+                    ['asset_setup_tag','=','Asset Tag'],
+                    ['asset_setup_status','=','1']
+                ])->groupBy('asset_setup_category')->get();
+                foreach($data_cat as $de_cat){
+                    $Asset_Cat=$de_cat->asset_setup_category;
+					$Asset_Cat_code=$de_cat->asset_setup_ac;
+                    $subcount=0;
+                    $data_sub=HR_hr_Asset_setup::where([
+                        ['asset_setup_category','=',$Asset_Cat],
+                        ['asset_setup_tag','=','Asset Tag'],
+                        ['asset_setup_status','=','1']
+                    ])->groupBy('asset_setup_sub_cat')->get();
+                    foreach($data_sub as $de_cat_sub){
+                        $rowcount++;
+						$Asset_Sub=$de_cat_sub->asset_setup_sub_cat;
+						$Asset_Sub_code=$de_cat_sub->asset_setup_sc;
+						$asset_setup_id=$de_cat_sub->asset_setup_id;
+						$Asset_Desc_codef="";
+						$Asset_Cat_codef="";
+						$Asset_Sub_codef="";
+						if($Asset_Desc_code!=""){
+							$Asset_Desc_codef=$Asset_Desc_code."-";
+						}
+						if($Asset_Sub_code!=""){
+							$Asset_Sub_codef=$Asset_Sub_code."-";
+						}
+						if($Asset_Cat_code!=""){
+							$Asset_Cat_codef=$Asset_Cat_code."-";
+                        }
+                        $Asset_tag_Example=$Asset_Desc_codef.$Asset_Cat_codef.$Asset_Sub_codef."000-001";
+						$Asset_Desc2=$de_cat_sub->asset_setup_ad;
+						$Asset_Cat2=$de_cat_sub->asset_setup_ac;
+                        $Asset_Sub2=$de_cat_sub->asset_setup_sc;
+                        $Asset_Desctitle=$de_cat_sub->asset_setup_description;
+                        $Asset_Cattitle=$de_cat_sub->asset_setup_category;
+                        $Asset_Subtitle=$de_cat_sub->asset_setup_sub_cat;
+                        $data_asset=HR_hr_Asset::where([
+                            ['asset_description','=',$Asset_Desc2],
+                            ['asset_category_name','=',$Asset_Cat2],
+                            ['asset_sub_category','=',$Asset_Sub2],
+                            ['asset_transaction_status','!=','3']
+                        ])->get();
+                        $asset_count=count($data_asset);
+                        $table.='<tr id="XX'.$rowcount.'">';
+                        $table.='<td '.($asset_count==0? 'contenteditable="false"' : '').' id="A'.$rowcount.'" style="text-transform: capitalize" title="'.$Asset_Desctitle.'">'.$Asset_Desc.'</td>';
+                        $table.='<td '.($asset_count==0? 'contenteditable="false"' : '').' id="B'.$rowcount.'" style="text-transform: uppercase" onkeyup="limit(this)" title="'.$Asset_Desc_code.'">'.($desccount==0? $Asset_Desc_code : '').'</td>';
+                        $table.='<td '.($asset_count==0? 'contenteditable="false"' : '').' id="C'.$rowcount.'" style="text-transform: capitalize" title="'.$Asset_Cattitle.'">'.$Asset_Cat.'</td>';
+                        $table.='<td '.($asset_count==0? 'contenteditable="false"' : '').' id="D'.$rowcount.'" style="text-transform: uppercase" onkeyup="limit(this)" title="'.$Asset_Cat_code.'">'.($catcount==0? $Asset_Cat_code : '').'</td>';
+                        $table.='<td '.($asset_count==0? 'contenteditable="false"' : '').' id="E'.$rowcount.'" style="text-transform: capitalize" title="'.$Asset_Subtitle.'">'.$Asset_Sub.'</td>';
+                        $table.='<td '.($asset_count==0? 'contenteditable="false"' : '').' id="F'.$rowcount.'" style="text-transform: uppercase" onkeyup="limit(this)" title="'.$Asset_Sub_code.'">'.($subcount==0? $Asset_Sub_code : '').'</td>';
+                        $table.='<td><select class="form-control" onchange="SelectAction(\''.$rowcount.'\',\''.$de_cat_sub->id.'\')" id="SelectedAction'.$rowcount.'"><option value="">--Action--</option>';
+                        if($asset_count==0){
+                            // $table.='<option value="Save">Save Changes</option>';
+                            $table.='<option value="Delete">Delete</option>';
+                        }
+                        $table.'</select></td>';
+                        $table.='</tr>';
+                        $Asset_Desc="";
+						$Asset_Cat="";
+						$Asset_Sub="";
+						$desccount=1;
+						$catcount=1;
+                    }
+                    $catcount=0;
+                }
+                $desccount=0;
+				$i++;
+            }
+        }else{
+            $table.='<tr>';
+            $table.='<td></td>';
+            $table.='<td></td>';
+            $table.='<td></td>';
+            $table.='<td></td>';
+            $table.='<td></td>';
+            $table.='<td></td>';
+            $table.='<td></td>';
+            $table.='</tr>';
+        }
+        $table.="</tbody>";
+        return $table;
+    }
+    public function getComapny_defined_Tagging_site_and_location(Request $request){
+        $table='<tbody id="SiteAndLocationComapnyDefinedTaggingTbody">';
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_tag','=','Site And Location'],
+            ['asset_setup_status','=','1']
+        ])->orderBy('asset_setup_location')->get();
+        $Loccc="";
+		$DDD="";
+        foreach($data as $de){
+            if($Loccc==$de->asset_setup_location){
+                $DDD="";
+            }else{
+                $Loccc=$de->asset_setup_location;
+                $DDD=$de->asset_setup_location;
+            }
+            $table.="<tr>";
+            $table.="<td>".$DDD."</td>";
+            $table.="<td>".$de->asset_setup_site."</td>";
+            $table.="</tr>";
+        }
+        $table.="</tbody>";
+        return $table;
     }
 }

@@ -206,6 +206,11 @@ class AppServiceProvider extends ServiceProvider
         }
         
         
+        
+        view()->share('asset_description_grouped', HR_hr_Asset_setup::where([
+            ['asset_setup_tag','=','Asset Tag'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_description')->get());
         view()->share('employee_attendance_list', HR_hr_employee_attendance::all());
         view()->share('payroll_year_list', HR_payroll::select('payroll_year')->groupBy('payroll_year')->orderBy('payroll_year', 'DESC')->get());
         view()->share('unprocessed_payroll_list', HR_payroll::where([
@@ -321,6 +326,9 @@ class AppServiceProvider extends ServiceProvider
         view()->share('company_bank', HR_Company_Bank::all());
         view()->share('company_cost_center', HR_Company_Cost_Center::all());
         view()->share('company_department', HR_Company_Department::all());
+        view()->share('company_department_active', HR_Company_Department::where([
+            ['data_status','=','1']
+        ])->get());
         
         
         view()->composer('*', function($view)

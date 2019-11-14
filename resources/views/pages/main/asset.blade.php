@@ -77,23 +77,6 @@
                         <th width="5%">Item Out</th>
                         <th width="5%">Available</th>
                     </tr>
-                    <tr>
-                        <th>    
-                            <input type="text" oninput="myFunction1()" onclick="SearchResultDesc()" onkeyup="SearchResultDesc()" style=" font-weight: normal;" id="AssetTTAAG1" placeholder="Asset.." class="form-control form-control-sm"  >
-                            <div id="SearchResultDesc"></div>
-                        </th>
-                        <th>
-                            <input type="text" oninput="myFunction4()" onclick="SearchResultCat()" onkeyup="SearchResultCat()" style=" font-weight: normal;" id="AssetTTAAG4" placeholder="Category.." class="form-control form-control-sm" >
-                            <div id="SearchResultCat"></div>	
-                        </th>
-                        <th>
-                            <input type="text" oninput="myFunction5()" onclick="SearchResultSub()" onkeyup="SearchResultSub()" style=" font-weight: normal;" id="AssetTTAAG5"  placeholder="Sub Category.." class="form-control form-control-sm">
-                            <div id="SearchResultSub"></div>
-                        </th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                    </tr>
                 </thead>
                 <tbody>
                     <tr>
@@ -119,7 +102,44 @@
                 </li>
                 
             </ul>
-            <div class="tab-content" id="NewAssetTabTabs">
+            
+                <script>
+                $(document).ready(function(){
+                    $("#NewAssetForm").submit(function(e) {
+                        e.preventDefault();
+                        $.ajax({
+                            type: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: 'add_new_asset',                
+                            data: $('#NewAssetForm').serialize(),
+                            success: function(data) {
+                                if(data==1){
+                                    Swal.fire({
+                                    type: 'success',
+                                    title: 'Success',
+                                    text: 'Successfully Added New Asset Request',
+                                    }).then((result) => {
+                                        location.href="asset?page=2";
+                                    })
+                                }else{
+                                    Swal.fire({
+                                    type: 'error',
+                                    title: 'Error!',
+                                    text: 'Failed to Add New Asset Request',
+                                    }).then((result) => {
+                                        location.href="asset?page=2";
+                                    })
+                                }
+                                
+                            }
+                        })
+                    });
+                });
+                </script>
+                <form id="NewAssetForm">
+                <div class="tab-content" id="NewAssetTabTabs">
                 <div class="tab-pane fade show active" id="NewAssetGeneralInfoTab" role="tabpanel" aria-labelledby="home-tab">
                     <table class="table borderless table-sm" style="background-color:white;margin-top:10px;">
                         <thead style="background-color:#124f62; color:white;">
@@ -212,8 +232,130 @@
                                 <input type="hidden" id="HiddenDescAss" name="HiddenAssetDescription" value="">
                                 <select style="width:80%;" class="form-control" onchange="SetQRTitle()" id="Descrrrr" name="AssetDescription">
                                     <option value="">--Select Description--</option>
-                                    
+                                    @foreach ($asset_description_grouped as $desc)
+                                        <option value="{{$desc->asset_setup_ad}}">{{$desc->asset_setup_description}}</option>
+                                    @endforeach
                                 </select>
+                                
+                                <script>
+                                function SetQRTitle(){
+									var Desc=document.getElementById('Descrrrr').value;
+									
+									document.getElementById('HiddenDescAss').value=$('#Descrrrr').find(':selected').text();
+									$.ajax({
+                                    type: 'POST',
+                                    url: 'getCategoryNewAsset',                
+                                    data: {value:Desc,_token: '{{csrf_token()}}'},
+                                    success: function(data) {
+                                        var element='<select style="width:80%;" onchange="SetSub(),SetAssetTag()" id="CatName" class="form-control" name="CategoryName">';
+                                            element=element+data;
+                                            element=element+'</select>';
+                                        $( "#CatName" ).replaceWith( element );
+										SetSub();
+                                    }  
+                                    });
+									
+								}
+                                function SetSub(){
+                                    var Desc=document.getElementById('Descrrrr').value;
+									var Sub=document.getElementById('CatName').value;
+                                    $.ajax({
+                                    type: 'POST',
+                                    url: 'GetSubNewAsset',                
+                                    data: {value:Desc,value2:Sub,_token: '{{csrf_token()}}'},
+                                    success: function(data) {
+                                        var element='<select style="width:80%;" onchange="SetAssetTag()" id="SubCatName" class="form-control" name="SubCategory">';
+                                            element=element+data;
+                                            element=element+'</select>';
+                                        $( "#SubCatName" ).replaceWith( element );
+										SetAssetTag();
+                                    }  
+                                    });
+									
+                                }
+                                function SetAssetTag(){
+									var Desc=document.getElementById('Descrrrr').value;
+									var Cat=document.getElementById('CatName').value;
+									var Sub=document.getElementById('SubCatName').value;
+									$.ajax({
+                                    type: 'POST',
+                                    url: 'GetAssetCount',                
+                                    data: {_token: '{{csrf_token()}}'},
+                                    success: function(data) {
+                                        var Count=data;
+										var desccode="";
+										var catcode="";
+										var subcode="";
+										if(Desc!=""){
+											desccode=Desc+"-";
+										}
+										if(Cat!=""){
+											catcode=Cat+"-";
+										}
+										if(Sub!=""){
+											subcode=Sub+"-";
+										}
+										
+										if(Desc=="" && Cat=="" ){
+											document.getElementById('AssetTaggg').value="";
+											
+										}
+										else{
+											document.getElementById('AssetTaggg').value=desccode+catcode+subcode+Count;
+										}
+										getQR();
+                                    }  
+                                    });
+									
+								}
+                                function getQR(){
+									var SerialCode=document.getElementById('SerialCode').value;
+									var SKUCODE=document.getElementById('SKUCODE').value;
+									var tag=document.getElementById('AssetTaggg').value;
+									var Cat=$('#CatName').find(':selected').text();
+									var Sub=$('#SubCatName').find(':selected').text();
+									var Descrrrr=$('#Descrrrr').find(':selected').text();
+									if(SerialCode!=""){
+										SerialCode="SN-"+SerialCode;
+									}
+									if(SKUCODE!=""){
+										SKUCODE="PN-"+SKUCODE;
+									}
+									if(Cat!=""){
+										Cat="Cat-"+Cat;
+									}
+									if(Sub!=""){
+										Sub="SC-"+Sub;
+									}
+									var url="https://api.qrserver.com/v1/create-qr-code/?data="
+									+tag+"%0AAsset Description - "+Descrrrr
+									+"%0A"+Cat
+									+"%0A"+Sub
+									+"%0A"+SerialCode
+									+"%0A"+SKUCODE+"&amp;size=150x150";
+									
+									
+									
+									$("#QRCode").attr("src", url);
+									$("#QRCode").attr("title", tag);
+									setSerial();
+									
+								}
+                                function setSerial(){
+									var Desc=document.getElementById('Descrrrr').value;
+									var Cat=document.getElementById('CatName').value;
+									var Sub=document.getElementById('SubCatName').value;
+                                    $.ajax({
+                                    type: 'POST',
+                                    url: 'SetSerialAndUOM',                
+                                    data: {Desc:Desc,Cat:Cat,Sub:Sub,_token: '{{csrf_token()}}'},
+                                    success: function(data) {
+                                        $( "#requireserial_div" ).replaceWith( data );
+                                    }  
+                                    });
+									
+								}
+                                </script>
                                 </td>
                                 
                             </tr>
@@ -268,7 +410,7 @@
                                 
                                 ?>
                                 <div id="requireserial_div"></div>
-                                <td style="vertical-align: middle;text-align:right;color:#083240;" id="SerialLabel">Serial Number *</td>
+                                <td style="vertical-align: middle;text-align:right;color:#083240;" id="SerialLabel">Serial Number</td>
                                 <td style="vertical-align: middle;"><input  title="Serial Number already exist" data-content="Serial Number already exist.." type="text" style="width:80%;" id="SerialCode" class="form-control" name="SerialNumber" onkeyup="CheckSerial(),getQR()"><div id="ssscrr"></div></td>
                                 <script>
                                     var sStatus=0;
@@ -282,30 +424,30 @@
                                             if(serial=="N/A" || serial==""){
                                                 
                                             }else{
-                                                // $.ajax({
-                                                // type: 'POST',
-                                                // url: ' CheckSerial.php',                
-                                                // data: {serial:serial},
-                                                // success: function(data) {
+                                                $.ajax({
+                                                type: 'POST',
+                                                url: 'checkserialunique',                
+                                                data: {serial:serial,_token: '{{csrf_token()}}'},
+                                                success: function(data) {
+                                                    if(data==0){
+                                                        sStatus=0;
+                                                        // $('#SerialCode').popover('hide');
+                                                        // $('#SerialCode').popover('disable');
+                                                        if(InStatus==0 && sStatus==0 && pStatus==0){
+                                                            document.getElementById('SaveAssetBtn').disabled=false;
+                                                        }
+                                                        document.getElementById("SerialCode").style.borderColor = "#d8d8d8";
+                                                    }else{
+                                                        //$( "#ssscrr	" ).replaceWith( data );
+                                                        sStatus=1;
+                                                        document.getElementById('SaveAssetBtn').disabled=true;
+                                                        document.getElementById("SerialCode").style.borderColor = "#ed5a5a";
+                                                        // $('#SerialCode').popover('enable');
+                                                        // $('#SerialCode').popover('show');
+                                                    }
+                                                }  
+                                                });
                                                 
-                                                //     if(data==0){
-                                                //         sStatus=0;
-                                                //         $('#SerialCode').popover('hide');
-                                                //         $('#SerialCode').popover('disable');
-                                                //         if(InStatus==0 && sStatus==0 && pStatus==0){
-                                                //             document.getElementById('SaveAssetBtn').disabled=false;
-                                                //         }
-                                                //         document.getElementById("SerialCode").style.borderColor = "#d8d8d8";
-                                                //     }else{
-                                                //         $( "#ssscrr	" ).replaceWith( data );
-                                                //         sStatus=1;
-                                                //         document.getElementById('SaveAssetBtn').disabled=true;
-                                                //         document.getElementById("SerialCode").style.borderColor = "#ed5a5a";
-                                                //         $('#SerialCode').popover('enable');
-                                                //         $('#SerialCode').popover('show');
-                                                //     }
-                                                // } 											 
-                                                // })
                                             }
                                             
                                             
@@ -316,30 +458,30 @@
                                     function CheckPlate(){
                                         if($(document.getElementById('SKUCODE')).prop('required')){
                                             var serial=document.getElementById('SKUCODE').value;
-                                            // $.ajax({
-                                            // type: 'POST',
-                                            // url: ' CheckPlate.php',                
-                                            // data: {serial:serial},
-                                            // success: function(data) {
+                                            $.ajax({
+                                            type: 'POST',
+                                            url: 'checkplateunique',                
+                                            data: {serial:serial,_token: '{{csrf_token()}}'},
+                                            success: function(data) {
+                                                if(data==0){
+                                                    pStatus=0;
+                                                    $('#SKUCODE').popover('hide');
+                                                    if(InStatus==0 && sStatus==0 && pStatus==0){
+                                                        document.getElementById('SaveAssetBtn').disabled=false;
+                                                    }
+                                                    document.getElementById("SKUCODE").style.borderColor = "#d8d8d8";
+                                                }else{
+                                                    //$( "#ssscrrPlate" ).replaceWith( data );
+                                                    document.getElementById('SaveAssetBtn').disabled=true;
+                                                    document.getElementById("SKUCODE").style.borderColor = "#ed5a5a";
+                                                    //$('#SKUCODE').popover('show');
+                                                    pStatus=1;
+                                                }
+                                            }  
+                                            });
                                             
-                                            //     if(data==0){
-                                            //         pStatus=0;
-                                            //         $('#SKUCODE').popover('hide');
-                                            //         if(InStatus==0 && sStatus==0 && pStatus==0){
-                                            //             document.getElementById('SaveAssetBtn').disabled=false;
-                                            //         }
-                                            //         document.getElementById("SKUCODE").style.borderColor = "#d8d8d8";
-                                            //     }else{
-                                            //         $( "#ssscrrPlate" ).replaceWith( data );
-                                            //         document.getElementById('SaveAssetBtn').disabled=true;
-                                            //         document.getElementById("SKUCODE").style.borderColor = "#ed5a5a";
-                                            //         $('#SKUCODE').popover('show');
-                                            //         pStatus=1;
-                                            //     }
-                                            // } 											 
-                                            // })
                                         }
-                                        DisableLeavePromtSubmit();
+                                        
                                     }
                                 </script>
                             </tr>
@@ -354,7 +496,7 @@
                                 <td style="vertical-align: middle;"><input type="text" style="width:80%;" class="form-control" name="AssetCondition"></td>
                             
                             </tr>
-                            <tr id="UOMVALUE">
+                            <tr id="UOMVALUE" style="display:none;">
                                 <td style="vertical-align: middle;text-align:right;color:#083240;">Unit Of Measurement</td>
                                 <td style="vertical-align: middle;">
                                     <select name="AssetUOM" class="form-control" style="width:80%;">
@@ -378,7 +520,7 @@
                                 </td>
                             
                             </tr>
-                            <tr id="UOMVALUETR">
+                            <tr id="UOMVALUETR" style="display:none;">
                                 <td style="vertical-align: middle;text-align:right;color:#083240;">UOM Amount</td>
                                 <td style="vertical-align: middle;"><input type="number" style="width:80%;" class="form-control" name="AssetUOMAmount"></td>
                             
@@ -400,31 +542,32 @@
                             <tr>
                                 <td style="vertical-align: middle;text-align:right;color:#083240;">Location *</td>
                                 <td style="vertical-align: middle;">
-                                <input type="text" class="form-control" name="AssetLocation" id="LocationSearchInput" autocomplete="off" required  onclick="GetLocation()" onkeyup="GetLocation()">
-                                <div id="LocationSearchResult"></div>
+                                <input type="text" list="LocationSearchResult" class="form-control" name="AssetLocation" id="LocationSearchInput" autocomplete="off" required  onclick="GetLocation()" onkeyup="GetLocation()">
+                                <datalist id="LocationSearchResult"></datalist>
                                 </td>
                                 <script>
                                     function GetLocation(){
                                             var x = document.getElementById("LocationSearchInput").value;
-                                            
-                                            // $.ajax({
-                                            //     type: 'POST',
-                                            //     url: ' SearchResultLocation.php',                
-                                            //     data: {INPUT:x},
-                                            // success: function(data) {
-                                            //     $( "#LocationSearchResult" ).replaceWith( data );
+                                            $.ajax({
+                                            type: 'POST',
+                                            url: 'GetLocationNewAsset',                
+                                            data: {value:x,_token: '{{csrf_token()}}'},
+                                            success: function(data) {
+                                                var element='<datalist id="LocationSearchResult">';
+                                                    element=element+data;
+                                                    element=element+'</datalist>';
+                                                $( "#LocationSearchResult" ).replaceWith( element );
                                                 
-                                            // } 											 
-                                            // })
-                                        DisableLeavePromtSubmit();
+                                            }  
+                                            });
                                     }
                                 </script>
                             </tr>
                             <tr>
                                 <td style="vertical-align: middle;text-align:right;color:#083240;" width="15%">Site *</td>
                                 <td style="vertical-align: middle;" width="20%;">
-                                <textarea class="form-control" name="AssetSite" id="SiteResultInput" onclick="GetSites()" required onkeyup="GetSites()"></textarea>
-                                <div id="SiteSearchResult"></div>
+                                <input type="text" class="form-control" list="SiteSearchResult" name="AssetSite" id="SiteResultInput" onclick="GetSites()" required onkeyup="GetSites()">
+                                <datalist id="SiteSearchResult"></datalist>
                                 </td>
                                 <td style="vertical-align: middle;text-align:right;color:#083240;" width="10%"></td>
                                 <td style="vertical-align: middle;color:#083240;" width="20%;">
@@ -435,6 +578,7 @@
                                 <script>
                                     function GetStorage(){
                                         var x = document.getElementById("StorageSearchInput").value;
+                                        
                                             // $.ajax({
                                             //     type: 'POST',
                                             //     url: ' SearchResultStorage.php',                
@@ -443,20 +587,24 @@
                                             //     $( "#StorageSearchResult" ).replaceWith( data );
                                             // } 											 
                                             // })
-                                            DisableLeavePromtSubmit();
+                                            
                                     }
                                     function GetSites(){
                                             var x = document.getElementById("SiteResultInput").value;
                                             var x2 = document.getElementById("LocationSearchInput").value;
-                                            // $.ajax({
-                                            //     type: 'POST',
-                                            //     url: ' SearchResultSite.php',                
-                                            //     data: {INPUT:x,Loc:x2},
-                                            // success: function(data) {
-                                            //     $( "#SiteSearchResult" ).replaceWith( data );
-                                            // } 											 
-                                            // })
-                                        DisableLeavePromtSubmit();
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: 'GetSiteNewAsset',                
+                                                data: {value:x,value2:x2,_token: '{{csrf_token()}}'},
+                                                success: function(data) {
+                                                    var element='<datalist id="SiteSearchResult">';
+                                                        element=element+data;
+                                                        element=element+'</datalist>';
+                                                    $( "#SiteSearchResult" ).replaceWith( element );
+                                                    
+                                                }  
+                                            });
+                                           
                                     }
                                 </script>
                             </tr>
@@ -466,6 +614,9 @@
                                 <td style="vertical-align: middle;">
                                 <select class="form-control" name="DepartmentCode" id="newAssetDept">
                                     <option value=""></option>
+                                    @foreach ($company_department_active as $dept)
+                                        <option value="{{$dept->department_id}}">{{$dept->department_name}}</option>
+                                    @endforeach
                                 </select>
                                 </td>
                             </tr>
@@ -508,45 +659,43 @@
                             <tr>
                                 <td style="vertical-align: middle;text-align:right; color:#083240;" >Invoice Number *</td>
                                 <td style="vertical-align: middle;" >
-                                    <input type="text" class="form-control"  name="invoice_number" id="Invoice_Number"  required>
+                                    <input type="text" class="form-control" onkeyup="CheckInvoice()"  name="invoice_number" id="Invoice_Number"  required>
                                     <div id="ssscrrInvoice"></div>
                                 </td>
                                 <script>
                                     function CheckInvoice(){
                                         if($(document.getElementById('Invoice_Number')).prop('required')){
                                             var serial=document.getElementById('Invoice_Number').value;
-                                            // $.ajax({
-                                            // type: 'POST',
-                                            // url: ' CheckInvoice.php',                
-                                            // data: {serial:serial},
-                                            // success: function(data) {
+                                            $.ajax({
+                                            type: 'POST',
+                                            url: 'checkinvoicenumbernewasset',                
+                                            data: {serial:serial,_token: '{{csrf_token()}}'},
+                                            success: function(data) {
+                                                    if(data==0){
+                                                        InStatus=0;
+                                                        //$('#Invoice_Number').popover('hide');
+                                                        if(InStatus==0 && sStatus==0 && pStatus==0){
+                                                            document.getElementById('SaveAssetBtn').disabled=false;
+                                                        }
+                                                        
+                                                        document.getElementById("Invoice_Number").style.borderColor = "#d8d8d8";
+                                                    }else{
+                                                        //$( "#ssscrrInvoice" ).replaceWith( data );
+                                                        document.getElementById('SaveAssetBtn').disabled=true;
+                                                        document.getElementById("Invoice_Number").style.borderColor = "#ed5a5a";
+                                                        //$('#Invoice_Number').popover('show');
+                                                        InStatus=1;
+                                                    }
+                                            }  
+                                            });
                                             
-                                            //     if(data==0){
-                                            //         InStatus=0;
-                                            //         $('#Invoice_Number').popover('hide');
-                                            //         if(InStatus==0 && sStatus==0 && pStatus==0){
-                                            //             document.getElementById('SaveAssetBtn').disabled=false;
-                                            //         }
-                                                    
-                                            //         document.getElementById("Invoice_Number").style.borderColor = "#d8d8d8";
-                                            //     }else{
-                                            //         $( "#ssscrrInvoice" ).replaceWith( data );
-                                            //         document.getElementById('SaveAssetBtn').disabled=true;
-                                            //         document.getElementById("Invoice_Number").style.borderColor = "#ed5a5a";
-                                            //         $('#Invoice_Number').popover('show');
-                                            //         InStatus=1;
-                                            //     }
-                                            // }
-                                            // })
                                         }
-                                        DisableLeavePromtSubmit();
+                                        
                                     }
                                 </script>
                                 <td></td>
                                 
                             </tr>
-                            
-                            
                             <tr>
                                 <td style="vertical-align: middle;text-align:right; color:#083240;" >Purchase Date *</td>
                                 <td style="vertical-align: middle;" >
@@ -583,14 +732,7 @@
                                     }
                                     
                                     function SetComma(){
-                                        /* var ddd=document.getElementById('MockupInput').value;
-                                        var res = ddd.replace(/,/g, "");
-                                        document.getElementById('PurchCost').value=res;
-                                        var n=document.getElementById('PurchCost').value;
-                                        var val = n;
-                                        var parts = val.toString().split(".");
-                                        var num = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "");
-                                        document.getElementById('MockupInput').value=num; */
+                                        
                                         console.log('Set COmma');
                                         var ddd=document.getElementById('MockupInput').value;
                                         var res = ddd.replace(/,/g, "");
@@ -620,7 +762,6 @@
                                 <td ></td>
                                 
                             </tr>
-                            
                             <script>
                                 function setStartDateMin(){
                                     
@@ -756,10 +897,10 @@
                     }
                     function CDCDCDCDC(event) {
                         console.log('salv onkeyup');
-                    // skip for arrow keys
-                    if(event.which >= 37 && event.which <= 40){
-                    event.preventDefault();
-                    }
+                        // skip for arrow keys
+                        if(event.which >= 37 && event.which <= 40){
+                        event.preventDefault();
+                        }
 
                         var value=document.getElementById('depccccostformated').value;
                         value = value.replace(/,/g,''); // remove commas from existing input
@@ -842,7 +983,7 @@
                                 <td width="15%" style="vertical-align: middle;text-align:right;color:#083240;" >Data Entry By</td>
                                 <td  style="vertical-align: middle;" width="18%">
                                     <select class="form-control" name="dataentry" >
-                                        
+                                        <option value="{{$user_position->id}}">{{$user_position->name}}</option>
                                     </select>
                                 </td>
                                 <td width="60%"></td>
@@ -897,11 +1038,13 @@
             </div>
             <div class="row" style="padding-top:10px;text-align:right;background-color:#b9c3cc;">
                 <div class="col-md-12">
-                <input type="submit" name="SubmitAsset" class="btn btn-primary" disabled id="SaveAssetBtn" value="Save">
+                <input type="submit" name="SubmitAsset" class="btn btn-primary" id="SaveAssetBtn" value="Save">
                 <input type="Reset" class="btn btn-primary" value="Cancel">
                 </div>
             </div>
-        </div>
+            </div>
+            </form>
+        
         <div class="tab-pane fade" id="AssetInfoTab" role="tabpanel" aria-labelledby="home-tab" style="background-color:transparent !important;">
             <ul class="nav nav-tabs nav-tab-custom"  role="tablist" style="background-color:white !important;">
                 

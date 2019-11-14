@@ -20,6 +20,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\Response;
 use App\HR_hr_employee_adjustment;
+
+use Auth;
+use App\HR_hr_Asset_setup;
+use Illuminate\Support\Facades\DB;
 class UploadController extends Controller
 {
     public function downloadexceltemplate_adjustment(Request $request){
@@ -275,5 +279,214 @@ class UploadController extends Controller
         );
         return json_encode($data);
         
+    }
+    public function UploadMassAssetSetup(Request $request){
+        $file = $request->file('theFile');
+        $path = $file->getRealPath();
+        $inputFileName = $path;
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($inputFileName);
+        $worksheet = $spreadsheet->getActiveSheet();
+        $error_count=0;
+        $saved_count=0;
+        $countloop=0;
+        $rowcount=0;
+        $extra="";
+        $Log="";
+        foreach ($worksheet->getRowIterator() as $row) {
+            $rowcount++;
+            
+            $cellIterator = $row->getCellIterator();
+            $cellIterator->setIterateOnlyExistingCells(FALSE);
+            if($rowcount>1){
+                $countloop++;
+                $column=1;
+                $type="";
+                $description="";
+                $description_code="";
+                $category="";
+                $category_code="";
+                $sub_category="";
+                $sub_category_code="";
+                $serial_number="";
+                $plate_number="";
+                $location="";
+                $site="";
+                foreach ($cellIterator as $cell) {
+                    
+                    if($column<12){
+                        if($column==1){
+                            $type=$cell->getCalculatedValue();
+                        }
+                        if($column==2){
+                            $description=$cell->getCalculatedValue();
+                        }
+                        if($column==3){
+                            $description_code=$cell->getCalculatedValue();
+                        }
+                        if($column==4){
+                            $category=$cell->getCalculatedValue();
+                        }
+                        if($column==5){
+                            $category_code=$cell->getCalculatedValue();
+                        }
+                        if($column==6){
+                            $sub_category=$cell->getCalculatedValue();
+                        }
+                        if($column==7){
+                            $sub_category_code=$cell->getCalculatedValue();
+                        }
+                        if($column==8){
+                            $serial_number=$cell->getCalculatedValue();
+                        }
+                        if($column==9){
+                            $plate_number=$cell->getCalculatedValue();
+                        }
+                        if($column==10){
+                            $location=$cell->getCalculatedValue();
+                        }
+                        if($column==11){
+                            $site=$cell->getCalculatedValue();
+                        }
+                        
+                        
+                    }
+                    $column++;
+                }
+                $extra.=$type.", ".$location." ".$site."\n";
+                if($type!=''){
+                    if($type=="Asset Tag"){
+                        if($description!=''){
+                            if($description_code!=''){
+                                if($category!=''){
+                                    if($category_code!=''){
+                                        $require_code="0";
+                                        $require_sub="0";
+                                        if($sub_category!=''){
+                                            $require_sub="1";
+                                        }else{
+                                            $require_sub="0";
+                                        }
+                                        if($sub_category_code!=''){
+                                            $require_code="1";
+                                        }else{
+                                            $require_code="0";
+                                        }
+    
+                                        if($require_sub==$require_code){
+                                            //save asset tag setup
+                                            $desc=$description;
+                                            $CN=$category;
+                                            $SC=$sub_category;
+                                            $descrip="";
+                                            $CNNN="";
+                                            $SCCC="";
+                                            if($desc!=""){
+                                                $descrip="asset_setup_description='$desc' ";
+                                            }
+                                            if($CN!=""){
+                                                $CNNN="AND asset_setup_category='$CN' ";
+                                            }
+                                            if($SC!=""){
+                                                $SCCC="AND asset_setup_sub_cat='$SC'";
+                                            }
+                                            $get_adjustment = DB::connection('mysql')->select("SELECT * FROM hr_asset_setup WHERE $descrip $CNNN $SCCC");
+                                            if(count($get_adjustment)>0){
+                                                $error_count++;
+                                                $Log.="Duplicate Asset Tag Combination on row ".$rowcount." from file.\n";  
+                                            }else{
+                                                $gen=$this->generate_id();
+                                                $data= new HR_hr_Asset_setup;
+                                                $data->asset_setup_tag=$type;
+                                                $data->asset_setup_description=$description;
+                                                $data->asset_setup_category=$category;
+                                                $data->asset_setup_sub_cat=$sub_category;
+                                                $data->asset_setup_ad=$description_code;
+                                                $data->asset_setup_ac=$category_code;
+                                                $data->asset_setup_sc=$sub_category_code;
+                                                //plate number required
+                                                $data->asset_setup_sku=$plate_number=='1'? $plate_number : '0' ;
+                                                //serial number
+                                                $data->uom=$serial_number=='1'? $serial_number : '0' ;
+                                                $data->ticket_no=$gen;
+                                                $data->requested_by=Auth::user()->id;
+                                                if($data->save()){
+                                                    $this->generate_transaction_log($gen,$type,'Asset Setup','Queued on AM',$data->id,'');
+                                                }
+                                            }
+                                        }else{
+                                            $error_count++;
+                                            $Log.="Empty Category Code on row ".$rowcount." from file.\n";  
+                                        }
+                                        
+                                    }else{
+                                        $error_count++;
+                                        $Log.="Empty Category Code on row ".$rowcount." from file.\n";  
+                                    }
+                                }else{
+                                    $error_count++;
+                                    $Log.="Empty Category on row ".$rowcount." from file.\n";  
+                                } 
+                            }else{
+                                $error_count++;
+                                $Log.="Empty Description Code on row ".$rowcount." from file.\n";  
+                            }
+                        }else{
+                            $error_count++;
+                            $Log.="Empty Description on row ".$rowcount." from file.\n";  
+                        } 
+                    }else if($type=="Site And Location"){
+                        if($location!=''){
+                            if($site!=''){
+                                //save site and location setup
+                                $data=HR_hr_Asset_setup::where([
+                                    ['asset_setup_location','=',$location],
+                                    ['asset_setup_site','=',$site],
+                                    ['asset_setup_tag','=','Site And Location']
+                                ])->first();
+                                
+                                if(!empty($data)){
+                                    $error_count++;
+                                    $Log.="Duplicate Site And Location on row ".$rowcount." from file.\n";  
+                                    
+                                }else{
+                                    $gen=$this->generate_id();
+                                    $data= new HR_hr_Asset_setup;
+                                    $data->asset_setup_tag=$type;
+                                    $data->asset_setup_site=$site;
+                                    $data->asset_setup_location=$location;
+                                    $data->ticket_no=$gen;
+                                    $data->requested_by=Auth::user()->id;
+                                    if($data->save()){
+                                        $this->generate_transaction_log($gen,$type,'Asset Setup','Queued on AM',$data->id,'');
+                                    }  
+                                }
+                                
+                            }else{
+                                $error_count++;
+                                $Log.="Empty Site on row ".$rowcount." from file.\n";  
+                            }
+                        }else{
+                            $error_count++;
+                            $Log.="Empty Location on row ".$rowcount." from file.\n";  
+                        }
+                    }
+                    
+                }else{
+                    $error_count++;
+                    $Log.="Empty Type on row ".$rowcount." from file.\n";  
+                }
+                
+
+            }
+            
+        }
+        $data = array(
+            'Success' => $saved_count,
+            'Total' => $countloop,
+            'Skiped'  => $error_count,
+            'Error_Log' =>$Log,
+            'Extra'=>$extra
+        );
+        return json_encode($data);
     }
 }

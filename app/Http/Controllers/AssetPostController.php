@@ -62,7 +62,103 @@ use App\HR_hr_asset_request;
 class AssetPostController extends Controller
 {
     //
-    
+    public function add_new_asset(Request $request){
+        
+        $AssetTag=$request->AssetTag;
+		// $AssetType=$request->AssetType;
+		$NewAssignTO=$request->NewAssignTO;
+		$AssetDescription=$request->AssetDescription;
+		$SerialNumber=$request->SerialNumber;
+		$Manufacturer=$request->Manufacturer;
+		$Model=$request->Model;
+		$CategoryName=$request->CategoryName;
+		$AssetCondition=$request->AssetCondition;
+		$AssetSite=$request->AssetSite;
+		$AssetLocation=$request->AssetLocation;
+		$DepartmentCode=$request->DepartmentCode;
+		
+		$Brand=$request->Brand;
+		$vendor_number=$request->vendor_number;
+		$purchase_order=$request->purchase_order;
+		$purchase_date=$request->purchase_date;
+		$purchase_cost=$request->purchase_cost;
+		$initial_value=$request->initial_value;
+		$depreciation_frequency=$request->depreciation_frequency;
+		$useful_life_span=$request->useful_life_span;
+		$depreciation_cost=$request->depreciation_cost;
+		$current_value=$request->current_value;
+		$salvage_value=$request->salvage_value;
+		$depreciable_value=$request->depreciable_value;
+		$dataentry=$request->dataentry;
+		$sku_code=$request->AssetSKU;
+		$SubCategory=$request->SubCategory;
+		// $AssetUOM=$request->AssetUOM;
+		// $AssetUOMAmount=$request->AssetUOMAmount;
+		// $StorageAsset=$request->StorageAsset;
+		$depreciation_date=$request->depreciation_date;
+        $invoice_number=$request->invoice_number;
+        // if (!file_exists('Files/Asset_attachment/'.$AssetTag)) {
+        //     mkdir('Files/Asset_attachment/'.$AssetTag, 0777, true);
+        // }
+        $now=date("Y-m-d");
+        $data_count=HR_hr_Asset::where([
+            ['asset_tag','=',$AssetTag]
+        ])->get();
+        if(!empty($data_count)){
+            $gen=$this->generate_id();
+            $SetCheckOut=$gen;
+            $data= new HR_hr_Asset;
+            $data->asset_tag=$AssetTag;
+            $data->asset_description=$AssetDescription;
+            $data->asset_serial_number=$SerialNumber;
+            $data->asset_manufacturer=$Manufacturer;
+            $data->asset_brand=$Brand;
+            $data->asset_model=$Model;
+            $data->asset_category_name=$CategoryName;
+            $data->asset_sub_category=$SubCategory;
+            $data->asset_condition=$AssetCondition;
+            $data->asset_site=$AssetSite;
+            $data->asset_location=$AssetLocation;
+            $data->asset_department_code=$DepartmentCode;
+            $data->asset_setcheck_defualt=$SetCheckOut;
+            $data->asset_transaction_status='1';
+            $data->asset_assign_to=$NewAssignTO;
+            $data->vendor_number=$vendor_number;
+            $data->purchase_order=$purchase_order;
+            $data->purchase_date=$purchase_date;
+            $data->purchase_cost=$purchase_cost;
+            $data->initial_value=$initial_value;
+            $data->salvage_value=$salvage_value;
+            $data->depriciable_value=$depreciable_value;
+            $data->depreciation_frequency=$depreciation_frequency;
+            $data->useful_life_span=$useful_life_span;
+            $data->depreciation_cost=$depreciation_cost;
+            $data->current_cost=$current_value;
+            $data->asset_approval='-1';
+            $data->date_added=$now;
+            $data->data_entry_by=$dataentry;
+            $data->sku_code=$sku_code;
+            $data->depreciation_date=$depreciation_date;
+            $data->invoice_number=$invoice_number;
+            if($data->save()){
+                $this->generate_transaction_log($gen,$AssetTag,'New Asset','Queued on AM','','');
+                return 1;
+            }
+            
+        }else{
+            return 0;
+        }
+    }
+    public function DeleteTagging(Request $request){
+        $data= HR_hr_Asset_setup::find($request->id);
+        $data->asset_setup_status="";
+        $data->asset_setup_tag="Deleted";
+        if($data->save()){
+            return 1;
+        }else{
+            return 2;
+        }
+    }
     public function add_asset_setup_request(Request $request){
         //return $this->generate_id();
         $gen=$this->generate_id();

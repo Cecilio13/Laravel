@@ -2418,6 +2418,7 @@ $(document).ready(function(){
             <table class="table table-borderless table-sm">
                 <tr>
                     <td style="text-align:right;">
+                        <a class="btn btn-primary btn-sm" href="{{asset('extra/import_file/asset_setup_template.xlsx')}}" download>Download Import Template</a>
                         <label for="excel-upload-asset_stup" style="opacity:1;" id="FIleImportExcelLabel" class="custom-excel-upload btn btn-primary btn-sm">
 							Import
                         </label>
@@ -2426,7 +2427,48 @@ $(document).ready(function(){
 							display: none;
 						}
                         </style>
-                        <input id="excel-upload-asset_stup" type="file" onchange="ImportExcelFile()"  name="excelimport" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                        <script>
+                        function UploadMassAssetSetup(){
+                            start_spinner();
+                            var file = $('#excel-upload-asset_stup')[0].files[0]
+                            var fd = new FormData();
+                            fd.append('theFile', file);
+                            fd.append('_token','{{csrf_token()}}');
+                            $.ajax({
+                                url: 'UploadMassAssetSetup',
+                                type: 'POST',
+                                processData: false,
+                                contentType: false,
+                                data: fd,
+                                dataType:"json",
+                                success: function (data, status, jqxhr) {
+                                    var LOG="";
+                                    if(data.Error_Log!=""){
+                                    LOG=" \n\nSkip Log : \n"+data.Error_Log;
+                                    }
+                                    alert("Total number Of Data : "+data.Total+"\nData Saved : "+data.Success+" \nData Skipped : "+data.Skiped+LOG);
+                                    document.getElementById("excel-upload-asset_stup").value = "";
+                                    console.log("extra : "+data.Extra);
+                                    stop_spinner();
+                                    Swal.fire({
+                                    type: 'success',
+                                    title: 'Success',
+                                    text: 'Successfully Added Employee Data',
+                                    }).then((result) => {
+                                        location.href="asset";
+                                    })
+                                    
+                                },
+                                error: function (jqxhr, status, msg) {
+                                    alert(jqxhr.status +" message"+msg+" status:"+status);
+                                    alert(jqxhr.responseText);
+                                    stop_spinner();
+                                }
+                            });
+                            document.getElementById("excel-upload-asset_stup").value = "";
+                        }
+                        </script>
+                        <input id="excel-upload-asset_stup" type="file" onchange="UploadMassAssetSetup()"  name="excelimport" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                         <input type="submit" class="btn btn-primary btn-sm" name="SaveSetup" id="SaveBtnAssetSetup" value="Save" >
 						<input type="reset" class="btn btn-primary btn-sm" class="close" data-dismiss="modal" value="Cancel">
                     </td>
@@ -2621,11 +2663,41 @@ $(document).ready(function(){
                 </div>
             </div>
             {{-- table of asset setup list --}}
+            <script>
+                $(document).ready(function(){
+                    $.ajax({
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: 'getComapny_defined_Tagging',                
+                        data:{_token: '{{csrf_token()}}'},
+                        success: function(data) {
+                            
+                            $( "#Company_Defined_Tagging_Tbody" ).replaceWith( data );
+                            
+                        }  
+                    }) 
+                    $.ajax({
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: 'getComapny_defined_Tagging_site_and_location',                
+                        data:{_token: '{{csrf_token()}}'},
+                        success: function(data) {
+                            
+                            $( "#SiteAndLocationComapnyDefinedTaggingTbody" ).replaceWith( data );
+                            
+                        }  
+                    }) 
+                    
+                });
+            </script>
             <table class="table table-bordered table-sm" style="background-color:white;" tabindex="1">
                 <thead>
                 <tr style="background-color:#124f62; color:white;">
                     <th colspan="7"><b>Company Defined Tagging</b></th>
-                    
                 </tr>
                 <tr>
                     <th>ASSET</th>
@@ -2637,7 +2709,7 @@ $(document).ready(function(){
                     <th></th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="Company_Defined_Tagging_Tbody">
                 <tr id="XX1">
                     <td contenteditable="true" id="A1" style="text-transform: capitalize" title="CUTTING OUTFIT">CUTTING OUTFIT</td>
                     <td contenteditable="true" onkeyup="limit(this)" id="B1" style="text-transform: uppercase" title="ME">ME</td>
@@ -2665,7 +2737,7 @@ $(document).ready(function(){
                     <th>Site</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="SiteAndLocationComapnyDefinedTaggingTbody">
                 <tr>
                     <td>ANTIQUE</td>
                     <td>BUGASONG</td>

@@ -145,8 +145,22 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/get_asset_setup_location', 'GetController@get_asset_setup_location');
     Route::post('/check_site', 'GetController@check_site');
     Route::post('/get_asset_setup_site', 'GetController@get_asset_setup_site');
+    Route::post('/getComapny_defined_Tagging', 'GetController@getComapny_defined_Tagging');
+    Route::post('/getComapny_defined_Tagging_site_and_location', 'GetController@getComapny_defined_Tagging_site_and_location');
+    Route::post('/getCategoryNewAsset', 'GetController@getCategoryNewAsset');
+    Route::post('/GetSubNewAsset', 'GetController@GetSubNewAsset');
+    Route::post('/GetAssetCount', 'GetController@GetAssetCount');
+    Route::post('/SetSerialAndUOM', 'GetController@SetSerialAndUOM');
+    Route::post('/checkserialunique', 'GetController@checkserialunique');
+    Route::post('/checkplateunique', 'GetController@checkplateunique');
+    Route::post('/GetLocationNewAsset', 'GetController@GetLocationNewAsset');
+    Route::post('/GetSiteNewAsset', 'GetController@GetSiteNewAsset');
+    Route::post('/checkinvoicenumbernewasset', 'GetController@checkinvoicenumbernewasset');
     
+    Route::post('/UploadMassAssetSetup', 'UploadController@UploadMassAssetSetup');
     Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
+    Route::post('/DeleteTagging', 'AssetPostController@DeleteTagging');
+    Route::post('/add_new_asset', 'AssetPostController@add_new_asset');
     
     
     
