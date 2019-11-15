@@ -58,6 +58,8 @@ use App\HR_hr_Asset_setup;
 use App\HR_hr_a_digit;
 use App\HR_hr_asset_photo;
 use App\HR_hr_asset_request;
+use App\HR_hr_asset_transaction_log;
+use App\HR_hr_audit;
 class GetController extends Controller
 {
     //
@@ -529,5 +531,114 @@ class GetController extends Controller
         }
         $table.="</tbody>";
         return $table;
+    }
+    public function getAssetInfoAuditLogTbody(Request $request){
+        $value=$request->value;
+        $data=HR_hr_asset_transaction_log::where([
+            ['asset_tag','=',$value],
+            ['transaction_action','=','Audited']
+        ])->orderBy('log_date', 'DESC')->orderBy('log_time', 'DESC')->get();
+        $content='';
+        if(count($data)>0){
+            foreach($data as $da){
+                $audit_name=$da->transaction_ticket_no;
+                $audit_data=HR_hr_audit::where([
+                    ['audit_window_name','=',$audit_name],
+                    ['audit_asset_tag','=',$value]
+                ])->first();
+                $at=(!empty($audit_data)? $audit_data->auditor : '');
+                $user_data=User::find($at);
+                $content.='<tr>';
+                $content.='<td>';
+                $content.=date("m-d-Y", strtotime($da->log_date));
+                $content.='</td>';
+                $content.='<td>';
+                $content.=date("g:i a", strtotime($da->log_time));
+                $content.='</td>';
+                $content.='<td>';
+                $content.=(!empty($user_data)? $user_data->name : '');
+                $content.='</td>';
+                $statusss="";
+                if(!empty($audit_data)){
+                    if($audit_data->audit_check=="1"){
+                        $statusss="FOUND";
+                    }
+                    if($audit_data->audit_check=="0"){
+                        $statusss="NOT FOUND";
+                    }
+                    if($audit_data->audit_check=="2"){
+                        $statusss="ASSET UNASSIGNED TO THIS LOCATION";
+                    }
+                }
+                
+                $content.='<td>';
+                $content.=$statusss;
+                $content.='</td>';
+                $content.='<td>';
+                $content.=$da->transaction;
+                $content.='</td>';
+                $content.='<td>';
+                $content.=(!empty($audit_data)? $audit_data->requestor : '');
+                $content.='</td>';
+                $content.='<td>';
+                $content.=$da->log_action;
+                $content.='</td>';
+                $content.='<td>';
+                $content.=$da->deny_reason;
+                $content.='</td>';
+                $content.='</tr>';
+            }
+        }else{
+            $content.='<tr><td colspan="11" style="text-align:center;">No Audit Log Found</td></tr>';
+        }
+        
+
+
+        return $content;
+    }
+    public function getAssetInfoTransactionLogTbody(Request $request){
+        $value=$request->value;
+        
+        $data = DB::connection('mysql')->select("SELECT * FROM hr_asset_transaction_log
+            JOIN hr_assets ON hr_assets.id=hr_asset_transaction_log.asset_tag
+            WHERE hr_asset_transaction_log.asset_tag='$value'
+            AND transaction_action!='Audited'
+            ORDER BY asset_transaction_log_id DESC");
+        $content='';
+        if(!empty($data)){
+            foreach($data as $rows){
+                $content.='<tr>';
+                $content.='<td>';
+                $content.=$rows->asset_transaction_log_id;
+                $content.='</td>';
+                $content.='<td>';
+                $content.=date("m-d-Y", strtotime($rows->audit_action_date));
+                $content.='</td>';
+                $content.='<td>';
+                $content.=$rows->log_action_requestor;
+                $content.='</td>';
+                $content.='<td>';
+                $content.=$rows->log_action;
+                $content.='</td>';
+                $content.='<td>';
+                $content.=$rows->transaction_action;
+                $content.='</td>';
+                $content.='<td>';
+                $content.=$rows->deny_reason;
+                $content.='</td>';
+                $content.='<td>';
+                $content.=date("m-d-Y", strtotime($rows->log_date));
+                $content.='</td>';
+                $content.='<td>';
+                $content.=date("g:i a", strtotime($rows->log_time));
+                $content.='</td>';
+                $content.='</tr>';
+            }
+        }else{
+            $content.='<tr><td style="text-align:center;" colspan="8">No Log Found</td></tr>';
+        }
+        
+        
+        return $content;
     }
 }

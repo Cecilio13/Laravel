@@ -21,20 +21,20 @@
     </div>
     <ul class="nav nav-tabs nav-tab-custom" style="display:inline-flex;width:100%;"   role="tablist">
         <li class="nav-item" >
-            <a class="nav-link active" id="viewasset-tab" data-toggle="tab" href="#ViewAssetTab" role="tab" aria-controls="home" aria-selected="true">View Assets</a>
+            <a class="nav-link {{($page=='1'? 'active' : ($page==''? 'active' : '') )}}" id="viewasset-tab" data-toggle="tab" href="#ViewAssetTab" role="tab" aria-controls="home" aria-selected="true">View Assets</a>
         </li>
         <li class="nav-item" >
-            <a class="nav-link" id="newasset-tab" data-toggle="tab" href="#NewAssetTab" role="tab" aria-controls="profile" aria-selected="false">New Asset</a>
+            <a class="nav-link {{($page=='2'? 'active' : '' )}}" id="newasset-tab" data-toggle="tab" href="#NewAssetTab" role="tab" aria-controls="profile" aria-selected="false">New Asset</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="assetinfo-tab" data-toggle="tab" href="#AssetInfoTab" role="tab" aria-controls="contact" aria-selected="false">Asset Information</a>
+            <a class="nav-link {{($page=='3'? 'active' : '' )}}" id="assetinfo-tab" data-toggle="tab" href="#AssetInfoTab" role="tab" aria-controls="contact" aria-selected="false">Asset Information</a>
         </li>
         <li class="nav-item" style="margin-left:auto;">
             <a class="asset_setup_tab nav-link" id="assetsetup-tab" data-toggle="modal" data-target="#AssetSetupModal">Asset Setup and Reference</a>
         </li>
     </ul>
     <div class="tab-content" id="AssetPageTabs" style="margin-bottom:10px;">
-        <div class="tab-pane fade show active" id="ViewAssetTab" role="tabpanel" aria-labelledby="home-tab" style="background-color:transparent !important;">
+        <div class="tab-pane fade {{($page=='1'? 'active show' : ($page==''? 'active show' : '') )}}" id="ViewAssetTab" role="tabpanel" aria-labelledby="home-tab" style="background-color:transparent !important;">
             <table class="table table-sm"  style="background-color:white;margin-top:10px;">
 				<thead style="background-color:#124f62; color:white;">
 					<tr>
@@ -90,7 +90,7 @@
             </table>
 
         </div>
-        <div class="tab-pane fade" id="NewAssetTab" role="tabpanel" aria-labelledby="home-tab" style="background-color:transparent !important;">
+        <div class="tab-pane fade {{($page=='2'? 'active show' : '' )}}" id="NewAssetTab" role="tabpanel" aria-labelledby="home-tab" style="background-color:transparent !important;">
             {{-- new asset tab --}}
             <ul class="nav nav-tabs nav-tab-custom"  role="tablist" style="background-color:white !important;">
                 
@@ -244,7 +244,10 @@
 									document.getElementById('HiddenDescAss').value=$('#Descrrrr').find(':selected').text();
 									$.ajax({
                                     type: 'POST',
-                                    url: 'getCategoryNewAsset',                
+                                    url: 'getCategoryNewAsset',     
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },           
                                     data: {value:Desc,_token: '{{csrf_token()}}'},
                                     success: function(data) {
                                         var element='<select style="width:80%;" onchange="SetSub(),SetAssetTag()" id="CatName" class="form-control" name="CategoryName">';
@@ -261,7 +264,10 @@
 									var Sub=document.getElementById('CatName').value;
                                     $.ajax({
                                     type: 'POST',
-                                    url: 'GetSubNewAsset',                
+                                    url: 'GetSubNewAsset',  
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },              
                                     data: {value:Desc,value2:Sub,_token: '{{csrf_token()}}'},
                                     success: function(data) {
                                         var element='<select style="width:80%;" onchange="SetAssetTag()" id="SubCatName" class="form-control" name="SubCategory">';
@@ -279,7 +285,10 @@
 									var Sub=document.getElementById('SubCatName').value;
 									$.ajax({
                                     type: 'POST',
-                                    url: 'GetAssetCount',                
+                                    url: 'GetAssetCount', 
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },               
                                     data: {_token: '{{csrf_token()}}'},
                                     success: function(data) {
                                         var Count=data;
@@ -347,7 +356,10 @@
 									var Sub=document.getElementById('SubCatName').value;
                                     $.ajax({
                                     type: 'POST',
-                                    url: 'SetSerialAndUOM',                
+                                    url: 'SetSerialAndUOM', 
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },               
                                     data: {Desc:Desc,Cat:Cat,Sub:Sub,_token: '{{csrf_token()}}'},
                                     success: function(data) {
                                         $( "#requireserial_div" ).replaceWith( data );
@@ -426,7 +438,10 @@
                                             }else{
                                                 $.ajax({
                                                 type: 'POST',
-                                                url: 'checkserialunique',                
+                                                url: 'checkserialunique',  
+                                                headers: {
+                                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                },              
                                                 data: {serial:serial,_token: '{{csrf_token()}}'},
                                                 success: function(data) {
                                                     if(data==0){
@@ -460,7 +475,10 @@
                                             var serial=document.getElementById('SKUCODE').value;
                                             $.ajax({
                                             type: 'POST',
-                                            url: 'checkplateunique',                
+                                            url: 'checkplateunique',     
+                                            headers: {
+                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                            },           
                                             data: {serial:serial,_token: '{{csrf_token()}}'},
                                             success: function(data) {
                                                 if(data==0){
@@ -550,7 +568,10 @@
                                             var x = document.getElementById("LocationSearchInput").value;
                                             $.ajax({
                                             type: 'POST',
-                                            url: 'GetLocationNewAsset',                
+                                            url: 'GetLocationNewAsset', 
+                                            headers: {
+                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                            },               
                                             data: {value:x,_token: '{{csrf_token()}}'},
                                             success: function(data) {
                                                 var element='<datalist id="LocationSearchResult">';
@@ -594,7 +615,10 @@
                                             var x2 = document.getElementById("LocationSearchInput").value;
                                             $.ajax({
                                                 type: 'POST',
-                                                url: 'GetSiteNewAsset',                
+                                                url: 'GetSiteNewAsset',    
+                                                headers: {
+                                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                },            
                                                 data: {value:x,value2:x2,_token: '{{csrf_token()}}'},
                                                 success: function(data) {
                                                     var element='<datalist id="SiteSearchResult">';
@@ -668,7 +692,10 @@
                                             var serial=document.getElementById('Invoice_Number').value;
                                             $.ajax({
                                             type: 'POST',
-                                            url: 'checkinvoicenumbernewasset',                
+                                            url: 'checkinvoicenumbernewasset',   
+                                            headers: {
+                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                            },             
                                             data: {serial:serial,_token: '{{csrf_token()}}'},
                                             success: function(data) {
                                                     if(data==0){
@@ -1045,7 +1072,7 @@
             </div>
             </form>
         
-        <div class="tab-pane fade" id="AssetInfoTab" role="tabpanel" aria-labelledby="home-tab" style="background-color:transparent !important;">
+        <div class="tab-pane fade {{($page=='3'? 'active show' : '' )}}" id="AssetInfoTab" role="tabpanel" aria-labelledby="home-tab" style="background-color:transparent !important;">
             <ul class="nav nav-tabs nav-tab-custom"  role="tablist" style="background-color:white !important;">
                 
                 <li class="nav-item" >
@@ -1058,82 +1085,57 @@
                     <a class="nav-link" id="Attachment-tab" data-toggle="tab" href="#ViewAssetAssetLogInfoTab" role="tab" aria-controls="profile" aria-selected="false">Asset Log</a>
                 </li>
             </ul>
+            <script>
+            $(document).ready(function(){
+                
+                $("#edit_asset_information_form").submit(function(e) {
+                e.preventDefault();
+                    $.ajax({
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: 'update_asset_information',                
+                    data: $('#edit_asset_information_form').serialize(),
+                    success: function(data) {
+                        console.log(data);
+                        Swal.fire({
+                        type: 'success',
+                        title: 'Success',
+                        text: 'Successfully Updated Asset Information',
+                        
+                        }).then((result) => {
+                            location.href="asset?page=3";
+                        })
+                    }  
+                    }) 
+                });
+            })
+            </script>
+            
             <div class="tab-content" id="ViewAssetTabTabs">
+                
                 <div class="tab-pane fade show active" id="ViewAssetGeneralInfoTab" role="tabpanel" aria-labelledby="home-tab" style="background-color:transparent !important;">
                     <div class="row" style="margin-bottom:10px;margin-top:10px;">
 						<div class="col-md-12" style="text-align:right;">
-							<script>
-							function GetInput(){
-									var x = document.getElementById("SeachBoxAsset").value;
-									
-									// $.ajax({
-									// 	type: 'POST',
-									// 	url: ' SearchResultAsset.php',                
-									// 	data: {INPUT:x},
-									// success: function(data) {
-									// 	$( "#SearchResult" ).replaceWith( data );
-										
-									// } 											 
-									// })
-								
-							}
-							</script>
-							<form class="form-inline" action="" method="POST" style="float:right;">
+							
+							<form class="form-inline" action="asset" method="get" style="float:right;">
 							  <div class="form-group">
-								<input type="text" class="form-control" id="SeachBoxAsset" name="AssetTagID" onkeyup="GetInput()" onclick="GetInput()" placeholder="Search Asset Here...." autocomplete="off">
-								<div id="SearchResult" style="text-align:left;"></div>
+                                  <input type="hidden" name="page" value="3">
+                                <select  class="form-control selectpicker" data-live-search="true" id="SeachBoxAsset" name="AssetTagID">
+                                <option value="">--Select Asset--</option>
+                                @foreach ($asset_list as $list)
+                                <option value="{{$list->id}}" {{$AssetTagID==$list->id? 'selected' : ''}}>{{$list->asset_tag}}</option>
+                                @endforeach
+                                </select>
+								
 							  </div>
 							  
-							  <input type="submit" class="btn btn-primary" name="SubmitViewAsset" value="View">
+							  <input type="submit" style="margin-left:10px;" class="btn btn-primary" name="SubmitViewAsset" value="View">
 							</form>
 						</div>
                     </div>
-                    <?php
-                        $asset_id="";
-						$ViewAssetTag="";
-						$ViewAssignTo="";
-						$ViewAssetType="";
-						$ViewAssetDesc="";
-						$ViewAssetSerialNumber="";
-						$ViewAssetManufacturer="";
-						$ViewAssetModel="";
-						$ViewAssetCategoryName="";
-						$ViewAssetCondition="";
-						$ViewAssetSite="";
-						$ViewAssetLocation="";
-						$ViewAssetDeptCode="";
-						$Employee_Name2="";
-						$ViewAssetCheckOutDefault="";
-						$ViewAssetVendorNumber="";
-						$ViewAssetPurchaseOrder="";
-						$ViewAssetPurchaseDate="";
-						$ViewAssetPurchaseCost="";
-						$ViewAssetInitialValue="";
-						$ViewAssetDepreciationFrequency="";
-						$ViewAssetUsefullifeSpan="";
-						$ViewAssetDepreciationCost="";
-						$ViewAssetCurrentValue="";
-						$ViewAssetFileAttachment="";
-						$ViewAssetSub="";
-						$AssetUOM="";
-						$AssetUOMAmount="";
-						$StorageAsset="";
-						$photo="noimage.png";
-						$photo2="noimage.png";
-						$photo3="noimage.png";
-						$Employee_I="";
-						$Employee_Name="";
-						$sku_code="";
-						$sku_number="";
-						$Middle="";
-						$Spacon="";
-						$ViewAssetbrand="";
-						$depreciation_date="";
-						$ViewAssetbrand="";
-						$invoice_number="";
-						$depriciable_value="";
-						$salvage_value="";
-                    ?>
+                    <form id="edit_asset_information_form">
                     <input type="hidden" value="<?php echo $ViewAssetTag; ?>" name="AssetTagID" id="new_asset_tag">
                     <input type="hidden" value="<?php echo $asset_id; ?>" name="AssetID" id="asset_original_tag">
                     {{-- view/edit asset information --}}
@@ -1166,7 +1168,7 @@
                         <thead style="background-color:#124f62; color:white;">
                             <tr>
                                 <th colspan="3" style="vertical-align:middle;">ASSET INFORMATION</th>
-                                <th colspan="2" style="text-align:right;vertical-align:middle;padding-top:10px;padding-bottom:10px;"><a onclick="EnableEditInfo()" style="display:none;" title="Edit '<?php echo $ViewAssetTag; ?>'" id="EnableEdit" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span></a></th>
+                                <th colspan="3" style="text-align:right;vertical-align:middle;padding-top:10px;padding-bottom:10px;"><a onclick="EnableEditInfo()" style="display:none;" title="Edit '<?php echo $ViewAssetTag; ?>'" id="EnableEdit" class="btn btn-success"><span class="fa fa-pencil"></span></a></th>
                                 <script>
                                     $Edit=0;
                                     function EnableEditInfo(){
@@ -1296,7 +1298,7 @@
 								//$qrdata="https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=".$ViewAssetTag."%0A"."Asset Description - ".$ViewAssetDesc."%0A"."Category - ".$CategoryNameFull."%0A".$ViewAssetSub1."%0A".$ViewAssetSerialNumber1."%0A".$sku_code1."%0A";
 								$qrdata="https://api.qrserver.com/v1/create-qr-code/?data=".$ViewAssetTag."%0A"."AD-".$ViewAssetDesc."%0A"."Cat-".$CategoryNameFull."%0A".$ViewAssetSub1."".$ViewAssetSerialNumber1."".$sku_code1."&amp;size=150x150";
 								?>
-								<td width="20%" style="vertical-align: middle;text-align:center;" rowspan="9" id="QRCODEDIV">
+								<td width="20%" style="vertical-align: middle;text-align:center;" rowspan="11" id="QRCODEDIV">
 								<div style="padding-right:10px;padding-top:20px;padding-left:10px;text-align:center;margin-top:0px;">
 								<img src="images/KKCCSC.png" style="width:40%;margin-right:5px;display:none" id="logoprint"><img id="QRImage" src="<?php echo $qrdata; ?>" title="<?php echo $ViewAssetTag; ?>" style="width:70%;">
 								<b id="AssetDDSS"><br><span id="EditViewAssetTagLabel"><?php echo $ViewAssetTag; ?></span></b>
@@ -1305,7 +1307,7 @@
 								<br><br><button class="btn btn-primary" style="display:none;" id="PrintButtonViewAsset" onclick="printDiv('QRCODEDIV')"><span class="glyphicon glyphicon-print"></span> Print QR</button>
 								</div>
 								</td>
-								<td  style="vertical-align: middle;" rowspan="9">
+								<td  style="vertical-align: middle;" rowspan="11">
 								
 								<script>
 									function CHangePic(id){
@@ -1314,7 +1316,7 @@
 										
 									}
 								</script>
-								<div class="col-md-12">
+								<div class="col-md-12" style="display:none;">
 									<label style="position:absolute; bottom: 0px;left: 0px;display:none" for="image-upload" class="custom-file-upload">
 												<i class="	glyphicon glyphicon-camera"></i> Select Photo
 											</label>
@@ -1341,7 +1343,7 @@
 																	  
 									</div>
 								</div>
-								<div class="col-md-12" style="text-align:center;">
+								<div class="col-md-12" style="text-align:center;display:none;">
 									<style>
 										#oooo>li{
 											display:inline;
@@ -1356,8 +1358,8 @@
 										</li>
 										
 									</ul>
-									<a  onclick="addimage('<?php echo $asset_id; ?>')" style="display:none" id="Addiage" class="btn btn-primary">Add Image</a>
-									<a disabled  style="display:none" id="Addiage2" class="btn btn-primary">Add Image</a>
+									<a  onclick="addimage('<?php echo $asset_id; ?>')" style="display:none" id="Addiage" class="btn btn-primary" style="color:white !important;">Add Image</a>
+									<a disabled href="#"  style="display:none" id="Addiage2" class="btn btn-primary" style="color:white !important;">Add Image</a>
 									
 								</div>
 								<script>
@@ -1400,24 +1402,49 @@
 								<td style="vertical-align: middle;text-align:right;color:#083240;">Asset</td>
 								<td style="vertical-align: middle;">
 								<script>
+                                var cat_initial='{{$ViewAssetCategoryName}}';
+                                var sub_initial='{{$ViewAssetSub}}';
+                                $(document).ready(function(){
+                                    if('{{$AssetTagID}}'!=''){
+                                        $('#Descrrrr22').trigger('change');
+                                    }
+                                    
+                                });
 								function SetQRTitle22222(tag){
 									var Desc=document.getElementById('Descrrrr22').value;
-									document.getElementById('HiddenDescAss22222').value=$('#Descrrrr22').find(':selected').text();
-									// $.ajax({
-									// 	type: 'POST',
-									// 	url: 'GetCatAndSubedit.php',          
-									// 	data: {SKUCode:Desc,tag:tag},
-									// success: function(data) {
-									// 	$( "#CatName2" ).replaceWith( data );
-									// 	SetSub222222(tag);
-										
-									// } 											 
-									// })
+                                    document.getElementById('HiddenDescAss22222').value=$('#Descrrrr22').find(':selected').text();
+                                    
+									$.ajax({
+                                    type: 'POST',
+                                    url: 'getCategoryNewAsset',  
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },              
+                                    data: {value:Desc,_token: '{{csrf_token()}}'},
+                                    success: function(data) {
+                                        var element="";
+                                        if(cat_initial==""){
+                                            element=element+'<select id="CatName2"  class="form-control" onchange="SetSub222222(\'<?php echo $ViewAssetTag; ?>\'),SetAssetTag22222()" name="CategoryName" ><option></option>';
+                                        }else{
+                                            element=element+'<select id="CatName2"  class="form-control" onchange="SetSub222222(\'<?php echo $ViewAssetTag; ?>\'),SetAssetTag22222()" name="CategoryName" disabled><option></option>';
+                                        }
+                                        
+                                            element=element+data;
+                                            element=element+'</select>';
+                                        $( "#CatName2" ).replaceWith( element );
+                                        document.getElementById('CatName2').value=cat_initial;
+                                        cat_initial="";
+										SetSub222222(tag);
+                                    }  
+                                    });
 									
 								}
 								</script>
-								<select  class="form-control" onchange="SetQRTitle22222('<?php echo $ViewAssetTag; ?>')"  id="Descrrrr22" name="AssetDescription" disabled>
-									
+                                <select  class="form-control" onchange="SetQRTitle22222('<?php echo $ViewAssetTag; ?>')"  id="Descrrrr22" name="AssetDescription" disabled>
+                                    <option value=""></option>
+                                    @foreach ($asset_description_grouped as $data)
+                                        <option value="{{$data->asset_setup_ad}}" {{$data->asset_setup_ad==$ViewAssetDesc? 'selected' : ''}}>{{$data->asset_setup_description}}</option>
+                                    @endforeach
 								</select>
 								<input type="hidden" id="HiddenDescAss22222" name="HiddenDescAss22222" value="<?php echo $ViewAssetDesc; ?>">
 								<td></td>
@@ -1429,22 +1456,36 @@
 								function SetSub222222(tag){
 									
 									var Sub=document.getElementById('CatName2').value;
-									var DDDD=document.getElementById('Descrrrr22').value;
-									// $.ajax({
-									// 	type: 'POST',
-									// 	url: 'GeSubedit.php',
-									// 	data: {SKUCode:Sub,tag:tag,DDDD:DDDD},
-									// success: function(data) {
-									// 	$( "#SubCatName2" ).replaceWith( data );
-									// 	SetAssetTag22222();
-										
-									// } 											 
-									// })
+                                    var Desc=document.getElementById('Descrrrr22').value;
+                                    $.ajax({
+                                    type: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    url: 'GetSubNewAsset',                
+                                    data: {value:Desc,value2:Sub,_token: '{{csrf_token()}}'},
+                                    success: function(data) {
+                                        var element='';
+                                        if(sub_initial==""){
+                                            element=element+'<select  id="SubCatName2"  class="form-control" onchange="SetAssetTag22222()" name="SubCategory" ><option></option>';
+                                        }else{
+                                            element=element+'<select  id="SubCatName2"  class="form-control" onchange="SetAssetTag22222()" name="SubCategory" disabled><option></option>';
+                                        }
+                                        
+                                            element=element+data;
+                                            element=element+'</select>';
+                                        $( "#SubCatName2" ).replaceWith( element );
+                                        document.getElementById('SubCatName2').value=sub_initial;
+                                        sub_initial="";
+										SetAssetTag22222();
+                                    }  
+                                    });
+									
 									
 								}
 								function SetAssetTag22222(){
 									//document.getElementById('AssetTaggg').value=document.getElementById('asssss').value;
-									var str=document.getElementById('asset_original_tag').value;
+									var str=document.getElementById('new_asset_tag').value;
 									var res =str.split("-");
 									var digitcount="";
 									if(res.length==5){
@@ -1573,29 +1614,31 @@
 												document.getElementById("SerialID").style.borderColor = "#d8d8d8";
 											}
 											else{
-												// $.ajax({
-												// type: 'POST',
-												// url: ' CheckSerialEdit.php',                
-												// data: {serial:serial},
-												// success: function(data) {
-												// 	if(data==0){
-												// 		SER=0;
-												// 		$('#SerialID').popover('hide');
-												// 		$('#SerialID').popover('disable');
-												// 		if(INVO==0 && PLA==0 && SER==0){
-												// 			document.getElementById('SaveBtnEditAsset').disabled=false;
-												// 		}
-												// 		document.getElementById("SerialID").style.borderColor = "#d8d8d8";
-												// 	}else{
-												// 		SER=1;
-												// 		$( "#CheckSerialDivReplaace	" ).replaceWith( data );
-												// 		document.getElementById('SaveBtnEditAsset').disabled=true;
-												// 		document.getElementById("SerialID").style.borderColor = "#ed5a5a";
-												// 		$('#SerialID').popover('enable');
-												// 		$('#SerialID').popover('show');
-												// 	}
-												// } 											 
-												// })
+                                                $.ajax({
+                                                type: 'POST',
+                                                url: 'checkserialunique',  
+                                                headers: {
+                                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                },              
+                                                data: {serial:serial,_token: '{{csrf_token()}}'},
+                                                success: function(data) {
+                                                    if(data==0){
+														SER=0;
+														
+														if(INVO==0 && PLA==0 && SER==0){
+															document.getElementById('SaveBtnEditAsset').disabled=false;
+														}
+														document.getElementById("SerialID").style.borderColor = "#d8d8d8";
+													}else{
+														SER=1;
+														
+														document.getElementById('SaveBtnEditAsset').disabled=true;
+														document.getElementById("SerialID").style.borderColor = "#ed5a5a";
+														
+													}
+                                                }  
+                                                });
+												
 											}
 										}
 									}
@@ -1616,29 +1659,33 @@
 												
 											}
 											else{
-												var serial=document.getElementById('SKUCODE332').value;
-												// $.ajax({
-												// type: 'POST',
-												// url: ' CheckPlateEdit.php',                
-												// data: {serial:serial},
-												// success: function(data) {
+                                                var serial=document.getElementById('SKUCODE332').value;
+                                                
+                                                $.ajax({
+                                                type: 'POST',
+                                                url: 'checkplateunique',     
+                                                headers: {
+                                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                },           
+                                                data: {serial:serial,_token: '{{csrf_token()}}'},
+                                                success: function(data) {
+                                                    if(data==0){
+														PLA=0;
+														//$('#SKUCODE332').popover('hide');
+														if(INVO==0 && PLA==0 && SER==0){
+																document.getElementById('SaveBtnEditAsset').disabled=false;
+															}
+														document.getElementById("SKUCODE332").style.borderColor = "#d8d8d8";
+													}else{
+														PLA=1;
+														//$( "#ssscrrPlate" ).replaceWith( data );
+														document.getElementById('SaveBtnEditAsset').disabled=true;
+														document.getElementById("SKUCODE332").style.borderColor = "#ed5a5a";
+														//$('#SKUCODE332').popover('show');
+													}
+                                                }  
+                                                });
 												
-												// 	if(data==0){
-												// 		PLA=0;
-												// 		$('#SKUCODE332').popover('hide');
-												// 		if(INVO==0 && PLA==0 && SER==0){
-												// 				document.getElementById('SaveBtnEditAsset').disabled=false;
-												// 			}
-												// 		document.getElementById("SKUCODE332").style.borderColor = "#d8d8d8";
-												// 	}else{
-												// 		PLA=1;
-												// 		$( "#ssscrrPlate" ).replaceWith( data );
-												// 		document.getElementById('SaveBtnEditAsset').disabled=true;
-												// 		document.getElementById("SKUCODE332").style.borderColor = "#ed5a5a";
-												// 		$('#SKUCODE332').popover('show');
-												// 	}
-												// } 											 
-												// })
 											}
 										}
 									}
@@ -1672,7 +1719,7 @@
 									}
 								</script>
 								<?php 
-									if($ViewAssetTag!=""){
+									if($AssetTagID!=""){
 										if($depreciation_date!=""){
 										echo "<script>document.getElementById('PrintButtonViewAsset').style.display='inline';</script>";
 										}
@@ -1793,29 +1840,34 @@
                                                 }
                                                 else{
                                                     var serial=document.getElementById('invoiceNumber').value;
-                                                    // $.ajax({
-                                                    // type: 'POST',
-                                                    // url: ' CheckInvoiceEdit.php',                
-                                                    // data: {serial:serial},
-                                                    // success: function(data) {
                                                     
-                                                    //     if(data==0){
-                                                    //         INVO=0;
+                                                    $.ajax({
+                                                    type: 'POST',
+                                                    url: 'checkinvoicenumbernewasset',   
+                                                    headers: {
+                                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                    },             
+                                                    data: {serial:serial,_token: '{{csrf_token()}}'},
+                                                    success: function(data) {
                                                             
-                                                    //         $('#invoiceNumber').popover('hide');
-                                                    //         if(INVO==0 && PLA==0 && SER==0){
-                                                    //             document.getElementById('SaveBtnEditAsset').disabled=false;
-                                                    //         }
-                                                    //         document.getElementById("invoiceNumber").style.borderColor = "#d8d8d8";
-                                                    //     }else{
-                                                    //         INVO=1;
-                                                    //         $( "#ssscrrInvoice" ).replaceWith( data );
-                                                    //         document.getElementById('SaveBtnEditAsset').disabled=true;
-                                                    //         document.getElementById("invoiceNumber").style.borderColor = "#ed5a5a";
-                                                    //         $('#invoiceNumber').popover('show');
-                                                    //     }
-                                                    // }
-                                                    // })
+                                                            if(data==0){
+                                                                INVO=0;
+                                                                
+                                                                //$('#invoiceNumber').popover('hide');
+                                                                if(INVO==0 && PLA==0 && SER==0){
+                                                                    document.getElementById('SaveBtnEditAsset').disabled=false;
+                                                                }
+                                                                document.getElementById("invoiceNumber").style.borderColor = "#d8d8d8";
+                                                            }else{
+                                                                INVO=1;
+                                                                //$( "#ssscrrInvoice" ).replaceWith( data );
+                                                                document.getElementById('SaveBtnEditAsset').disabled=true;
+                                                                document.getElementById("invoiceNumber").style.borderColor = "#ed5a5a";
+                                                                //$('#invoiceNumber').popover('show');
+                                                            }
+                                                    }  
+                                                    });
+                                                    
                                                 }
                                             }
                                             
@@ -2117,16 +2169,17 @@
                         </tbody>
                     </table>
                     <div class="row">
-                        <div class="col-md-12" style="text-align:right;">
+                        <div class="col-md-12" style="text-align:right;margin-top:10px;">
                             <input type="submit" id="SaveBtnEditAsset" style="display:none" class="btn btn-success" name="SaveChanges" value="Save Changes">
                         </div>
                     </div>
+                    </form>
                 </div>
                 <div class="tab-pane fade " id="ViewAssetAttachmentInfoTab" role="tabpanel" aria-labelledby="home-tab">
                     <table class="table table-sm" style="background-color:white;margin-bottom:0px;margin-top:10px;">
 							<thead >
 							<?php
-							if($ViewAssetTag!=""){
+							if($AssetTagID!=""){
 							?>
 								<tr>
 									<th colspan="1">
@@ -2149,15 +2202,15 @@
 											var count=names.length;
 												console.log(names);
 												
-											$.ajax({
-											type: 'POST',
-											url: ' setfiles2.php',                
-											data: {names:names},
-											success: function(data) {
+											// $.ajax({
+											// type: 'POST',
+											// url: ' setfiles2.php',                
+											// data: {names:names},
+											// success: function(data) {
 												
-												$( "#filesbody2" ).replaceWith( data );
-											}						 
-											})
+											// 	$( "#filesbody2" ).replaceWith( data );
+											// }						 
+											// })
 										}
 									</script>
 								</tr>
@@ -2173,36 +2226,10 @@
 								</tr>
 							</thead>
 							<?php
-							if($ViewAssetTag!=""){
+							if($AssetTagID!=""){
 							?>
 							<tbody>
-								<?php
-									$directory = 'Files/Asset_attachment/'.$ViewAssetTag."/";
-									$scanned_directory = array_diff(scandir($directory), array('..', '.'));
-									//echo count($scanned_directory);
-									if(count($scanned_directory)!=0){
-									?>
-									<?php
-									$directory = 'Files/Asset_attachment/'.$ViewAssetTag."/";
-									$scanned_directory = array_diff(scandir($directory), array('..', '.'));
-									foreach($scanned_directory as $file){
-									?>
-									<tr>
-										<td style="vertical-align: middle;color:#083240;" width="40%"><a href="download.php?file=<?php echo 'Files/Asset_attachment/'.$ViewAssetTag."/".$file; ?>"><?php echo $file; ?></a></td>
-										<td style="vertical-align: middle;color:#083240;text-align:right;" width="15%"><a href="download.php?file=<?php echo 'Files/Asset_attachment/'.$ViewAssetTag."/".$file; ?>"class="btn btn-primary">Download</a></td>
-									</tr>	
-									<?php	
-										
-									}
-									
-									}else{
-									?>
-									<tr>
-										<td colspan="2" style="vertical-align:middle;text-align:center;"> No Attached File Found....</td>
-									</tr>
-									<?php
-									}
-								?>
+								
 							</tbody>
 							<?php
 							}
@@ -2211,9 +2238,46 @@
                 </div>
                 <div class="tab-pane fade " id="ViewAssetAssetLogInfoTab" role="tabpanel" aria-labelledby="home-tab" style="background-color:transparent !important;">
                     <?php 
-                    if($ViewAssetTag!=""){
+                    if($AssetTagID!=""){
                     ?>
                     <h3 style="color:#124f62"><?php echo $ViewAssetTag; ?></h3>
+                    <script>
+                        $(document).ready(function(){
+                            $.ajax({
+                            type: 'POST',
+                            url: 'getAssetInfoAuditLogTbody',  
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },              
+                            data: {value:'<?php echo $ViewAssetTag; ?>',_token: '{{csrf_token()}}'},
+                            success: function(data) {
+                                var element="<tbody id='AssetInfoAuditLogTbody'>";
+                                
+                                    element=element+data;
+                                    element=element+'</tbody>';
+                                $( "#AssetInfoAuditLogTbody" ).replaceWith( element );
+                               
+                            }  
+                            }); 
+                            $.ajax({
+                            type: 'POST',
+                            url: 'getAssetInfoTransactionLogTbody',  
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },              
+                            data: {value:'<?php echo $ViewAssetTag; ?>',_token: '{{csrf_token()}}'},
+                            success: function(data) {
+                                var element="<tbody id='AssetInfoTransactionLogTbody'>";
+                                
+                                    element=element+data;
+                                    element=element+'</tbody>';
+                                $( "#AssetInfoTransactionLogTbody" ).replaceWith( element );
+                               
+                            }  
+                            });
+                            //AssetInfoTransactionLogTbody
+                        })
+                    </script>
                     <?php
                     }
                     
@@ -2235,7 +2299,7 @@
                             <th width="10%">Note</th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="AssetInfoAuditLogTbody">
                             <tr>
                                 <td colspan="9" style="vertical-align:middle;text-align:center;"> No Log Found....</td>
                             </tr>
@@ -2247,10 +2311,16 @@
                                     
                         <thead >
                             <?php 
-                            if($ViewAssetTag!=""){
+                            if($AssetTagID!=""){
                             ?>
                             <tr style="background-color:#124f62; color:white;">
-                                <th colspan="9" style="text-align:center;"><?php echo $ViewAssetDesc; ?></th>
+                                <th colspan="9" style="text-align:center;">
+                                    @foreach ($asset_description_grouped as $data)
+                                        @if ($ViewAssetDesc==$data->asset_setup_ad)
+                                            {{$data->asset_setup_description}}
+                                        @endif
+                                    @endforeach
+                                </th>
                             </tr>
                             <?php
                             }
@@ -2268,13 +2338,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td colspan="9" style="vertical-align:middle;text-align:center;"> No Log Found....</td>
-                            </tr>
+                            <tbody id="AssetInfoTransactionLogTbody">
+                                <tr>
+                                    <td colspan="9" style="vertical-align:middle;text-align:center;"> No Log Found....</td>
+                                </tr>
+                            </tbody>
                         </tbody>
                     </table>
                 </div>
             </div>
+            
         </div>
         
     </div>

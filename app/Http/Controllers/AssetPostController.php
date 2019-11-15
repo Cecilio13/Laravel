@@ -59,9 +59,76 @@ use App\HR_hr_Asset_setup;
 use App\HR_hr_a_digit;
 use App\HR_hr_asset_photo;
 use App\HR_hr_asset_request;
+use App\HR_hr_asset_transaction_log;
 class AssetPostController extends Controller
 {
     //
+    public function update_asset_information(Request $request){
+        $AssetTag=$request->AssetTagID; 
+		// $AssetType=$request->AssetType;
+		$NewAssignTO=$request->NewAssignTO; 
+		$AssetDescription=$request->AssetDescription;
+		$SerialNumber=$request->SerialNumber;
+		$Manufacturer=$request->Manufacturer;
+		$Model=$request->Model;
+		$CategoryName=$request->CategoryName;
+		$AssetCondition=$request->AssetCondition;
+		$AssetSite=$request->AssetSite;
+		$AssetLocation=$request->AssetLocation;
+		$DepartmentCode=$request->DepartmentCode;
+		$assigntoview=$request->assigntoview;
+		$Brand=$request->Brand;
+		$vendor_number=$request->vendor_name; 
+		$purchase_order=$request->purchase_Order; 
+		$purchase_date=$request->purchaseDate222; 
+		$purchase_cost=$request->Purchase_Cost222; 
+		$initial_value=$request->INITVALLL; 
+		$depreciation_frequency=$request->Freq; 
+		$useful_life_span=$request->usefultime; 
+		$depreciation_cost=$request->depcost223123; 
+		$current_value=$request->curvaluesss; 
+		$salvage_value=$request->SalvageCVAAS; 
+		$depreciable_value=$request->DEPVal222; 
+		$sku_code=$request->AssetSKU; 
+		$SubCategory=$request->SubCategory;
+		
+		$depreciation_date=$request->depreciation_date2; 
+        $invoice_number=$request->invoice_number2; 
+        
+        $data= HR_hr_Asset::find($request->AssetID);
+        $data->asset_tag=$AssetTag;
+        $data->asset_description=$AssetDescription;
+        $data->asset_serial_number=$SerialNumber;
+        $data->asset_manufacturer=$Manufacturer;
+        $data->asset_brand=$Brand;
+        $data->asset_model=$Model;
+        $data->asset_category_name=$CategoryName;
+        $data->asset_sub_category=$SubCategory;
+        $data->asset_condition=$AssetCondition;
+        $data->asset_site=$AssetSite;
+        $data->asset_location=$AssetLocation;
+        $data->asset_department_code=$DepartmentCode;
+        $data->asset_assign_to=$NewAssignTO;
+        $data->vendor_number=$vendor_number;
+        $data->purchase_order=$purchase_order;
+        $data->purchase_date=$purchase_date;
+        $data->purchase_cost=$purchase_cost;
+        $data->initial_value=$initial_value;
+        $data->salvage_value=$salvage_value;
+        $data->depriciable_value=$depreciable_value;
+        $data->depreciation_frequency=$depreciation_frequency;
+        $data->useful_life_span=$useful_life_span;
+        $data->depreciation_cost=$depreciation_cost;
+        $data->current_cost=$current_value;
+        $data->assigned_to_temp=$assigntoview;
+        $data->asset_assign_to=$assigntoview;
+        $data->sku_code=$sku_code;
+        $data->depreciation_date=$depreciation_date;
+        $data->invoice_number=$invoice_number;
+        if($data->save()){
+            
+        }
+    }
     public function add_new_asset(Request $request){
         
         $AssetTag=$request->AssetTag;
@@ -123,6 +190,8 @@ class AssetPostController extends Controller
             $data->asset_setcheck_defualt=$SetCheckOut;
             $data->asset_transaction_status='1';
             $data->asset_assign_to=$NewAssignTO;
+            $data->assigned_to_temp=$NewAssignTO;
+            
             $data->vendor_number=$vendor_number;
             $data->purchase_order=$purchase_order;
             $data->purchase_date=$purchase_date;
@@ -141,7 +210,7 @@ class AssetPostController extends Controller
             $data->depreciation_date=$depreciation_date;
             $data->invoice_number=$invoice_number;
             if($data->save()){
-                $this->generate_transaction_log($gen,$AssetTag,'New Asset','Queued on AM','','');
+                $this->generate_transaction_log($gen,$data->id,'New Asset','Queued on AM','','');
                 return 1;
             }
             

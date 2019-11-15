@@ -156,11 +156,14 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/GetLocationNewAsset', 'GetController@GetLocationNewAsset');
     Route::post('/GetSiteNewAsset', 'GetController@GetSiteNewAsset');
     Route::post('/checkinvoicenumbernewasset', 'GetController@checkinvoicenumbernewasset');
+    Route::post('/getAssetInfoAuditLogTbody', 'GetController@getAssetInfoAuditLogTbody');
+    Route::post('/getAssetInfoTransactionLogTbody', 'GetController@getAssetInfoTransactionLogTbody');
     
     Route::post('/UploadMassAssetSetup', 'UploadController@UploadMassAssetSetup');
     Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
     Route::post('/DeleteTagging', 'AssetPostController@DeleteTagging');
     Route::post('/add_new_asset', 'AssetPostController@add_new_asset');
+    Route::post('/update_asset_information', 'AssetPostController@update_asset_information');
     
     
     

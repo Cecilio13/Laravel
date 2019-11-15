@@ -211,6 +211,9 @@ class AppServiceProvider extends ServiceProvider
             ['asset_setup_tag','=','Asset Tag'],
             ['asset_setup_status','=','1']
         ])->groupBy('asset_setup_description')->get());
+        view()->share('asset_list',HR_hr_Asset::where([
+            ['asset_approval','=','1']
+        ])->get());
         view()->share('employee_attendance_list', HR_hr_employee_attendance::all());
         view()->share('payroll_year_list', HR_payroll::select('payroll_year')->groupBy('payroll_year')->orderBy('payroll_year', 'DESC')->get());
         view()->share('unprocessed_payroll_list', HR_payroll::where([
