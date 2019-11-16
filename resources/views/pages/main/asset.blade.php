@@ -67,6 +67,404 @@
 				</tbody>
             </table>
             
+            <script>
+                 var table="";
+			$(document).ready(function(){
+                table = $('#TableAsset').DataTable( {
+                    
+                } );
+                SetDefaultColumns();
+            })	
+                var h1=0;
+                var h2=1;
+                var h3=0;
+                var h4=1;
+                var h5=1;
+                var h6=0;
+                var h7=0;
+                var h8=0;
+                var h9=0;
+                var h10=0;
+                
+                var h14=0;
+                var h15=0;
+                var h16=0;
+            function SetDefaultColumns(){
+                h1=0;
+                h2=1;
+                h3=0;
+                h4=1;
+                h5=1;
+                h6=0;
+                h7=0;
+                h8=0;
+                h9=0;
+                h10=0;
+                h14=0;
+                h15=0;
+                h16=0;
+                toggleww();
+            }
+            function toggleww(){
+                
+                
+                    if(h1==0){
+                        
+                        document.getElementById('h1').style.backgroundColor='#2d5d87';
+                        document.getElementById('h1').style.borderColor ='#2d5d87';
+                        
+                    }else{
+                        
+                        document.getElementById('h1').style.backgroundColor='#5cb85c';
+                        document.getElementById('h1').style.borderColor='#5cb85c';
+                        
+                    }
+                    if(h2==0){
+                        
+                        document.getElementById('h2').style.backgroundColor='#2d5d87';
+                        document.getElementById('h2').style.borderColor='#2d5d87';
+                    }else{
+                        
+                        document.getElementById('h2').style.backgroundColor='#5cb85c';
+                        document.getElementById('h2').style.borderColor='#5cb85c';
+                    }
+                    
+                    if(h4==0){
+                        
+                        document.getElementById('h4').style.backgroundColor='#2d5d87';
+                        document.getElementById('h4').style.borderColor='#2d5d87';
+                    }else{
+                        
+                        document.getElementById('h4').style.backgroundColor='#5cb85c';
+                        document.getElementById('h4').style.borderColor='#5cb85c';
+                    }
+                    if(h5==0){
+                        
+                        document.getElementById('h5').style.backgroundColor='#2d5d87';
+                        document.getElementById('h5').style.borderColor='#2d5d87';
+                    }else{
+                        
+                        document.getElementById('h5').style.backgroundColor='#5cb85c';
+                        document.getElementById('h5').style.borderColor='#5cb85c';
+                    }
+                    if(h6==0){
+                        
+                        document.getElementById('h6').style.backgroundColor='#2d5d87';
+                        document.getElementById('h6').style.borderColor='#2d5d87';
+                    }else{
+                        
+                        document.getElementById('h6').style.backgroundColor='#5cb85c';
+                        document.getElementById('h6').style.borderColor='#5cb85c';
+                    }
+                    if(h7==0){
+                        
+                        document.getElementById('h7').style.backgroundColor='#2d5d87';
+                        document.getElementById('h7').style.borderColor='#2d5d87';
+                    }else{
+                        
+                        document.getElementById('h7').style.backgroundColor='#5cb85c';
+                        document.getElementById('h7').style.borderColor='#5cb85c';
+                    }
+                    if(h8==0){
+                        
+                        document.getElementById('h8').style.backgroundColor='#2d5d87';
+                        document.getElementById('h8').style.borderColor='#2d5d87';
+                    }else{
+                        
+                        document.getElementById('h8').style.backgroundColor='#5cb85c';
+                        document.getElementById('h8').style.borderColor='#5cb85c';
+                    }
+                    if(h9==0){
+                        
+                        document.getElementById('h9').style.backgroundColor='#2d5d87';
+                        document.getElementById('h9').style.borderColor='#2d5d87';
+                    }else{
+                        
+                        document.getElementById('h9').style.backgroundColor='#5cb85c';
+                        document.getElementById('h9').style.borderColor='#5cb85c';
+                    }
+                    if(h10==0){
+                        
+                        document.getElementById('h10').style.backgroundColor='#2d5d87';
+                        document.getElementById('h10').style.borderColor='#2d5d87';
+                    }else{
+                        
+                        document.getElementById('h10').style.backgroundColor='#5cb85c';
+                        document.getElementById('h10').style.borderColor='#5cb85c';
+                    }
+                    
+                    if(h14==0){
+                        
+                        document.getElementById('h14').style.backgroundColor='#2d5d87';
+                        document.getElementById('h14').style.borderColor='#2d5d87';
+                    }else{
+                        
+                        document.getElementById('h14').style.backgroundColor='#5cb85c';
+                        document.getElementById('h14').style.borderColor='#5cb85c';
+                    }
+                    if(h15==0){
+                        
+                        document.getElementById('h15').style.backgroundColor='#2d5d87';
+                        document.getElementById('h15').style.borderColor='#2d5d87';
+                    }
+                    else{
+                        document.getElementById('h15').style.backgroundColor='#5cb85c';
+                        document.getElementById('h15').style.borderColor='#5cb85c';
+                    }
+                    if(h16==0){
+                        document.getElementById('h16').style.backgroundColor='#2d5d87';
+                        document.getElementById('h16').style.borderColor='#2d5d87';
+                    }
+                    else{
+                        
+                        document.getElementById('h16').style.backgroundColor='#5cb85c';
+                        document.getElementById('h16').style.borderColor='#5cb85c';
+                    }
+                    console.log(h15+" "+h14);
+                    $("#TableAsset").dataTable().fnDestroy();
+                    if(h2==1 && h4==1 && h5==1  && h1==0 && h3==0 && h6==0
+                      && h7==0 && h8==0 && h9==0 && h10==0 && h14==0 && h15==0 && h16==0){
+                          
+                        //Default View
+                        document.getElementById('h0').style.backgroundColor='#5cb85c';
+                        document.getElementById('h0').style.borderColor='#5cb85c';
+                        $.ajax({
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: 'getDefaultViewAssetList',                
+                        data: {Selected:"",_token: '{{csrf_token()}}'},
+                        success: function(data) {
+                            $( "#TableAsset" ).replaceWith( data );
+                            var table = $('#TableAsset').DataTable( {
+                    
+                            } );
+                        }  
+                        }) 
+                        // $.ajax({
+                        //     type: 'POST',
+                        //     url: 'DefaultView.php',
+                        //     data: {Selected:""},
+                        //  success: function(data) {
+                        //         $( "#TableAsset" ).replaceWith( data );
+                        //         SetHeight();
+                        //  }
+                                                     
+                        // })
+                    }else{
+                        console.log(h3);
+                        //Show CHecked Column
+                        document.getElementById('h0').style.backgroundColor='#2d5d87';
+                        document.getElementById('h0').style.borderColor='#2d5d87';
+                        $.ajax({
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: 'getColumnAssetList',                
+                        data: {h1:h1,h2:h2,h3:h3,h4:h4,h5:h5,h6:h6,h7:h7,h8:h8,h9:h9,h10:h10,h14:h14,h15:h15,h16:h16,_token: '{{csrf_token()}}'},
+                        success: function(data) {
+                            $( "#TableAsset" ).replaceWith( data );
+                            var table = $('#TableAsset').DataTable( {
+                    
+                            } );
+                        }  
+                        })                        
+                    }
+                
+            }
+            function toggleH(source){
+                
+                if(source=="h1"){
+                    if(h1==0){
+                        h1=1;
+                        document.getElementById('h1').style.backgroundColor='#2d5d87';
+                        
+                    }else{
+                        h1=0;
+                        document.getElementById('h1').style.backgroundColor='#5cb85c';
+                        
+                    }
+                }
+                if(source=="h2"){
+                    if(h2==0){
+                        h2=1;
+                        document.getElementById('h2').style.backgroundColor='#2d5d87';
+                    }else{
+                        h2=0;
+                        document.getElementById('h2').style.backgroundColor='#5cb85c';
+                    }
+                }
+                
+                if(source=="h4"){
+                    if(h4==0){
+                        h4=1;
+                        document.getElementById('h4').style.backgroundColor='#2d5d87';
+                    }else{
+                        h4=0;
+                        document.getElementById('h4').style.backgroundColor='#5cb85c';
+                    }
+                }
+                if(source=="h5"){
+                    if(h5==0){
+                        h5=1;
+                        document.getElementById('h5').style.backgroundColor='#2d5d87';
+                    }else{
+                        h5=0;
+                        document.getElementById('h5').style.backgroundColor='#5cb85c';
+                    }
+                }
+                if(source=="h6"){
+                    if(h6==0){
+                        h6=1;
+                        document.getElementById('h6').style.backgroundColor='#2d5d87';
+                    }else{
+                        h6=0;
+                        document.getElementById('h6').style.backgroundColor='#5cb85c';
+                    }
+                }
+                if(source=="h7"){
+                    if(h7==0){
+                        h7=1;
+                        document.getElementById('h7').style.backgroundColor='#2d5d87';
+                    }else{
+                        h7=0;
+                        document.getElementById('h7').style.backgroundColor='#5cb85c';
+                    }
+                }
+                if(source=="h8"){
+                    if(h8==0){
+                        h8=1;
+                        document.getElementById('h8').style.backgroundColor='#2d5d87';
+                    }else{
+                        h8=0;
+                        document.getElementById('h8').style.backgroundColor='#5cb85c';
+                    }
+                }
+                if(source=="h9"){
+                    if(h9==0){
+                        h9=1;
+                        document.getElementById('h9').style.backgroundColor='#2d5d87';
+                    }else{
+                        h9=0;
+                        document.getElementById('h9').style.backgroundColor='#5cb85c';
+                    }
+                }
+                if(source=="h10"){
+                    if(h10==0){
+                        h10=1;
+                        document.getElementById('h10').style.backgroundColor='#2d5d87';
+                    }else{
+                        h10=0;
+                        document.getElementById('h10').style.backgroundColor='#5cb85c';
+                    }
+                }
+                
+                if(source=="h14"){
+                    if(h14==0){
+                        h14=1;
+                        document.getElementById('h14').style.backgroundColor='#2d5d87';
+                    }else{
+                        h14=0;
+                        document.getElementById('h14').style.backgroundColor='#5cb85c';
+                    }
+                }
+                if(source=="h15"){
+                    if(h15==0){
+                        h15=1;
+                        document.getElementById('h15').style.backgroundColor='#2d5d87';
+                    }else{
+                        h15=0;
+                        document.getElementById('h15').style.backgroundColor='#5cb85c';
+                    }
+                }
+                if(source=="h16"){
+                    if(h16==0){
+                        h16=1;
+                        
+                        document.getElementById('h16').style.backgroundColor='#2d5d87';
+                    }else{
+                        h16=0;
+                        
+                        document.getElementById('h16').style.backgroundColor='#5cb85c';
+                    }
+                }
+                
+                toggleww();
+            }
+            function select_assets(desc,cat,sub){
+                console.log(desc+" - "+cat+" - "+sub);
+                $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: 'getselected_assets_modal',                
+                data: {desc:desc,cat:cat,sub:sub,_token: '{{csrf_token()}}'},
+                success: function(data) {
+                    $( "#selected_asset_tbody_sadas" ).replaceWith( data );
+                    $('#select_assets_id').modal('toggle');
+                    
+                }  
+                }) 
+                
+            }
+            function select_assets_id(id){
+                console.log(id+" idddd");
+                $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: 'getselected_asset_modal_individual',                
+                data: {id:id,_token: '{{csrf_token()}}'},
+                success: function(data) {
+                    $( "#selected_asset_tbody_sadas" ).replaceWith( data );
+                    $('#select_assets_id').modal('toggle');
+                    
+                }  
+                }) 
+                
+            }
+            </script>
+            <div class="modal fade" id="select_assets_id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document" style="max-width:80%;width:80%;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="asset_select_header"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-sm table-bordered table-hover">
+                            <thead style="background-color:#124f62; color:white;">
+                                <tr>
+                                    <th width="10%"></th>
+                                    <th width="15%">Asset Tag</th>
+                                    <th width="10%">Brand</th>
+                                    
+                                    <th width="10%">Department</th>
+                                    <th width="10%">Location</th>
+                                    
+                                    <th width="10%">Condition</th>
+                                    <th width="10%">Availability</th>
+                                    <th width="10%">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="selected_asset_tbody_sadas">
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    
+                    </div>
+                </div>
+                </div>
+            </div>
             <table class="table table-bordered table-hover table-sm" id="TableAsset" style="background-color:white; margin-top:10px;">
                 <thead style="background-color:#124f62; color:white;">
                     <tr>
@@ -80,6 +478,7 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>

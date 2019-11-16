@@ -641,4 +641,357 @@ class GetController extends Controller
         
         return $content;
     }
+    public function getDefaultViewAssetList(Request $request){
+        $table='<table class="table table-bordered table-hover table-sm" id="TableAsset" style="background-color:white; margin-top:10px;">';
+        $table.='<thead style="background-color:#124f62; color:white;">';
+        $table.='<tr>';
+        $table.='<th width="15%">Asset</th><th width="15%">Category</th><th width="15%">Sub Category</th><th width="5%">Quantity</th><th width="5%">Item Out</th><th width="5%">Available</th>';
+        $table.='</tr>';
+        $table.='</thead>';
+        $table.='<tbody style="cursor: pointer;">';
+        $data = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE (asset_transaction_status!='3' AND asset_transaction_status!='4'AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5') AND asset_approval='1' GROUP BY asset_description, asset_category_name,asset_sub_category");
+        if(!empty($data)){
+            foreach($data as $rows){
+                $desc=$rows->asset_description;
+                $categ=$rows->asset_category_name;
+                $subcateg=$rows->asset_sub_category;
+                $desc_data=HR_hr_Asset_setup::where([
+                    ['asset_setup_ad','=',$desc],
+                    ['asset_setup_tag','!=','Deleted']
+                ])->first();
+                $cat=HR_hr_Asset_setup::where([
+                    ['asset_setup_ac','=',$categ],
+                    ['asset_setup_tag','!=','Deleted']
+                ])->first();
+                $cat_sub=HR_hr_Asset_setup::where([
+                    ['asset_setup_sc','=',$subcateg],
+                    ['asset_setup_tag','!=','Deleted']
+                ])->first();
+                $table.='<tr onclick="select_assets(\''.$desc.'\',\''.$categ.'\',\''.$subcateg.'\')">';
+                $table.='<td style="vertical-align: middle;color:#083240;">'.(!empty($desc_data)? $desc_data->asset_setup_description: '').'</td>';
+                $table.='<td style="vertical-align: middle;color:#083240;">'.(!empty($cat)? $cat->asset_setup_category: '').'</td>';
+                $table.='<td style="vertical-align: middle;color:#083240;">'.(!empty($cat_sub)? $cat_sub->asset_setup_sub_cat: '').'</td>';
+                $data1 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5') AND asset_approval='1'");
+                $table.='<td style="vertical-align: middle;color:#083240;">'.count($data1).'</td>';
+                $data2 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status='2' OR asset_transaction_status='1.1' OR asset_transaction_status='1.2' OR asset_transaction_status='4' OR asset_transaction_status='-1.7' OR asset_transaction_status='-1.8') AND asset_approval='1'");
+                $table.='<td style="vertical-align: middle;color:#083240;">'.count($data2).'</td>';
+                $data3 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status='1' OR asset_transaction_status='2.1' OR asset_transaction_status='2.2' OR asset_transaction_status='4.2'OR asset_transaction_status='4.1' OR asset_transaction_status='3.2'OR asset_transaction_status='3.1') AND asset_approval='1'");
+                $table.='<td style="vertical-align: middle;color:#083240;">'.count($data3).'</td>';
+                $table.='</tr>';
+            }
+            
+        }else{
+            $table.='<tr>';
+            $table.='<td colspan="6" style="font-weight:bold;text-align:center;">No Asset Found</td>';
+            $table.='</tr>';
+        }
+        $table.='</tbody>';
+        $table.='</table>';
+
+
+
+        return $table;
+    }
+    public function getColumnAssetList(Request $request){
+        $h1=$request->h1;
+        $h2=$request->h2;
+        $h3=$request->h3;
+        $h4=$request->h4;
+        $h5=$request->h5;
+        $h6=$request->h6;
+        $h7=$request->h7;
+        $h8=$request->h8;
+        $h9=$request->h9;
+        $h10=$request->h10;
+        $h14=$request->h14;
+        $h15=$request->h15;
+        $h16=$request->h16;
+        
+        $h11=0;
+        $h12=0;
+        $h13=0;
+
+        if($h1==0 && $h6==0 && $h7==0 && $h8==0 && $h9==0 && $h10==0 && $h14==0 && $h15==0 && $h2==1 && $h3==1 && $h4==1 && $h5==1 && $h16==0){
+        $h11=1;
+        $h12=1;
+        $h13=1;
+            
+        }
+        $table='';
+        if($h16==0){
+            $table.='<table class="table table-bordered table-hover table-sm" id="TableAsset" style="background-color:white; margin-top:10px;">';
+            $table.='<thead style="background-color:#124f62; color:white;">';
+            $table.='<tr>';
+            $table.='<th '.($h1==0? 'style="display:none;"'  : '').'>Asset Tag</th>';
+            $table.='<th '.($h2==0? 'style="display:none;"'  : '').'>Asset</th>';
+            $table.='<th '.($h3==0? 'style="display:none;"'  : '').'>Asset Type</th>';
+            $table.='<th '.($h4==0? 'style="display:none;"'  : '').'>Category Name</th>';
+            $table.='<th '.($h5==0? 'style="display:none;"'  : '').'>Sub Category</th>';
+            $table.='<th '.($h6==0? 'style="display:none;"'  : '').'>Brand</th>';
+            $table.='<th '.($h7==0? 'style="display:none;"'  : '').'>Department</th>';
+            $table.='<th '.($h8==0? 'style="display:none;"'  : '').'>Availabiliy</th>';
+            $table.='<th '.($h9==0? 'style="display:none;"'  : '').'>Status</th>';
+            $table.='<th '.($h10==0? 'style="display:none;"'  : '').'>Condition</th>';
+            $table.='<th '.($h14==0? 'style="display:none;"'  : '').'>Site</th>';
+            $table.='<th '.($h15==0? 'style="display:none;"'  : '').'>Location</th>';
+            $table.='<th '.($h11==0? 'style="display:none;"'  : '').' width="5%">Quantity</th>';
+            $table.='<th '.($h12==0? 'style="display:none;"'  : '').' width="5%">Item Out</th>';
+            $table.='<th '.($h13==0? 'style="display:none;"'  : '').' width="5%">Available</th>';
+            
+            $table.='</tr>';
+            $table.='</thead>';
+            $table.='<tbody style="cursor: pointer;">';
+            $data = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE (asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5') AND asset_approval='1'");
+            if(!empty($data)){
+                foreach($data as $rows){
+                    $desc=$rows->asset_description;
+                    $categ=$rows->asset_category_name;
+                    $subcateg=$rows->asset_sub_category;
+                    $desc_data=HR_hr_Asset_setup::where([
+                        ['asset_setup_ad','=',$desc],
+                        ['asset_setup_tag','!=','Deleted']
+                    ])->first();
+                    $cat=HR_hr_Asset_setup::where([
+                        ['asset_setup_ac','=',$categ],
+                        ['asset_setup_tag','!=','Deleted']
+                    ])->first();
+                    $cat_sub=HR_hr_Asset_setup::where([
+                        ['asset_setup_sc','=',$subcateg],
+                        ['asset_setup_tag','!=','Deleted']
+                    ])->first(); 
+                    $table.='<tr onclick="select_assets_id(\''.$rows->id.'\')">';
+                    $table.='<td '.($h1==0? 'style="display:none;"'  : '').'>'.$rows->asset_tag.'</td>';
+                    $table.='<td '.($h2==0? 'style="display:none;"'  : '').'>'.(!empty($desc_data)? $desc_data->asset_setup_description: '').'</td>';
+                    $table.='<td '.($h3==0? 'style="display:none;"'  : '').'></td>';
+                    $table.='<td '.($h4==0? 'style="display:none;"'  : '').'>'.(!empty($cat)? $cat->asset_setup_category: '').'</td>';
+                    $table.='<td '.($h5==0? 'style="display:none;"'  : '').'>'.(!empty($cat_sub)? $cat_sub->asset_setup_sub_cat: '').'</td>';
+                    $table.='<td '.($h6==0? 'style="display:none;"'  : '').'>'.$rows->asset_brand.'</td>';
+                    $coddd=$rows->asset_department_code;
+                    $department=HR_Company_Department::where([
+                        ['department_id','=',$coddd]
+                    ])->first();
+                    $table.='<td '.($h7==0? 'style="display:none;"'  : '').'>'.(!empty($department)? $department->department_name: '').'</td>';
+                    
+                    $table.='<td '.($h8==0? 'style="display:none;"'  : '').'>';
+                    if($rows->asset_transaction_status=="1" || $rows->asset_transaction_status=="2.2" || $rows->asset_transaction_status=="2.1"  ){
+						$table.="Yes";
+						
+					}
+					if($rows->asset_transaction_status=="4.2" || $rows->asset_transaction_status=="4.1" || $rows->asset_transaction_status=="3.1" || $rows->asset_transaction_status=="3.2"){
+						$table.="Yes";
+					}
+					if($rows->asset_transaction_status=="2" || $rows->asset_transaction_status=="1.2" || $rows->asset_transaction_status=="1.1"){
+						$table.="No";
+					}
+					if($rows->asset_transaction_status=="4" || $rows->asset_transaction_status=="-1.7" || $rows->asset_transaction_status=="-1.8"){
+						$table.="No";
+					}
+                    $table.='</td>';
+                    $table.='<td '.($h9==0? 'style="display:none;"'  : '').'>';
+                    if($rows->asset_transaction_status=="1" || $rows->asset_transaction_status=="2.2" || $rows->asset_transaction_status=="2.1"  ){
+						$table.="N/A";
+						
+					}
+					if($rows->asset_transaction_status=="4.2" || $rows->asset_transaction_status=="4.1" || $rows->asset_transaction_status=="3.1" || $rows->asset_transaction_status=="3.2"){
+						$table.="N/A";
+					}
+					if($rows->asset_transaction_status=="2" || $rows->asset_transaction_status=="1.2" || $rows->asset_transaction_status=="1.1"){
+						$table.="Checked Out";
+					}
+					if($rows->asset_transaction_status=="4" || $rows->asset_transaction_status=="-1.7" || $rows->asset_transaction_status=="-1.8"){
+						$table.="Maintenance";
+					}
+                    $table.='</td>';
+                    
+                    $table.='<td '.($h10==0? 'style="display:none;"'  : '').'>'.$rows->asset_condition.'</td>';
+                    $table.='<td '.($h14==0? 'style="display:none;"'  : '').'>'.$rows->asset_site.'</td>';
+                    $table.='<td '.($h15==0? 'style="display:none;"'  : '').'>'.$rows->asset_location.'</td>';
+                    $data1 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5') AND asset_approval='1'");
+                    $table.='<td '.($h11==0? 'style="display:none;"'  : '').''.count($data1).'</td>';
+                    $data2 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status='2' OR asset_transaction_status='1.1' OR asset_transaction_status='1.2' OR asset_transaction_status='4' OR asset_transaction_status='-1.7' OR asset_transaction_status='-1.8') AND asset_approval='1'");
+                    $table.='<td '.($h12==0? 'style="display:none;"'  : '').''.count($data2).'</td>';
+                    $data3 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status='1' OR asset_transaction_status='2.1' OR asset_transaction_status='2.2' OR asset_transaction_status='4.2'OR asset_transaction_status='4.1' OR asset_transaction_status='3.2'OR asset_transaction_status='3.1') AND asset_approval='1'");
+                    $table.='<td '.($h13==0? 'style="display:none;"'  : '').'>'.count($data3).'</td>';
+                    $table.='</tr>';
+                }
+                
+            }else{
+                $table.='<tr>';
+                $table.='<td colspan="6" style="font-weight:bold;text-align:center;">No Asset Found</td>';
+                $table.='</tr>';
+            }
+            $table.='</tbody>';
+            $table.='</table>';
+        }
+
+
+        return $table;
+    }
+    public function getselected_assets_modal(Request $request){
+        $desc=$_POST['desc'];
+        $cat=$_POST['cat'];
+        $sub=$_POST['sub'];
+        $body='';
+        $body.='<tbody id="selected_asset_tbody_sadas">';
+                                                
+        $data = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5' AND asset_approval='1' AND  asset_description='$desc' AND asset_category_name='$cat' AND asset_sub_category='$sub'");
+            if(!empty($data)){
+                foreach($data as $rows){
+                    $body.='<tr>';
+                    $ViewAssetTag=$rows->asset_tag;
+					$ViewAssetDesc=$rows->asset_description;
+					$ViewAssetCategoryName=$rows->asset_category_name;
+					$ViewAssetSub=$rows->asset_sub_category;
+					$ViewAssetSerialNumber=$rows->asset_serial_number;
+					$sku_code=$rows->sku_code;
+					if($ViewAssetSub!=""){
+						//$ViewAssetSub1="SC - ".$ViewAssetSub."%0A";
+						$ViewAssetSub1="";
+						
+					}
+					if($ViewAssetSerialNumber!=""){
+						$ViewAssetSerialNumber1="SN-".$ViewAssetSerialNumber."%0A";
+						
+					}
+					if($sku_code!=""){
+						$sku_code1="PN-".$sku_code."%0A";
+						
+                    }
+                    $desc_data=HR_hr_Asset_setup::where([
+                        ['asset_setup_ad','=',$ViewAssetDesc],
+                        ['asset_setup_tag','!=','Deleted']
+                    ])->first();
+                    $DescNameFull=!empty($desc_data)? $desc_data->asset_setup_description: '';
+                    $cat=HR_hr_Asset_setup::where([
+                        ['asset_setup_ac','=',$ViewAssetCategoryName],
+                        ['asset_setup_tag','!=','Deleted']
+                    ])->first();
+                    $CategoryNameFull=!empty($cat)? $cat->asset_setup_category: '';
+                    $qrdata="https://api.qrserver.com/v1/create-qr-code/?data=".$ViewAssetTag."%0A"."AD-".$DescNameFull."%0A"."Cat-".$CategoryNameFull."%0A".$ViewAssetSub1."".$ViewAssetSerialNumber1."".$sku_code1."&amp;size=150x150";
+                    $body.='<td style="text-align:center;"><img id="barcode"  src="'.$qrdata.'" alt="" title="'.$ViewAssetTag.' '.$DescNameFull.'" width="100" height="100" /></td>';
+                    $body.='<td style="text-align:center;"><a href="asset?page=3&AssetTagID='.$rows->id.'">'.$rows->asset_tag.'</a></td>';
+                    $body.='<td style="text-align:center;">'.$rows->asset_brand.'</td>';
+                    $body.='<td style="text-align:center;">'.$rows->asset_department_code.'</td>';
+                    $body.='<td style="text-align:center;">'.$rows->asset_location.'</td>';
+                    $body.='<td style="text-align:center;">'.$rows->asset_condition.'</td>';
+                    $body.='<td style="text-align:center;" >';
+                    if($rows->asset_transaction_status=="1" || $rows->asset_transaction_status=="2.2" || $rows->asset_transaction_status=="2.1"  ){
+						$body.="Yes";
+						
+					}
+					if($rows->asset_transaction_status=="4.2" || $rows->asset_transaction_status=="4.1" || $rows->asset_transaction_status=="3.1" || $rows->asset_transaction_status=="3.2"){
+						$body.="Yes";
+					}
+					if($rows->asset_transaction_status=="2" || $rows->asset_transaction_status=="1.2" || $rows->asset_transaction_status=="1.1"){
+						$body.="No";
+					}
+					if($rows->asset_transaction_status=="4" || $rows->asset_transaction_status=="-1.7" || $rows->asset_transaction_status=="-1.8"){
+						$body.="No";
+					}
+                    $body.='</td>';
+                    $body.='<td style="text-align:center;">';
+                    if($rows->asset_transaction_status=="1" || $rows->asset_transaction_status=="2.2" || $rows->asset_transaction_status=="2.1"  ){
+						$body.="N/A";
+						
+					}
+					if($rows->asset_transaction_status=="4.2" || $rows->asset_transaction_status=="4.1" || $rows->asset_transaction_status=="3.1" || $rows->asset_transaction_status=="3.2"){
+						$body.="N/A";
+					}
+					if($rows->asset_transaction_status=="2" || $rows->asset_transaction_status=="1.2" || $rows->asset_transaction_status=="1.1"){
+						$body.="Checked Out";
+					}
+					if($rows->asset_transaction_status=="4" || $rows->asset_transaction_status=="-1.7" || $rows->asset_transaction_status=="-1.8"){
+						$body.="Maintenance";
+					}
+                    $body.='</td>';
+                    $body.='</tr>';
+                }
+            }
+        $body.='</tbody>';
+
+        return $body;
+    }
+    public function getselected_asset_modal_individual(Request $request){
+        $id=$_POST['id'];
+        
+        $body='';
+        $body.='<tbody id="selected_asset_tbody_sadas">';
+                                                
+        $data = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE id='$id'");
+            if(!empty($data)){
+                foreach($data as $rows){
+                    $body.='<tr>';
+                    $ViewAssetTag=$rows->asset_tag;
+					$ViewAssetDesc=$rows->asset_description;
+					$ViewAssetCategoryName=$rows->asset_category_name;
+					$ViewAssetSub=$rows->asset_sub_category;
+					$ViewAssetSerialNumber=$rows->asset_serial_number;
+					$sku_code=$rows->sku_code;
+					if($ViewAssetSub!=""){
+						//$ViewAssetSub1="SC - ".$ViewAssetSub."%0A";
+						$ViewAssetSub1="";
+						
+					}
+					if($ViewAssetSerialNumber!=""){
+						$ViewAssetSerialNumber1="SN-".$ViewAssetSerialNumber."%0A";
+						
+					}
+					if($sku_code!=""){
+						$sku_code1="PN-".$sku_code."%0A";
+						
+                    }
+                    $desc_data=HR_hr_Asset_setup::where([
+                        ['asset_setup_ad','=',$ViewAssetDesc],
+                        ['asset_setup_tag','!=','Deleted']
+                    ])->first();
+                    $DescNameFull=!empty($desc_data)? $desc_data->asset_setup_description: '';
+                    $cat=HR_hr_Asset_setup::where([
+                        ['asset_setup_ac','=',$ViewAssetCategoryName],
+                        ['asset_setup_tag','!=','Deleted']
+                    ])->first();
+                    $CategoryNameFull=!empty($cat)? $cat->asset_setup_category: '';
+                    $qrdata="https://api.qrserver.com/v1/create-qr-code/?data=".$ViewAssetTag."%0A"."AD-".$DescNameFull."%0A"."Cat-".$CategoryNameFull."%0A".$ViewAssetSub1."".$ViewAssetSerialNumber1."".$sku_code1."&amp;size=150x150";
+                    $body.='<td style="text-align:center;"><img id="barcode"  src="'.$qrdata.'" alt="" title="'.$ViewAssetTag.' '.$DescNameFull.'" width="100" height="100" /></td>';
+                    $body.='<td style="text-align:center;"><a href="asset?page=3&AssetTagID='.$rows->id.'">'.$rows->asset_tag.'</a></td>';
+                    $body.='<td style="text-align:center;">'.$rows->asset_brand.'</td>';
+                    $body.='<td style="text-align:center;">'.$rows->asset_department_code.'</td>';
+                    $body.='<td style="text-align:center;">'.$rows->asset_location.'</td>';
+                    $body.='<td style="text-align:center;">'.$rows->asset_condition.'</td>';
+                    $body.='<td style="text-align:center;" >';
+                    if($rows->asset_transaction_status=="1" || $rows->asset_transaction_status=="2.2" || $rows->asset_transaction_status=="2.1"  ){
+						$body.="Yes";
+						
+					}
+					if($rows->asset_transaction_status=="4.2" || $rows->asset_transaction_status=="4.1" || $rows->asset_transaction_status=="3.1" || $rows->asset_transaction_status=="3.2"){
+						$body.="Yes";
+					}
+					if($rows->asset_transaction_status=="2" || $rows->asset_transaction_status=="1.2" || $rows->asset_transaction_status=="1.1"){
+						$body.="No";
+					}
+					if($rows->asset_transaction_status=="4" || $rows->asset_transaction_status=="-1.7" || $rows->asset_transaction_status=="-1.8"){
+						$body.="No";
+					}
+                    $body.='</td>';
+                    $body.='<td style="text-align:center;">';
+                    if($rows->asset_transaction_status=="1" || $rows->asset_transaction_status=="2.2" || $rows->asset_transaction_status=="2.1"  ){
+						$body.="N/A";
+						
+					}
+					if($rows->asset_transaction_status=="4.2" || $rows->asset_transaction_status=="4.1" || $rows->asset_transaction_status=="3.1" || $rows->asset_transaction_status=="3.2"){
+						$body.="N/A";
+					}
+					if($rows->asset_transaction_status=="2" || $rows->asset_transaction_status=="1.2" || $rows->asset_transaction_status=="1.1"){
+						$body.="Checked Out";
+					}
+					if($rows->asset_transaction_status=="4" || $rows->asset_transaction_status=="-1.7" || $rows->asset_transaction_status=="-1.8"){
+						$body.="Maintenance";
+					}
+                    $body.='</td>';
+                    $body.='</tr>';
+                }
+            }
+        $body.='</tbody>';
+
+        return $body;
+    }
 }
