@@ -214,6 +214,11 @@ class AppServiceProvider extends ServiceProvider
         view()->share('asset_list',HR_hr_Asset::where([
             ['asset_approval','=','1']
         ])->get());
+        $asset_list_all = DB::connection('mysql')->select("SELECT * FROM hr_assets 
+        JOIN 
+        hr_asset_setup ON hr_asset_setup.asset_setup_ad=hr_assets.asset_description
+        ");
+        view()->share('asset_list_all',$asset_list_all);
         view()->share('employee_attendance_list', HR_hr_employee_attendance::all());
         view()->share('payroll_year_list', HR_payroll::select('payroll_year')->groupBy('payroll_year')->orderBy('payroll_year', 'DESC')->get());
         view()->share('unprocessed_payroll_list', HR_payroll::where([

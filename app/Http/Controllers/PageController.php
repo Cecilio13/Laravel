@@ -1365,8 +1365,10 @@ class PageController extends Controller
     }
     public function asset_management(Request $request){
         $None="";
-        $asset_transaction_log=HR_hr_asset_transaction_log::all();
-        return view('pages.test', compact('None','asset_transaction_log'));
+        
+        $asset_transaction_log = DB::connection('mysql')->select("SELECT * FROM hr_asset_transaction_log
+        WHERE transaction_action!='Audited' ORDER BY log_date DESC, log_time DESC");
+        return view('pages.main.asset_management_dashboard', compact('None','asset_transaction_log'));
     
     }
     public function asset_management_dispose(Request $request){
