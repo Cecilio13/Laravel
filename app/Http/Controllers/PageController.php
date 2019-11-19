@@ -1368,7 +1368,25 @@ class PageController extends Controller
         
         $asset_transaction_log = DB::connection('mysql')->select("SELECT * FROM hr_asset_transaction_log
         WHERE transaction_action!='Audited' ORDER BY log_date DESC, log_time DESC");
-        return view('pages.main.asset_management_dashboard', compact('None','asset_transaction_log'));
+        $pending_new_assets=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+		JOIN users ON users.id=hr_assets.data_entry_by
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_assets.asset_setcheck_defualt
+        WHERE asset_approval='-1'");
+        
+        $pending_confirmation_new_assets=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+		JOIN users ON users.id=hr_assets.data_entry_by
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_assets.asset_setcheck_defualt
+        WHERE asset_approval='0'");
+        $pending_new_asset_setup=DB::connection('mysql')->select("SELECT *,hr_asset_setup.id as ASSET_SETUP_ID FROM hr_asset_setup
+		JOIN users ON users.id=hr_asset_setup.requested_by
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_asset_setup.ticket_no
+        WHERE asset_setup_status='3'");
+        $pending_confirmation_new_asset_setup=DB::connection('mysql')->select("SELECT *,hr_asset_setup.id as ASSET_SETUP_ID FROM hr_asset_setup
+		JOIN users ON users.id=hr_asset_setup.requested_by
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_asset_setup.ticket_no
+        WHERE asset_setup_status='2'");
+        
+        return view('pages.main.asset_management_dashboard', compact('None','asset_transaction_log','pending_new_assets','pending_new_asset_setup','pending_confirmation_new_assets','pending_confirmation_new_asset_setup'));
     
     }
     public function asset_management_dispose(Request $request){

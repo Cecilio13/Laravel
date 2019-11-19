@@ -994,4 +994,15 @@ class GetController extends Controller
 
         return $body;
     }
+    public function getViewNotes(Request $request){
+        $id=$request->id;
+        $data = HR_hr_asset_transaction_log::where([
+            ['asset_transaction_log_id','=',$id]
+        ])->first();
+        $note='';
+        if(!empty($data)){
+            $note=$data->deny_reason;
+        }
+        return ' <p id="ViewModalP">'.$note.'</p>';
+    }
 }

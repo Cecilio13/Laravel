@@ -218,6 +218,76 @@ class AssetPostController extends Controller
             return 0;
         }
     }
+    public function NewAssetFirstApprove(Request $request){
+        $tag=$request->tag;
+        $data=HR_hr_Asset::find($tag);
+        $data->asset_approval='0';
+        if($data->save()){
+            $this->generate_transaction_log_confirmation($data->asset_setcheck_defualt,$tag,'New Asset','Queued on FA','','');
+        }
+    }
+    public function AssetSetupFirstApprove(Request $request){
+        $tag=$request->tag;
+        $data=HR_hr_Asset_setup::find($tag);
+        $data->asset_setup_status='2';
+        if($data->save()){
+            $this->generate_transaction_log_confirmation($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Queued on FA',$tag,'');
+        }
+    }
+    public function NewAssetSecondApprove(Request $request){
+        $tag=$request->tag;
+        $data=HR_hr_Asset::find($tag);
+        $data->asset_approval='1';
+        if($data->save()){
+            $this->generate_transaction_log_approve($data->asset_setcheck_defualt,$tag,'New Asset','Approved','','');
+        }
+    }
+    public function AssetSetupSecondApprove(Request $request){
+        $tag=$request->tag;
+        
+        $data=HR_hr_Asset_setup::find($tag);
+        $data->asset_setup_status='1';
+        if($data->save()){
+            $this->generate_transaction_log_approve($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Approved',$tag,'');
+        }
+    }
+    public function DisposeAssetSetup2(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data=HR_hr_Asset_setup::find($tag);
+        $data->asset_setup_status='3';
+        if($data->save()){
+            $this->generate_transaction_log_deny_fa($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Denied by FA',$tag,$reason);
+        }
+    }
+    public function NewAssetDenySecond(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data=HR_hr_Asset::find($tag);
+        $data->asset_approval='-1';
+        if($data->save()){
+            $this->generate_transaction_log_deny_fa($data->asset_setcheck_defualt,$tag,'New Asset','Denied by FA','',$reason);
+        }
+    }
+    public function NewAssetDeny(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data=HR_hr_Asset::find($tag);
+        $data->asset_approval='-11';
+        if($data->save()){
+            $this->generate_transaction_log_deny_am($data->asset_setcheck_defualt,$tag,'New Asset','Denied','',$reason);
+        }
+    }
+    public function DisposeAssetSetup(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data=HR_hr_Asset_setup::find($tag);
+        $data->asset_setup_status='0';
+        if($data->save()){
+            $this->generate_transaction_log_deny_am($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Denied',$tag,$reason);
+        }
+    }
+    
     public function DeleteTagging(Request $request){
         $data= HR_hr_Asset_setup::find($request->id);
         $data->asset_setup_status="";

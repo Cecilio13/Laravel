@@ -129,6 +129,10 @@ class NotifController extends Controller
                 }
                 
                 $link="#";
+                
+                $ticket=str_replace("Ticket No. ","",$rows->notif_text);
+                $Position=Auth::user()->position;
+                $lll=0;
                 if($rows['notif_subject']=="Pending Request" || $rows['notif_subject']=="Pending Confirmation"){
                     $link="asset_management";
                 }
@@ -140,9 +144,6 @@ class NotifController extends Controller
                         $link="asset_management_dispose";
                     }
                 }
-                $ticket=str_replace("Ticket No. ","",$rows->notif_text);
-                $Position=Auth::user()->position;
-                $lll=0;
                 if($Position=="Asset Management Officer"){
                     $lll=count(HR_hr_asset_transaction_log::where([
                         ['asset_transaction_log_id','=',$ticket],

@@ -162,12 +162,22 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/getColumnAssetList', 'GetController@getColumnAssetList');
     Route::post('/getselected_assets_modal', 'GetController@getselected_assets_modal');
     Route::post('/getselected_asset_modal_individual', 'GetController@getselected_asset_modal_individual');
+    Route::post('/getViewNotes', 'GetController@getViewNotes');
     
     Route::post('/UploadMassAssetSetup', 'UploadController@UploadMassAssetSetup');
     Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
     Route::post('/DeleteTagging', 'AssetPostController@DeleteTagging');
     Route::post('/add_new_asset', 'AssetPostController@add_new_asset');
     Route::post('/update_asset_information', 'AssetPostController@update_asset_information');
+
+    Route::post('/NewAssetFirstApprove', 'AssetPostController@NewAssetFirstApprove');
+    Route::post('/AssetSetupFirstApprove', 'AssetPostController@AssetSetupFirstApprove');
+    Route::post('/NewAssetSecondApprove', 'AssetPostController@NewAssetSecondApprove');
+    Route::post('/AssetSetupSecondApprove', 'AssetPostController@AssetSetupSecondApprove');
+    Route::post('/DisposeAssetSetup2', 'AssetPostController@DisposeAssetSetup2');
+    Route::post('/NewAssetDenySecond', 'AssetPostController@NewAssetDenySecond');
+    Route::post('/NewAssetDeny', 'AssetPostController@NewAssetDeny');
+    Route::post('/DisposeAssetSetup', 'AssetPostController@DisposeAssetSetup');
     
     
     
