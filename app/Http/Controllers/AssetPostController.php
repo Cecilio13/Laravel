@@ -287,7 +287,23 @@ class AssetPostController extends Controller
             $this->generate_transaction_log_deny_am($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Denied',$tag,$reason);
         }
     }
-    
+    public function delete_request_new_asset(Request $request){
+        $tag=$request->id;
+        $data=HR_hr_Asset::find($tag);
+        $data->asset_approval='DELETED';
+        if($data->save()){
+            $this->generate_transaction_log_delete($data->asset_setcheck_defualt,$tag,'New Asset','Deleted','','');
+        }
+    }
+    public function delete_request_asset_setup(Request $request){
+        $tag=$request->id;
+        
+        $data=HR_hr_Asset_setup::find($tag);
+        $data->asset_setup_status='DELETED';
+        if($data->save()){
+            $this->generate_transaction_log_deny_am($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Denied',$tag,'');
+        }
+    }
     public function DeleteTagging(Request $request){
         $data= HR_hr_Asset_setup::find($request->id);
         $data->asset_setup_status="";

@@ -178,6 +178,8 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/NewAssetDenySecond', 'AssetPostController@NewAssetDenySecond');
     Route::post('/NewAssetDeny', 'AssetPostController@NewAssetDeny');
     Route::post('/DisposeAssetSetup', 'AssetPostController@DisposeAssetSetup');
+    Route::post('/delete_request_new_asset', 'AssetPostController@delete_request_new_asset');
+    Route::post('/delete_request_asset_setup', 'AssetPostController@delete_request_asset_setup');
     
     
     

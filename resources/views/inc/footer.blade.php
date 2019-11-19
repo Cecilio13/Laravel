@@ -683,6 +683,43 @@ function DenyRequest(request,asset_tag){
 	}
 	
 }
+function DeleteRequest(id){
+	var txt;
+	var r = confirm('Are you sure you want to delete the New Fixed Asset request?');
+	if (r == true) {
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'delete_request_new_asset',                
+		data:{id:id,_token: '{{csrf_token()}}'},
+		success: function(data) {
+			location.reload();
+			
+		}  
+		})
+	}
+	
+}
+function DeleteRequestSetup(id){
+	var txt;
+	var r = confirm('Are you sure you want to delete the Asset Setup request?');
+	if (r == true) {
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'delete_request_asset_setup',                
+		data:{id:id,_token: '{{csrf_token()}}'},
+		success: function(data) {
+			location.reload();
+			
+		}  
+		})
+	}	
+}
 </script>
 <style>
 select option[disabled] {

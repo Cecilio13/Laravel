@@ -102,28 +102,64 @@
                     </tr>
                 </thead>
                 <tbody style="border-bottom:1px solid #cecece;">
+                    @foreach ($pending_denied_new_assets as $rows)
                     <tr>
-                        <td  style="text-align:center;vertical-align:middle;"></td>
-                        <td style="vertical-align:middle;"></td>
-                        <td style="vertical-align:middle;"></td>
-                        <td style="vertical-align:middle;" ></td>
+                        <td  style="text-align:center;vertical-align:middle;">{{$rows->asset_setcheck_defualt}}</td>
+                        <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->audit_action_date))}}</td>
+                        <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
+                        <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
                         <td style="vertical-align:middle;" >
-                        
-                        </td>
-                        <td style="vertical-align:middle;"></td>
-                        
-                        <td style="vertical-align:middle;">
+                            <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetInfo2('<?php echo $rows->id; ?>')"><?php echo $rows->asset_description;?></a>
                             
                         </td>
-                        <td style="vertical-align:middle;"></td>
-                        <td style="vertical-align:middle;"></td>
+                        <td style="vertical-align:middle;">{{$rows->transaction_action}}</td>
+                        <?php
+						$preview=str_split($rows->deny_reason,5);
+						$pp=$preview[0];
+						if(count($preview)>1){
+							$pp=$preview[0]."..";	
+						}
+						?>
+                        <td style="vertical-align:middle;">
+                            <a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $rows->ASSET_ID ?>')"><?php echo $pp; ?></a>
+                            
+                        </td>
+                        <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->log_date))}}</td>
+                        <td style="vertical-align:middle;">{{date("g:i a", strtotime($rows->log_time))}}</td>
                         <td style="vertical-align:middle;text-align:center;">
-                            <form action="" method="POST"onsubmit="return confirm('Are you sure you want to delete the New Fixed Asset request?');">
-                                <input type="hidden" name="AssetTagHidden" value="">
-                                <button type="submit" class="btn btn-danger btn-sm"   name="Asset_tag_button"><span class="fa fa-times-circle"></span></button>
-                            </form>
+                            <button type="button" onclick="DeleteRequest('{{$rows->ASSET_ID}}')" class="btn btn-danger btn-sm"   name="Asset_tag_button"><span class="fa fa-times-circle"></span></button>
                         </td>
                     </tr>
+                    @endforeach
+                    @foreach ($pending_denied_new_asset_setup as $rows)
+                    <tr>
+                        <td  style="text-align:center;vertical-align:middle;">{{$rows->ticket_no}}</td>
+                        <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->audit_action_date))}}</td>
+                        <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
+                        <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
+                        <td style="vertical-align:middle;" >
+                            <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetInfo2('<?php echo $rows->ASSET_SETUP_ID; ?>')"><?php echo $rows->asset_setup_tag;?></a>
+                            
+                        </td>
+                        <td style="vertical-align:middle;">{{$rows->transaction_action}}</td>
+                        <?php
+						$preview=str_split($rows->deny_reason,5);
+						$pp=$preview[0];
+						if(count($preview)>1){
+							$pp=$preview[0]."..";	
+						}
+						?>
+                        <td style="vertical-align:middle;">
+                            <a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $rows->ASSET_SETUP_ID ?>')"><?php echo $pp; ?></a>
+                            
+                        </td>
+                        <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->log_date))}}</td>
+                        <td style="vertical-align:middle;">{{date("g:i a", strtotime($rows->log_time))}}</td>
+                        <td style="vertical-align:middle;text-align:center;">
+                            <button type="button" onclick="DeleteRequestSetup('{{$rows->ASSET_SETUP_ID}}')" class="btn btn-danger btn-sm"   name="Asset_tag_button"><span class="fa fa-times-circle"></span></button>
+                        </td>
+                    </tr>   
+                    @endforeach
                 </tbody>
             </table>
     </div>
