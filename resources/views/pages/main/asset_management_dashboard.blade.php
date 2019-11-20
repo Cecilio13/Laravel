@@ -82,355 +82,365 @@
     margin-bottom:10px;
 }
 </style>
-    <div class="half-background">
-            <table class="table table-sm" id="DeniedRequestTable" style="background-color:white;width:100%;">						
-                <thead >
-                    <tr style="background-color:#083240;color:white;">
-                    <th colspan="10" style="text-align:center;font-weight:bold;color:white;font-size:20px;">DENIED REQUEST</th>
-                    </tr>
-                    <tr style="background-color:#0e3d4c; color:white;">
-                        <th width="10%" style="text-align:center;">Ticket No.</th>
-                        <th width="10%">Request Date</th>
-                        <th width="10%">Requested By</th>
-                        <th width="10%" >Transaction</th>
-                        <th width="10%" >Item</th>
-                        <th width="12%" >Status</th>
-                        <th width="10%" >Remarks</th>
-                        <th width="10%">Date Acted</th>
-                        <th width="10%">Time Acted</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody style="border-bottom:1px solid #cecece;">
-                    @foreach ($pending_denied_new_assets as $rows)
-                    <tr>
-                        <td  style="text-align:center;vertical-align:middle;">{{$rows->asset_setcheck_defualt}}</td>
-                        <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->audit_action_date))}}</td>
-                        <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
-                        <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
-                        <td style="vertical-align:middle;" >
-                            <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetInfo2('<?php echo $rows->id; ?>')"><?php echo $rows->asset_description;?></a>
-                            
-                        </td>
-                        <td style="vertical-align:middle;">{{$rows->transaction_action}}</td>
-                        <?php
-						$preview=str_split($rows->deny_reason,5);
-						$pp=$preview[0];
-						if(count($preview)>1){
-							$pp=$preview[0]."..";	
-						}
-						?>
-                        <td style="vertical-align:middle;">
-                            <a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $rows->ASSET_ID ?>')"><?php echo $pp; ?></a>
-                            
-                        </td>
-                        <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->log_date))}}</td>
-                        <td style="vertical-align:middle;">{{date("g:i a", strtotime($rows->log_time))}}</td>
-                        <td style="vertical-align:middle;text-align:center;">
-                            <button type="button" onclick="DeleteRequest('{{$rows->ASSET_ID}}')" class="btn btn-danger btn-sm"   name="Asset_tag_button"><span class="fa fa-times-circle"></span></button>
-                        </td>
-                    </tr>
-                    @endforeach
-                    @foreach ($pending_denied_new_asset_setup as $rows)
-                    <tr>
-                        <td  style="text-align:center;vertical-align:middle;">{{$rows->ticket_no}}</td>
-                        <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->audit_action_date))}}</td>
-                        <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
-                        <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
-                        <td style="vertical-align:middle;" >
-                            <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetInfo2('<?php echo $rows->ASSET_SETUP_ID; ?>')"><?php echo $rows->asset_setup_tag;?></a>
-                            
-                        </td>
-                        <td style="vertical-align:middle;">{{$rows->transaction_action}}</td>
-                        <?php
-						$preview=str_split($rows->deny_reason,5);
-						$pp=$preview[0];
-						if(count($preview)>1){
-							$pp=$preview[0]."..";	
-						}
-						?>
-                        <td style="vertical-align:middle;">
-                            <a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $rows->ASSET_SETUP_ID ?>')"><?php echo $pp; ?></a>
-                            
-                        </td>
-                        <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->log_date))}}</td>
-                        <td style="vertical-align:middle;">{{date("g:i a", strtotime($rows->log_time))}}</td>
-                        <td style="vertical-align:middle;text-align:center;">
-                            <button type="button" onclick="DeleteRequestSetup('{{$rows->ASSET_SETUP_ID}}')" class="btn btn-danger btn-sm"   name="Asset_tag_button"><span class="fa fa-times-circle"></span></button>
-                        </td>
-                    </tr>   
-                    @endforeach
-                </tbody>
-            </table>
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <a class="btn btn-primary" href="asset_management_dispose" ><span class="fa fa-trash"></span> View Denied Requests</a>
+        </div>
     </div>
-    <div class="half-background">
-        <table class="table borderless table-hover table-sm" style="background-color:white;margin-bottom:0px;">
-                <thead style="background-color:#0e3d4c; color:white;">
-                    <tr style="background-color:#083240;color:#262626;">
-                        <th colspan="10" style="text-align:center;font-weight:bold;color:white;font-size:20px;">PENDING APPROVAL</th>
-                    </tr>
-                    <tr style="background-color:#124f62">
-                        
-                        <td colspan="10" style="vertical-align:middle;text-align:center;font-weight:bold;color:white;background-color:#124f62">
-                            <div style="font-weight:bold;color:white;float:left;">
-                                <input  type="checkbox" name="SelectAll" onclick="toggle(this)"> Select All
-                            </div>
-                            ASSET MANAGEMENT APPROVAL
-                            <div style="font-weight:bold;color:white;float:right;margin-right:10px;">
-                                <a class="btn btn-sm btn-success" id="MassApproveBtn2223" style="margin-right:10px;" onclick="MassApprove()" id="MassApproveBtn" ><span class="fa fa-check-circle"></span></a> 
-                                <a class="btn btn-sm btn-danger" id="MassDenyBtn2223" onclick="MassDeny()" style=""id="MassDenyBtn"><span class="fa fa-times-circle"></span></a>
-                            </div>
-                        </td>
-                    </tr>
-                </thead>
-        </table>
-        <table class="table borderless table-hover table-sm" style="background-color:white;" id="checkoutasset">
-            <thead style="background-color:#0e3d4c; color:white;">
-                <tr>
-                    <th width="2%"></th>
-                    <th width="10%" style="text-align:center;" >Ticket No.</th>
-                    <th width="10%">Date</th>
-                    <th width="15%">Requested By</th>
-                    <th width="10%">Transaction </th>
-                    <th width="15%">Item</th>
-                    <th width="10%">Due Date</th>
-                    <th width="10%">Status</th>
-                    <th width="10%">Remarks</th>
-                    <th width="15%" style="text-align:center;">Action</th>
-                </tr>
-            </thead>
-            <tbody style="color:#083240;padding:10px;" id="RequestBoyBody">
-                @foreach ($pending_new_assets as $new_assets)
-                    <tr>
-                        <td><input onclick="toggleindi(this)" type="checkbox" name="LG" value="{{$new_assets->ASSET_ID}}" title="New Asset"></td>
-                        <td style="vertical-align:middle;text-align:center;">{{$new_assets->asset_setcheck_defualt}}</td>
-                        <td  style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->date_added))}}</td>
-                        <td  style="vertical-align:middle;">{{$new_assets->name}}</td>
-                        <td  style="vertical-align:middle;">{{'New Fixed Asset'}}</td>
-                        <td  style="vertical-align:middle;">
+    @if (!empty($user_position))
+        @if ($user_position->position=="Data Entry Officer")
+            <div class="half-background">
+                <table class="table table-sm" id="DeniedRequestTable" style="background-color:white;width:100%;">						
+                    <thead >
+                        <tr style="background-color:#083240;color:white;">
+                        <th colspan="10" style="text-align:center;font-weight:bold;color:white;font-size:20px;">DENIED REQUEST</th>
+                        </tr>
+                        <tr style="background-color:#0e3d4c; color:white;">
+                            <th width="10%" style="text-align:center;">Ticket No.</th>
+                            <th width="10%">Request Date</th>
+                            <th width="10%">Requested By</th>
+                            <th width="10%" >Transaction</th>
+                            <th width="10%" >Item</th>
+                            <th width="12%" >Status</th>
+                            <th width="10%" >Remarks</th>
+                            <th width="10%">Date Acted</th>
+                            <th width="10%">Time Acted</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody style="border-bottom:1px solid #cecece;">
+                        @foreach ($pending_denied_new_assets as $rows)
+                        <tr>
+                            <td  style="text-align:center;vertical-align:middle;">{{$rows->asset_setcheck_defualt}}</td>
+                            <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->audit_action_date))}}</td>
+                            <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
+                            <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
+                            <td style="vertical-align:middle;" >
+                                <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetInfo('<?php echo $rows->ASSET_ID; ?>')"><?php echo $rows->asset_description;?></a>
+                                
+                            </td>
+                            <td style="vertical-align:middle;">{{$rows->transaction_action}}</td>
                             <?php
-                                $cccccc="";
+                            $preview=str_split($rows->deny_reason,5);
+                            $pp=$preview[0];
+                            if(count($preview)>1){
+                                $pp=$preview[0]."..";	
+                            }
                             ?>
-                            @foreach ($asset_description_grouped as $sad)
-                                @if ($new_assets->asset_description==$sad->asset_setup_ad)
+                            <td style="vertical-align:middle;">
+                                <a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $rows->asset_transaction_log_id ?>')"><?php echo $pp; ?></a>
+                                
+                            </td>
+                            <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->log_date))}}</td>
+                            <td style="vertical-align:middle;">{{date("g:i a", strtotime($rows->log_time))}}</td>
+                            <td style="vertical-align:middle;text-align:center;">
+                                <button type="button" onclick="DeleteRequest('{{$rows->ASSET_ID}}')" class="btn btn-danger btn-sm"   name="Asset_tag_button"><span class="fa fa-times-circle"></span></button>
+                            </td>
+                        </tr>
+                        @endforeach
+                        @foreach ($pending_denied_new_asset_setup as $rows)
+                        <tr>
+                            <td  style="text-align:center;vertical-align:middle;">{{$rows->ticket_no}}</td>
+                            <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->audit_action_date))}}</td>
+                            <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
+                            <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
+                            <td style="vertical-align:middle;" >
+                                <a class=" btn-link" style="cursor: pointer;" onclick="ViewAssetSetup('<?php echo $rows->ASSET_SETUP_ID; ?>')"><?php echo $rows->asset_setup_tag;?></a>
+                            </td>
+                            <td style="vertical-align:middle;">{{$rows->transaction_action}}</td>
+                            <?php
+                            $preview=str_split($rows->deny_reason,5);
+                            $pp=$preview[0];
+                            if(count($preview)>1){
+                                $pp=$preview[0]."..";	
+                            }
+                            ?>
+                            <td style="vertical-align:middle;">
+                                <a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $rows->asset_transaction_log_id ?>')"><?php echo $pp; ?></a>
+                                
+                            </td>
+                            <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->log_date))}}</td>
+                            <td style="vertical-align:middle;">{{date("g:i a", strtotime($rows->log_time))}}</td>
+                            <td style="vertical-align:middle;text-align:center;">
+                                <button type="button" onclick="DeleteRequestSetup('{{$rows->ASSET_SETUP_ID}}')" class="btn btn-danger btn-sm"   name="Asset_tag_button"><span class="fa fa-times-circle"></span></button>
+                            </td>
+                        </tr>   
+                        @endforeach
+                    </tbody>
+                </table>
+            </div> 
+        @elseif($user_position->position=="Asset Management Officer")
+            <div class="half-background">
+                <table class="table borderless table-hover table-sm" style="background-color:white;margin-bottom:0px;">
+                        <thead style="background-color:#0e3d4c; color:white;">
+                            <tr style="background-color:#083240;color:#262626;">
+                                <th colspan="10" style="text-align:center;font-weight:bold;color:white;font-size:20px;">PENDING APPROVAL</th>
+                            </tr>
+                            <tr style="background-color:#124f62">
+                                
+                                <td colspan="10" style="vertical-align:middle;text-align:center;font-weight:bold;color:white;background-color:#124f62">
+                                    <div style="font-weight:bold;color:white;float:left;">
+                                        <input  type="checkbox" name="SelectAll" onclick="toggle(this)"> Select All
+                                    </div>
+                                    ASSET MANAGEMENT APPROVAL
+                                    <div style="font-weight:bold;color:white;float:right;margin-right:10px;">
+                                        <a class="btn btn-sm btn-success" id="MassApproveBtn2223" style="margin-right:10px;display:none;" onclick="MassApprove()" id="MassApproveBtn" ><span class="fa fa-check-circle"></span></a> 
+                                        <a class="btn btn-sm btn-danger" id="MassDenyBtn2223" onclick="MassDeny()" style="display:none;"id="MassDenyBtn"><span class="fa fa-times-circle"></span></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </thead>
+                </table>
+                <table class="table borderless table-hover table-sm" style="background-color:white;" id="checkoutasset">
+                    <thead style="background-color:#0e3d4c; color:white;">
+                        <tr>
+                            <th width="2%"></th>
+                            <th width="10%" style="text-align:center;" >Ticket No.</th>
+                            <th width="10%">Date</th>
+                            <th width="15%">Requested By</th>
+                            <th width="10%">Transaction </th>
+                            <th width="15%">Item</th>
+                            <th width="10%">Due Date</th>
+                            <th width="10%">Status</th>
+                            <th width="10%">Remarks</th>
+                            <th width="15%" style="text-align:center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody style="color:#083240;padding:10px;" id="RequestBoyBody">
+                        @foreach ($pending_new_assets as $new_assets)
+                            <tr>
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->asset_setcheck_default}}' value="{{$new_assets->ASSET_ID}}" title="New Asset"></td>
+                                <td style="vertical-align:middle;text-align:center;">{{$new_assets->asset_setcheck_defualt}}</td>
+                                <td  style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->date_added))}}</td>
+                                <td  style="vertical-align:middle;">{{$new_assets->name}}</td>
+                                <td  style="vertical-align:middle;">{{'New Fixed Asset'}}</td>
+                                <td  style="vertical-align:middle;">
+                                    <?php
+                                        $cccccc="";
+                                    ?>
+                                    @foreach ($asset_description_grouped as $sad)
+                                        @if ($new_assets->asset_description==$sad->asset_setup_ad)
+                                        <?php
+                                            $cccccc=$sad->asset_setup_description;
+                                            break;
+                                        ?>
+                                        @endif
+                                    @endforeach
+                                    @if ($user_position->position!='Fixed Asset Officer')
+                                        <a class="btn btn-link"  style="cursor: pointer;" onclick="EditAssetInfo('<?php echo $new_assets->ASSET_ID; ?>')"><?php echo $cccccc;?></a>
+                                    @else
+                                        <a class="btn btn-link"  style="cursor: pointer;" disabled title="Access Denied!!"><?php echo $cccccc;?></a>
+                                    @endif
+                                </td>
+                                <td style="vertical-align:middle">N/A</td>
+                                @if($new_assets->transaction_action=="Denied by FA")
+                                <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
                                 <?php
-                                    $cccccc=$sad->asset_setup_description;
-                                    break;
+                                $preview=str_split($new_assets->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
                                 ?>
+                                <td><a style="cursor:pointer;"  class="btn-link btn btn-sm" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                @else
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
                                 @endif
-                            @endforeach
-                            @if ($user_position->position!='Fixed Asset Officer')
-                                <a class="btn btn-link"  style="cursor: pointer;" onclick="EditAssetInfo('<?php echo $new_assets->ASSET_ID; ?>')"><?php echo $cccccc;?></a>
-                            @else
-                                <a class="btn btn-link"  style="cursor: pointer;" disabled title="Access Denied!!"><?php echo $cccccc;?></a>
+                                <td width="10%" style="vertical-align:middle;text-align:center;">
+                                    @if ($user_position->position!='Data Entry Officer' && $user_position->position!='Fixed Asset Officer')
+                                    <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ApproveRequest('New Asset','<?php echo $new_assets->ASSET_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn btn-danger"  style="color:white !important;" onclick="DenyRequest('New Asset','<?php echo $new_assets->ASSET_ID; ?>','{{$new_assets->asset_setcheck_defualt}}')"><span class="fa fa-times-circle"></span></a>
+                                    @else
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled  style="color:white !important;"><span class="fa fa-times-circle"></span></a>
+                                    @endif
+                                    
+                                </td>
+                                
+                            </tr> 
+                        @endforeach
+                        @foreach ($pending_new_asset_setup as $new_assets)
+                        <tr> 
+                            <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->ticket_no}}'  value="{{$new_assets->ASSET_SETUP_ID}}" title="AssetSetup"></td>
+                            <td style="vertical-align:middle;text-align:center;">{{$new_assets->ticket_no}}</td>
+                            <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->created_at))}}</td>
+                            <td style="vertical-align:middle;">{{$new_assets->name}}</td>
+                            <td style="vertical-align:middle;">{{'New Asset Setup'}}</td>
+                            <td  style="vertical-align:middle;">
+                                <a onclick="ViewAssetSetup('<?php echo $new_assets->ASSET_SETUP_ID; ?>')"  class="btn btn-link" style="cursor: pointer;"><?php echo $new_assets->asset_setup_tag; ?></a>
+                            </td>
+                            <td  style="vertical-align:middle;">N/A</td>
+                            @if($new_assets->transaction_action=="Denied by FA")
+                            <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
+                            <?php
+                            $preview=str_split($new_assets->deny_reason,5);
+                            $pp=$preview[0];
+                            if(count($preview)>1){
+                                $pp=$preview[0]."..";	
+                            }
+                            ?>
+                            <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                            @else 
+                            <td style="vertical-align:middle"></td>
+                            <td style="vertical-align:middle"></td>
                             @endif
-                        </td>
-                        <td style="vertical-align:middle">N/A</td>
-                        @if($new_assets->transaction_action=="Denied by FA")
-                        <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
-                        <?php
-						$preview=str_split($new_assets->deny_reason,5);
-						$pp=$preview[0];
-						if(count($preview)>1){
-							$pp=$preview[0]."..";	
-						}
-						?>
-                        <td><a style="cursor:pointer;"  class="btn-link btn btn-sm" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
-                        @else
-                        <td style="vertical-align:middle"></td>
-                        <td style="vertical-align:middle"></td>
-                        @endif
-                        <td width="10%" style="vertical-align:middle;text-align:center;">
-                            @if ($user_position->position!='Data Entry Officer' && $user_position->position!='Fixed Asset Officer')
-                            <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ApproveRequest('New Asset','<?php echo $new_assets->ASSET_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
-                            <a class="btn btn-sm btn btn-danger"  style="color:white !important;" onclick="DenyRequest('New Asset','<?php echo $new_assets->ASSET_ID; ?>')"><span class="fa fa-times-circle"></span></a>
-                            @else
-                            <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
-                            <a class="btn btn-sm btn-danger"  disabled  style="color:white !important;"><span class="fa fa-times-circle"></span></a>
+                            <td style="vertical-align:middle;text-align:center;">
+                                <?php 
+                                if($new_assets->position!="Data Entry Officer" && $new_assets->position!="Fixed Asset Officer"){
+                                ?>
+                                <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ApproveRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
+                                <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>','{{$new_assets->ticket_no}}')"><span class="fa fa-times-circle"></span></a>
+                                <?php
+                                }else{
+                                ?>
+                                <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
+                                <?php	
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @elseif($user_position->position=="Fixed Asset Officer")
+            <div class="half-background">
+                <table class="table borderless table-hover table-sm" style="background-color:white;margin-bottom:0px;">
+                        <thead style="background-color:#0e3d4c; color:white;">
+                            <tr style="background-color:#083240;color:#262626;">
+                                <th colspan="10" style="text-align:center;font-weight:bold;color:white;font-size:20px;">PENDING APPROVAL</th>
+                            </tr>
+                            <tr style="background-color:#124f62">
+                                
+                                <td colspan="10" style="vertical-align:middle;text-align:center;font-weight:bold;color:white;background-color:#124f62">
+                                    <div style="font-weight:bold;color:white;float:left;">
+                                        <input  type="checkbox" name="SelectAll" onclick="toggle(this)"> Select All
+                                    </div>
+                                    FIXED ASSET APPROVAL
+                                    <div style="font-weight:bold;color:white;float:right;margin-right:10px;">
+                                        <a class="btn btn-sm btn-success" id="MassApproveBtn2223" style="margin-right:10px;display:none;" onclick="MassApprove2()" id="MassApproveBtn" ><span class="fa fa-check-circle"></span></a> 
+                                        <a class="btn btn-sm btn-danger" id="MassDenyBtn2223" onclick="MassDeny2()" style="display:none;"id="MassDenyBtn"><span class="fa fa-times-circle"></span></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </thead>
+                </table>
+                <table class="table borderless table-hover table-sm" style="background-color:white;" id="checkoutasset_fa">
+                    <thead style="background-color:#0e3d4c; color:white;">
+                        <tr>
+                            <th width="2%"></th>
+                            <th width="10%" style="text-align:center;" >Ticket No.</th>
+                            <th width="10%">Date</th>
+                            <th width="15%">Requested By</th>
+                            <th width="10%">Transaction </th>
+                            <th width="15%">Item</th>
+                            <th width="10%">Due Date</th>
+                            <th width="10%">Status</th>
+                            <th width="10%">Remarks</th>
+                            <th width="15%" style="text-align:center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody style="color:#083240;padding:10px;" id="RequestBoyBody">
+                        @foreach ($pending_confirmation_new_assets as $new_assets)
+                            <tr>
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->asset_setcheck_defualt}}' value="{{$new_assets->ASSET_ID}}" title="New Asset"></td>
+                                <td style="vertical-align:middle;text-align:center;">{{$new_assets->asset_setcheck_defualt}}</td>
+                                <td  style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->date_added))}}</td>
+                                <td  style="vertical-align:middle;">{{$new_assets->name}}</td>
+                                <td  style="vertical-align:middle;">{{'New Fixed Asset'}}</td>
+                                <td  style="vertical-align:middle;">
+                                    <?php
+                                        $cccccc="";
+                                    ?>
+                                    @foreach ($asset_description_grouped as $sad)
+                                        @if ($new_assets->asset_description==$sad->asset_setup_ad)
+                                        <?php
+                                            $cccccc=$sad->asset_setup_description;
+                                            break;
+                                        ?>
+                                        @endif
+                                    @endforeach
+                                        <a class="btn btn-link"  style="cursor: pointer;" onclick="ViewPendingAssets('<?php echo $new_assets->ASSET_ID; ?>')"><?php echo $cccccc;?></a>
+                                    
+                                </td>
+                                <td style="vertical-align:middle">N/A</td>
+                                @if($new_assets->transaction_action=="Denied by FA")
+                                <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
+                                <?php
+                                $preview=str_split($new_assets->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
+                                ?>
+                                <td><a style="cursor:pointer;"  class="btn-link btn btn-sm" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                @else
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                @endif
+                                <td width="10%" style="vertical-align:middle;text-align:center;">
+                                    @if ($user_position->position!='Data Entry Officer' && $user_position->position!='Asset Management Officer')
+                                    <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ConfirmRequest('New Asset','<?php echo $new_assets->ASSET_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn btn-danger"  style="color:white !important;" onclick="DenyRequest('New Asset2','<?php echo $new_assets->ASSET_ID; ?>','{{$new_assets->asset_setcheck_defualt}}')"><span class="fa fa-times-circle"></span></a>
+                                    @else
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled  style="color:white !important;"><span class="fa fa-times-circle"></span></a>
+                                    @endif
+                                    
+                                </td>
+                                
+                            </tr> 
+                        @endforeach
+                        @foreach ($pending_confirmation_new_asset_setup as $new_assets)
+                        <tr> 
+                            <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->ticket_no}}' value="{{$new_assets->ASSET_SETUP_ID}}" title="AssetSetup"></td>
+                            <td style="vertical-align:middle;text-align:center;">{{$new_assets->ticket_no}}</td>
+                            <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->created_at))}}</td>
+                            <td style="vertical-align:middle;">{{$new_assets->name}}</td>
+                            <td style="vertical-align:middle;">{{'New Asset Setup'}}</td>
+                            <td  style="vertical-align:middle;">
+                                <a onclick="ViewAssetSetup('<?php echo $new_assets->ASSET_SETUP_ID; ?>')"  class="btn btn-link" style="cursor: pointer;"><?php echo $new_assets->asset_setup_tag; ?></a>
+                            </td>
+                            <td  style="vertical-align:middle;">N/A</td>
+                            @if($new_assets->transaction_action=="Denied by FA")
+                            <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
+                            <?php
+                            $preview=str_split($new_assets->deny_reason,5);
+                            $pp=$preview[0];
+                            if(count($preview)>1){
+                                $pp=$preview[0]."..";	
+                            }
+                            ?>
+                            <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                            @else 
+                            <td style="vertical-align:middle"></td>
+                            <td style="vertical-align:middle"></td>
                             @endif
-                            
-                        </td>
-                        
-                    </tr> 
-                @endforeach
-                @foreach ($pending_new_asset_setup as $new_assets)
-                <tr> 
-                    <td><input onclick="toggleindi(this)" type="checkbox" name="LG" value="{{$new_assets->ASSET_SETUP_ID}}" title="New Asset"></td>
-                    <td style="vertical-align:middle;text-align:center;">{{$new_assets->ticket_no}}</td>
-                    <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->created_at))}}</td>
-                    <td style="vertical-align:middle;">{{$new_assets->name}}</td>
-                    <td style="vertical-align:middle;">{{'New Asset Setup'}}</td>
-                    <td  style="vertical-align:middle;">
-                        <a onclick="ViewAssetSetup('<?php echo $new_assets->ASSET_SETUP_ID; ?>')"  class="btn btn-link" style="cursor: pointer;"><?php echo $new_assets->asset_setup_tag; ?></a>
-                    </td>
-                    <td  style="vertical-align:middle;">N/A</td>
-                    @if($new_assets->transaction_action=="Denied by FA")
-                    <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
-                    <?php
-                    $preview=str_split($new_assets->deny_reason,5);
-                    $pp=$preview[0];
-                    if(count($preview)>1){
-                        $pp=$preview[0]."..";	
-                    }
-                    ?>
-                    <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
-                    @else 
-                    <td style="vertical-align:middle"></td>
-                    <td style="vertical-align:middle"></td>
-                    @endif
-                    <td style="vertical-align:middle;text-align:center;">
-                        <?php 
-						if($new_assets->position!="Data Entry Officer" && $new_assets->position!="Fixed Asset Officer"){
-                        ?>
-                        <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ApproveRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
-                        <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>')"><span class="fa fa-times-circle"></span></a>
-						<?php
-						}else{
-						?>
-						<a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
-                        <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
-						<?php	
-						}
-						?>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+                            <td style="vertical-align:middle;text-align:center;">
+                                <?php 
+                                if($new_assets->position!="Data Entry Officer" && $new_assets->position!="Asset Management Officer"){
+                                ?>
+                                <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ConfirmRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
+                                <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('AssetSetup2','<?php echo $new_assets->ASSET_SETUP_ID; ?>','{{$new_assets->ticket_no}}')"><span class="fa fa-times-circle"></span></a>
+                                <?php
+                                }else{
+                                ?>
+                                <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
+                                <?php	
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif 
+    @endif
 
-    <div class="half-background">
-        <table class="table borderless table-hover table-sm" style="background-color:white;margin-bottom:0px;">
-                <thead style="background-color:#0e3d4c; color:white;">
-                    <tr style="background-color:#083240;color:#262626;">
-                        <th colspan="10" style="text-align:center;font-weight:bold;color:white;font-size:20px;">PENDING APPROVAL</th>
-                    </tr>
-                    <tr style="background-color:#124f62">
-                        
-                        <td colspan="10" style="vertical-align:middle;text-align:center;font-weight:bold;color:white;background-color:#124f62">
-                            <div style="font-weight:bold;color:white;float:left;">
-                                <input  type="checkbox" name="SelectAll" onclick="toggle(this)"> Select All
-                            </div>
-                            FIXED ASSET APPROVAL
-                            <div style="font-weight:bold;color:white;float:right;margin-right:10px;">
-                                <a class="btn btn-sm btn-success" id="MassApproveBtn2223" style="margin-right:10px;" onclick="MassApprove()" id="MassApproveBtn" ><span class="fa fa-check-circle"></span></a> 
-                                <a class="btn btn-sm btn-danger" id="MassDenyBtn2223" onclick="MassDeny()" style=""id="MassDenyBtn"><span class="fa fa-times-circle"></span></a>
-                            </div>
-                        </td>
-                    </tr>
-                </thead>
-        </table>
-        <table class="table borderless table-hover table-sm" style="background-color:white;" id="checkoutasset_fa">
-            <thead style="background-color:#0e3d4c; color:white;">
-                <tr>
-                    <th width="2%"></th>
-                    <th width="10%" style="text-align:center;" >Ticket No.</th>
-                    <th width="10%">Date</th>
-                    <th width="15%">Requested By</th>
-                    <th width="10%">Transaction </th>
-                    <th width="15%">Item</th>
-                    <th width="10%">Due Date</th>
-                    <th width="10%">Status</th>
-                    <th width="10%">Remarks</th>
-                    <th width="15%" style="text-align:center;">Action</th>
-                </tr>
-            </thead>
-            <tbody style="color:#083240;padding:10px;" id="RequestBoyBody">
-                @foreach ($pending_confirmation_new_assets as $new_assets)
-                    <tr>
-                        <td><input onclick="toggleindi(this)" type="checkbox" name="LG" value="{{$new_assets->ASSET_ID}}" title="New Asset"></td>
-                        <td style="vertical-align:middle;text-align:center;">{{$new_assets->asset_setcheck_defualt}}</td>
-                        <td  style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->date_added))}}</td>
-                        <td  style="vertical-align:middle;">{{$new_assets->name}}</td>
-                        <td  style="vertical-align:middle;">{{'New Fixed Asset'}}</td>
-                        <td  style="vertical-align:middle;">
-                            <?php
-                                $cccccc="";
-                            ?>
-                            @foreach ($asset_description_grouped as $sad)
-                                @if ($new_assets->asset_description==$sad->asset_setup_ad)
-                                <?php
-                                    $cccccc=$sad->asset_setup_description;
-                                    break;
-                                ?>
-                                @endif
-                            @endforeach
-                                <a class="btn btn-link"  style="cursor: pointer;" onclick="ViewPendingAssets('<?php echo $new_assets->ASSET_ID; ?>')"><?php echo $cccccc;?></a>
-                            
-                        </td>
-                        <td style="vertical-align:middle">N/A</td>
-                        @if($new_assets->transaction_action=="Denied by FA")
-                        <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
-                        <?php
-						$preview=str_split($new_assets->deny_reason,5);
-						$pp=$preview[0];
-						if(count($preview)>1){
-							$pp=$preview[0]."..";	
-						}
-						?>
-                        <td><a style="cursor:pointer;"  class="btn-link btn btn-sm" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
-                        @else
-                        <td style="vertical-align:middle"></td>
-                        <td style="vertical-align:middle"></td>
-                        @endif
-                        <td width="10%" style="vertical-align:middle;text-align:center;">
-                            @if ($user_position->position!='Data Entry Officer' && $user_position->position!='Asset Management Officer')
-                            <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ConfirmRequest('New Asset','<?php echo $new_assets->ASSET_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
-                            <a class="btn btn-sm btn btn-danger"  style="color:white !important;" onclick="DenyRequest('New Asset2','<?php echo $new_assets->ASSET_ID; ?>')"><span class="fa fa-times-circle"></span></a>
-                            @else
-                            <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
-                            <a class="btn btn-sm btn-danger"  disabled  style="color:white !important;"><span class="fa fa-times-circle"></span></a>
-                            @endif
-                            
-                        </td>
-                        
-                    </tr> 
-                @endforeach
-                @foreach ($pending_confirmation_new_asset_setup as $new_assets)
-                <tr> 
-                    <td><input onclick="toggleindi(this)" type="checkbox" name="LG" value="{{$new_assets->ASSET_SETUP_ID}}" title="New Asset"></td>
-                    <td style="vertical-align:middle;text-align:center;">{{$new_assets->ticket_no}}</td>
-                    <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->created_at))}}</td>
-                    <td style="vertical-align:middle;">{{$new_assets->name}}</td>
-                    <td style="vertical-align:middle;">{{'New Asset Setup'}}</td>
-                    <td  style="vertical-align:middle;">
-                        <a onclick="ViewAssetSetup('<?php echo $new_assets->ASSET_SETUP_ID; ?>')"  class="btn btn-link" style="cursor: pointer;"><?php echo $new_assets->asset_setup_tag; ?></a>
-                    </td>
-                    <td  style="vertical-align:middle;">N/A</td>
-                    @if($new_assets->transaction_action=="Denied by FA")
-                    <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
-                    <?php
-                    $preview=str_split($new_assets->deny_reason,5);
-                    $pp=$preview[0];
-                    if(count($preview)>1){
-                        $pp=$preview[0]."..";	
-                    }
-                    ?>
-                    <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
-                    @else 
-                    <td style="vertical-align:middle"></td>
-                    <td style="vertical-align:middle"></td>
-                    @endif
-                    <td style="vertical-align:middle;text-align:center;">
-                        <?php 
-						if($new_assets->position!="Data Entry Officer" && $new_assets->position!="Asset Management Officer"){
-                        ?>
-                        <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ConfirmRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
-                        <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('AssetSetup2','<?php echo $new_assets->ASSET_SETUP_ID; ?>')"><span class="fa fa-times-circle"></span></a>
-						<?php
-						}else{
-						?>
-						<a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
-                        <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
-						<?php	
-						}
-						?>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
     <div>
         <table class="table table-sm" id="RequestLogTable" style="margin-bottom:0px;background-color:white;width:100%;">
 								
@@ -464,18 +474,20 @@
 
                             $asset_desc="";
                         ?>
+                        
                         @foreach ($asset_list_all as $item)
-                            @if ($item->id=$rows->asset_tag)
+                        
+                            @if ($item->ASSET_IIDS==$rows->asset_tag)
                             <?php
                                 $asset_desc=$item->asset_setup_description;
                                 break;
                             ?>
                             @endif
                         @endforeach
-                        <a onclick="ViewPendingAssets('<?php echo $rows->asset_tag; ?>')" href="#RequestLogTable" class="btn btn-link" style="cursor: pointer;"><?php echo $asset_desc;?></a>
+                        <a onclick="ViewPendingAssets('<?php echo $rows->asset_tag; ?>')"  class="btn btn-link" style="cursor: pointer;color:#124f62;"><?php echo $asset_desc;?></a>
                         @else
 
-                        <a onclick="ViewAssetSetup('<?php echo $rows->transaction_ticket_no; ?>')" href="#RequestLogTable" class="btn btn-link" style="cursor: pointer;"><?php echo $rows->asset_tag; ?></a>
+                        <a onclick="ViewAssetSetup('<?php echo $rows->transaction_ticket_no; ?>')"  class="btn btn-link" style="cursor: pointer;color:#124f62;"><?php echo $rows->asset_tag; ?></a>
                         @endif
                         
                         </td>
@@ -487,7 +499,7 @@
                             $pp=$preview[0]."..";	
                         }
                         ?>
-                        <td><a style="cursor:pointer;" href="#RequestLogTable" class="btn btn-link" onclick="ViewNotes('<?php echo $rows->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                        <td><a style="cursor:pointer;color:#124f62;"  class="btn btn-link" onclick="ViewNotes('<?php echo $rows->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
                         <td><?php echo date("m-d-Y", strtotime($rows->log_date)); ?></td>
                         <td><?php echo date("g:i a", strtotime($rows->log_time)); ?></td>
                         

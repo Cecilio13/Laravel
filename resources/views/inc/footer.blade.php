@@ -122,6 +122,14 @@ function SelectAction(idcount,id){
 	}
 	document.getElementById('SelectedAction'+idcount).value="";
 }
+var reload_page="1";
+function checkreload(){
+	if(reload_page=='1'){
+		location.reload();
+	}else{
+
+	}
+}
 function ApproveRequest(request,asset_tag){
 	if(request=="TransferCheckout"){
 		
@@ -149,7 +157,8 @@ function ApproveRequest(request,asset_tag){
         url: 'NewAssetFirstApprove',                
         data:{tag:asset_tag,_token: '{{csrf_token()}}'},
         success: function(data) {
-            location.reload();
+			
+			checkreload()
             
         }  
         }) 
@@ -176,7 +185,8 @@ function ApproveRequest(request,asset_tag){
 			url: 'AssetSetupFirstApprove',                
 			data:{tag:asset_tag,_token: '{{csrf_token()}}'},
 			success: function(data) {
-				location.reload();
+				
+			checkreload()
 				
 			}  
 			})
@@ -299,7 +309,8 @@ function ConfirmRequest(request,asset_tag){
 		url: 'NewAssetSecondApprove',                
 		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
 		success: function(data) {
-			location.reload();
+			
+			checkreload()
 			
 		}  
 		})
@@ -433,7 +444,8 @@ function ConfirmRequest(request,asset_tag){
 		url: 'AssetSetupSecondApprove',                
 		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
 		success: function(data) {
-			location.reload();
+			
+			checkreload()
 			
 		}  
 		})
@@ -451,9 +463,9 @@ function ConfirmRequest(request,asset_tag){
 		
 	}
 }
-function DenyRequest(request,asset_tag){
+function DenyRequest(request,asset_tag,ticket_no){
 	var txt;
-	var person = prompt("Please state the reason reason.");
+	var person = prompt("Please state the reason reason for "+ticket_no);
 	if (person == null || person == "") {
 		alert("Action Cancelled....");
 		
@@ -496,7 +508,8 @@ function DenyRequest(request,asset_tag){
 			url: 'NewAssetDeny',                
 			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
 			success: function(data) {
-				location.reload();
+				
+			checkreload()
 				
 			}  
 			})
@@ -523,7 +536,8 @@ function DenyRequest(request,asset_tag){
 			url: 'NewAssetDenySecond',                
 			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
 			success: function(data) {
-				location.reload();
+				
+			checkreload()
 				
 			}  
 			})
@@ -622,7 +636,8 @@ function DenyRequest(request,asset_tag){
 			url: 'DisposeAssetSetup',                
 			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
 			success: function(data) {
-				location.reload();
+				
+			checkreload()
 				
 			}  
 			})
@@ -648,7 +663,8 @@ function DenyRequest(request,asset_tag){
 			url: 'DisposeAssetSetup2',                
 			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
 			success: function(data) {
-				location.reload();
+				
+			checkreload()
 				
 			}  
 			})
@@ -695,7 +711,8 @@ function DeleteRequest(id){
 		url: 'delete_request_new_asset',                
 		data:{id:id,_token: '{{csrf_token()}}'},
 		success: function(data) {
-			location.reload();
+			reload_page="1";
+			checkreload()
 			
 		}  
 		})
@@ -714,15 +731,201 @@ function DeleteRequestSetup(id){
 		url: 'delete_request_asset_setup',                
 		data:{id:id,_token: '{{csrf_token()}}'},
 		success: function(data) {
-			location.reload();
+			reload_page="1";
+			checkreload()
 			
 		}  
 		})
 	}	
+}
+function ViewAssetSetup(id){
+	$.ajax({
+	type: 'POST',
+	headers: {
+		'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+	},
+	url: 'ViewAssetSetupModalBody',                
+	data:{AssetTagID:id,_token: '{{csrf_token()}}'},
+	success: function(data) {
+		$( "#ViewAssetSetupModalBody" ).replaceWith( data.html );
+		$('#ViewAssetSetup').modal();
+		
+	}  
+	})
+	
+}
+function ViewPendingAssets(id){
+	$.ajax({
+	type: 'POST',
+	headers: {
+		'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+	},
+	url: 'getViewAssetInfoModalBody',                
+	data:{AssetTagID:id,_token: '{{csrf_token()}}'},
+	success: function(data) {
+		$( "#ViewAssetModalBody" ).replaceWith( data.html );
+		$('#ViewAssetModal').modal();
+		
+	}  
+	})
+	
+}
+function EditAssetInfo(id){
+	$.ajax({
+	type: 'POST',
+	headers: {
+		'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+	},
+	url: 'EditAssetSetupModalBody',                
+	data:{AssetTagID:id,_token: '{{csrf_token()}}'},
+	success: function(data) {
+		$( "#ViewAssetModalBody" ).replaceWith( data.html );
+		$('#ViewAssetModal').modal();
+		
+	}  
+	})
+}
+function numberWithCommas(x) {
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
+}
+function toggleindi(source){
+	checkboxes = document.getElementsByName('LG');
+	var z=0;
+  for(var i=0, n=checkboxes.length;i<n;i++) {
+	  
+	if(checkboxes[i].checked){
+		z++;
+	  document.getElementById('MassApproveBtn2223').style.display="inline-block";
+	  document.getElementById('MassDenyBtn2223').style.display="inline-block";
+	  
+	  }
+	if(z==0){
+		 document.getElementById('MassApproveBtn2223').style.display="none";
+		 document.getElementById('MassDenyBtn2223').style.display="none";
+		
+		document.getElementsByName('SelectAll').checked=false;
+	}
+	
+	if(z==n){
+		document.getElementById('MassApproveBtn2223').style.display="inline-block";
+	  document.getElementById('MassDenyBtn2223').style.display="inline-block";
+	
+	}
+  }
+  
+}
+var checkboxes="";
+function toggle(source) {
+  checkboxes = document.getElementsByName('LG');
+ 
+  for(var i=0, n=checkboxes.length;i<n;i++) {
+	checkboxes[i].checked = source.checked;
+	if(checkboxes[i].checked){
+	  document.getElementById('MassApproveBtn2223').style.display="inline-block";
+	  document.getElementById('MassDenyBtn2223').style.display="inline-block";
+	  }else{
+		 document.getElementById('MassApproveBtn2223').style.display="none";
+		 document.getElementById('MassDenyBtn2223').style.display="none";
+	  }
+  }
+  
+}
+function MassApprove(){
+	reload_page="0";
+	checkboxes = document.getElementsByName('LG');
+	for(var i=0, n=checkboxes.length;i<n;i++) {
+		if(checkboxes[i].checked){
+			var type=checkboxes[i].title;
+			var id=checkboxes[i].value;
+			console.log(type+" "+id+" "+i);
+			ApproveRequest(type,id);
+		}
+		
+	}
+	reload_page="1";
+	checkreload()
+}
+function MassDeny(){
+	reload_page="0";
+	checkboxes = document.getElementsByName('LG');
+	for(var i=0, n=checkboxes.length;i<n;i++) {
+		if(checkboxes[i].checked){
+			var type=checkboxes[i].title;
+			var id=checkboxes[i].value;
+			var ticket_no=checkboxes[i].getAttribute('data-ticket');
+			DenyRequest(type,id,ticket_no);
+		}
+		
+	}
+	reload_page="1";
+	checkreload()
+	
+}
+function MassApprove2(){
+	checkboxes = document.getElementsByName('LG');
+	for(var i=0, n=checkboxes.length;i<n;i++) {
+		if(checkboxes[i].checked){
+			var type=checkboxes[i].title;
+			var id=checkboxes[i].value;
+			console.log(type+" "+id);
+			ConfirmRequest(type,id);
+		}
+		
+	}
+}
+function MassDeny2(){
+	checkboxes = document.getElementsByName('LG');
+	for(var i=0, n=checkboxes.length;i<n;i++) {
+		if(checkboxes[i].checked){
+			var type=checkboxes[i].title;
+			var id=checkboxes[i].value;
+			var ticket_no=checkboxes[i].getAttribute('data-ticket');
+			if(type=="AssetSetup"){
+				type="AssetSetup2";
+			}
+			DenyRequest(type,id,ticket_no);
+		}
+		
+	}
+	
+}
+function EditAssetInfo2(){
+	
 }
 </script>
 <style>
 select option[disabled] {
 	display: none;
 }
+
 </style>
+<div class="modal fade modal-full" id="ViewAssetModal"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content">
+        
+        <div class="modal-body" id="ViewAssetModalBody">
+           
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            
+        </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade " id="ViewAssetSetup"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+        
+        <div class="modal-body" id="ViewAssetSetupModalBody">
+           
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            
+        </div>
+        </div>
+    </div>
+</div>

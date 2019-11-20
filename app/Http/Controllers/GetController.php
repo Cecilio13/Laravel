@@ -60,6 +60,7 @@ use App\HR_hr_asset_photo;
 use App\HR_hr_asset_request;
 use App\HR_hr_asset_transaction_log;
 use App\HR_hr_audit;
+use App\User;
 class GetController extends Controller
 {
     //
@@ -1004,5 +1005,275 @@ class GetController extends Controller
             $note=$data->deny_reason;
         }
         return ' <p id="ViewModalP">'.$note.'</p>';
+    }
+    public function ViewAssetSetupModalBody(Request $request){
+        $setup_id=$request->AssetTagID;
+        $selected=HR_hr_Asset_setup::where([
+            ['id','=',$setup_id]
+        ])->first();
+        $Kind="";
+        $asset_setup_description="";
+        $asset_setup_sku="";
+        $asset_setup_category="";
+        $asset_setup_site="";
+        $asset_setup_sub_cat="";
+        $asset_setup_ad="";
+        $asset_setup_ac="";
+        $asset_setup_sc="";
+        $asset_setup_location="";
+        $uom="";
+        $uom_abbr="";
+        $ticket_no="";
+        $date_requested="";
+        $requested_by="";
+        $setup_require_serial="";
+        $setup_require_plate="";
+        $setup_consumable="";
+        if(!empty($selected)){
+            $Kind=$selected->asset_setup_tag;
+            $asset_setup_description=$selected->asset_setup_description;
+            $asset_setup_sku=$selected->asset_setup_sku;
+            $asset_setup_category=$selected->asset_setup_category;
+            $asset_setup_site=$selected->asset_setup_site;
+            $asset_setup_sub_cat=$selected->asset_setup_sub_cat;
+            $asset_setup_ad=$selected->asset_setup_ad;
+            $asset_setup_ac=$selected->asset_setup_ac;
+            $asset_setup_sc=$selected->asset_setup_sc;
+            $asset_setup_location=$selected->asset_setup_location;
+            $uom=$selected->uom;
+            $uom_abbr=$selected->uom_abbr;
+            $ticket_no=$selected->ticket_no;
+            $date_requested=$selected->date_requested;
+            $requested_by=$selected->requested_by;
+            $setup_require_serial=$selected->uom;
+            $setup_require_plate=$selected->asset_setup_sku;
+            $setup_consumable=$selected->uom_abbr;
+        }
+        $returnHTML = view('inc.viewassetsetupinfofield', compact('setup_id','Kind','asset_setup_description','asset_setup_sku','asset_setup_category','asset_setup_site','asset_setup_sub_cat','asset_setup_ad','asset_setup_ac','asset_setup_sc','asset_setup_location','uom','uom_abbr','ticket_no','date_requested','requested_by','setup_require_serial','setup_require_plate','setup_consumable'))->render();
+        
+        return response()->json(array('success' => true, 'html'=>$returnHTML));
+    }
+    
+    public function EditAssetSetupModalBody(Request $request){
+        $AssetTagID=$request->AssetTagID;
+        
+        $asset_id="";
+		$ViewAssetTag="";
+		$ViewAssignTo="";
+		$ViewAssetType="";
+		$ViewAssetDesc="";
+		$ViewAssetSerialNumber="";
+		$ViewAssetManufacturer="";
+		$ViewAssetModel="";
+		$ViewAssetCategoryName="";
+		$ViewAssetCondition="";
+		$ViewAssetSite="";
+		$ViewAssetLocation="";
+		$ViewAssetDeptCode="";
+		$Employee_Name2="";
+		$ViewAssetCheckOutDefault="";
+		$ViewAssetVendorNumber="";
+		$ViewAssetPurchaseOrder="";
+		$ViewAssetPurchaseDate="";
+		$ViewAssetPurchaseCost="";
+		$ViewAssetInitialValue="";
+		$ViewAssetDepreciationFrequency="";
+		$ViewAssetUsefullifeSpan="";
+		$ViewAssetDepreciationCost="";
+		$ViewAssetCurrentValue="";
+		$ViewAssetFileAttachment="";
+		$ViewAssetSub="";
+		$AssetUOM="";
+		$AssetUOMAmount="";
+		$StorageAsset="";
+		$photo="noimage.png";
+		$photo2="noimage.png";
+		$photo3="noimage.png";
+		$Employee_I="";
+		$Employee_Name="";
+		$sku_code="";
+		$sku_number="";
+		$Middle="";
+		$Spacon="";
+		$ViewAssetbrand="";
+		$depreciation_date="";
+		$invoice_number="";
+		$depriciable_value="";
+        $salvage_value="";
+        if($AssetTagID!=''){
+            $data=HR_hr_Asset::find($AssetTagID);
+            if(!empty($data)){
+                $asset_id=$data->id;
+                $ViewAssetTag=$data->asset_tag;
+                $ViewAssignTo=$data->assigned_to_temp;
+                $ViewAssetType=$data->asset_type;
+                $ViewAssetDesc=$data->asset_description;
+                $ViewAssetSerialNumber=$data->asset_serial_number;
+                $ViewAssetManufacturer=$data->asset_manufacturer;
+                $ViewAssetModel=$data->asset_model;
+                $ViewAssetCategoryName=$data->asset_category_name;
+                $ViewAssetCondition=$data->asset_condition;
+                $ViewAssetSite=$data->asset_site;
+                $ViewAssetLocation=$data->asset_location;
+                $ViewAssetDeptCode=$data->asset_department_code;
+                $Employee_I=$data->data_entry_by;
+                $ss=User::find($Employee_I);
+                $Employee_Name2=$ss->name;
+                $ViewAssetCheckOutDefault=$data->asset_setcheck_defualt;
+                $ViewAssetVendorNumber=$data->vendor_number;
+                $ViewAssetPurchaseOrder=$data->purchase_order;
+                $ViewAssetPurchaseDate=$data->purchase_date;
+                $ViewAssetPurchaseCost=$data->purchase_cost;
+                $ViewAssetInitialValue=$data->initial_value;
+                $ViewAssetDepreciationFrequency=$data->depreciation_frequency;
+                $ViewAssetUsefullifeSpan=$data->useful_life_span;
+                $ViewAssetDepreciationCost=$data->depreciation_cost;
+                $ViewAssetCurrentValue=$data->current_cost;
+                $ViewAssetFileAttachment=$data->asset_attachment;
+                $ViewAssetSub=$data->asset_sub_category;
+                $AssetUOM=$data->unit_of_measurement;
+                $AssetUOMAmount=$data->unit_of_measurement_amount;
+                $StorageAsset=$data->asset_storage;
+                $photo=$data->asset_imagefile;
+                $photo2="2".$data->asset_imagefile;
+                $photo3="3".$data->asset_imagefile;
+                if(file_exists("images/Asset_Photo/".$photo)==0){
+                    $photo="noimage.png";
+                }
+                if($photo==""){
+                    $photo="noimage.png";
+                }
+                if(file_exists("images/Asset_Photo/".$photo2)==0){
+                    $photo2="noimage.png";
+                }
+                if(file_exists("images/Asset_Photo/".$photo3)==0){
+                    $photo3="noimage.png";
+                }
+                
+                $sku_code=$data->sku_code;
+                $sku_number=$data->sku_number;
+                $Middle='-';
+                $Spacon=' ';
+                $ViewAssetbrand=$data->asset_brand;
+                $depreciation_date=$data->depreciation_date;
+                $invoice_number=$data->invoice_number;
+                $depriciable_value=$data->depriciable_value;
+                $salvage_value=$data->salvage_value;
+            }
+        }
+        $returnHTML = view('inc.editassetinfofields', compact('AssetTagID','asset_id','ViewAssetTag','ViewAssignTo','ViewAssetType','ViewAssetDesc','ViewAssetSerialNumber','ViewAssetManufacturer','ViewAssetModel','ViewAssetCategoryName','ViewAssetCondition','ViewAssetSite','ViewAssetLocation','ViewAssetDeptCode','Employee_Name2','ViewAssetCheckOutDefault','ViewAssetVendorNumber','ViewAssetPurchaseOrder','ViewAssetPurchaseDate','ViewAssetPurchaseCost','ViewAssetInitialValue','ViewAssetDepreciationFrequency','ViewAssetUsefullifeSpan','ViewAssetDepreciationCost','ViewAssetCurrentValue','ViewAssetFileAttachment','ViewAssetSub','AssetUOM','AssetUOMAmount','StorageAsset','photo','photo2','photo3','Employee_I','Employee_Name','sku_code','sku_number','Middle','Spacon','ViewAssetbrand','depreciation_date','invoice_number','depriciable_value','salvage_value'))->render();
+        
+        return response()->json(array('success' => true, 'html'=>$returnHTML));
+    }
+    public function getViewAssetInfoModalBody(Request $request){
+        $AssetTagID=$request->AssetTagID;
+        
+        $asset_id="";
+		$ViewAssetTag="";
+		$ViewAssignTo="";
+		$ViewAssetType="";
+		$ViewAssetDesc="";
+		$ViewAssetSerialNumber="";
+		$ViewAssetManufacturer="";
+		$ViewAssetModel="";
+		$ViewAssetCategoryName="";
+		$ViewAssetCondition="";
+		$ViewAssetSite="";
+		$ViewAssetLocation="";
+		$ViewAssetDeptCode="";
+		$Employee_Name2="";
+		$ViewAssetCheckOutDefault="";
+		$ViewAssetVendorNumber="";
+		$ViewAssetPurchaseOrder="";
+		$ViewAssetPurchaseDate="";
+		$ViewAssetPurchaseCost="";
+		$ViewAssetInitialValue="";
+		$ViewAssetDepreciationFrequency="";
+		$ViewAssetUsefullifeSpan="";
+		$ViewAssetDepreciationCost="";
+		$ViewAssetCurrentValue="";
+		$ViewAssetFileAttachment="";
+		$ViewAssetSub="";
+		$AssetUOM="";
+		$AssetUOMAmount="";
+		$StorageAsset="";
+		$photo="noimage.png";
+		$photo2="noimage.png";
+		$photo3="noimage.png";
+		$Employee_I="";
+		$Employee_Name="";
+		$sku_code="";
+		$sku_number="";
+		$Middle="";
+		$Spacon="";
+		$ViewAssetbrand="";
+		$depreciation_date="";
+		$invoice_number="";
+		$depriciable_value="";
+        $salvage_value="";
+        if($AssetTagID!=''){
+            $data=HR_hr_Asset::find($AssetTagID);
+            if(!empty($data)){
+                $asset_id=$data->id;
+                $ViewAssetTag=$data->asset_tag;
+                $ViewAssignTo=$data->assigned_to_temp;
+                $ViewAssetType=$data->asset_type;
+                $ViewAssetDesc=$data->asset_description;
+                $ViewAssetSerialNumber=$data->asset_serial_number;
+                $ViewAssetManufacturer=$data->asset_manufacturer;
+                $ViewAssetModel=$data->asset_model;
+                $ViewAssetCategoryName=$data->asset_category_name;
+                $ViewAssetCondition=$data->asset_condition;
+                $ViewAssetSite=$data->asset_site;
+                $ViewAssetLocation=$data->asset_location;
+                $ViewAssetDeptCode=$data->asset_department_code;
+                $Employee_I=$data->data_entry_by;
+                $ss=User::find($Employee_I);
+                $Employee_Name2=$ss->name;
+                $ViewAssetCheckOutDefault=$data->asset_setcheck_defualt;
+                $ViewAssetVendorNumber=$data->vendor_number;
+                $ViewAssetPurchaseOrder=$data->purchase_order;
+                $ViewAssetPurchaseDate=$data->purchase_date;
+                $ViewAssetPurchaseCost=$data->purchase_cost;
+                $ViewAssetInitialValue=$data->initial_value;
+                $ViewAssetDepreciationFrequency=$data->depreciation_frequency;
+                $ViewAssetUsefullifeSpan=$data->useful_life_span;
+                $ViewAssetDepreciationCost=$data->depreciation_cost;
+                $ViewAssetCurrentValue=$data->current_cost;
+                $ViewAssetFileAttachment=$data->asset_attachment;
+                $ViewAssetSub=$data->asset_sub_category;
+                $AssetUOM=$data->unit_of_measurement;
+                $AssetUOMAmount=$data->unit_of_measurement_amount;
+                $StorageAsset=$data->asset_storage;
+                $photo=$data->asset_imagefile;
+                $photo2="2".$data->asset_imagefile;
+                $photo3="3".$data->asset_imagefile;
+                if(file_exists("images/Asset_Photo/".$photo)==0){
+                    $photo="noimage.png";
+                }
+                if($photo==""){
+                    $photo="noimage.png";
+                }
+                if(file_exists("images/Asset_Photo/".$photo2)==0){
+                    $photo2="noimage.png";
+                }
+                if(file_exists("images/Asset_Photo/".$photo3)==0){
+                    $photo3="noimage.png";
+                }
+                
+                $sku_code=$data->sku_code;
+                $sku_number=$data->sku_number;
+                $Middle='-';
+                $Spacon=' ';
+                $ViewAssetbrand=$data->asset_brand;
+                $depreciation_date=$data->depreciation_date;
+                $invoice_number=$data->invoice_number;
+                $depriciable_value=$data->depriciable_value;
+                $salvage_value=$data->salvage_value;
+            }
+        }
+        $returnHTML = view('inc.viewassetinfofields', compact('AssetTagID','asset_id','ViewAssetTag','ViewAssignTo','ViewAssetType','ViewAssetDesc','ViewAssetSerialNumber','ViewAssetManufacturer','ViewAssetModel','ViewAssetCategoryName','ViewAssetCondition','ViewAssetSite','ViewAssetLocation','ViewAssetDeptCode','Employee_Name2','ViewAssetCheckOutDefault','ViewAssetVendorNumber','ViewAssetPurchaseOrder','ViewAssetPurchaseDate','ViewAssetPurchaseCost','ViewAssetInitialValue','ViewAssetDepreciationFrequency','ViewAssetUsefullifeSpan','ViewAssetDepreciationCost','ViewAssetCurrentValue','ViewAssetFileAttachment','ViewAssetSub','AssetUOM','AssetUOMAmount','StorageAsset','photo','photo2','photo3','Employee_I','Employee_Name','sku_code','sku_number','Middle','Spacon','ViewAssetbrand','depreciation_date','invoice_number','depriciable_value','salvage_value'))->render();
+        
+        return response()->json(array('success' => true, 'html'=>$returnHTML));
     }
 }

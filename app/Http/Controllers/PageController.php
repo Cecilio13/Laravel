@@ -1398,8 +1398,16 @@ class PageController extends Controller
     }
     public function asset_management_dispose(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
-    
+        $pending_denied_new_assets=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+		JOIN users ON users.id=hr_assets.data_entry_by
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_assets.asset_setcheck_defualt
+        WHERE asset_approval='-11'");
+        $pending_denied_new_asset_setup=DB::connection('mysql')->select("SELECT *,hr_asset_setup.id as ASSET_SETUP_ID FROM hr_asset_setup
+		JOIN users ON users.id=hr_asset_setup.requested_by
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_asset_setup.ticket_no
+        WHERE asset_setup_status='0'");
+        
+        return view('pages.main.asset_management_disposed', compact('pending_denied_new_assets','pending_denied_new_asset_setup'));
     }
     
     public function asset(Request $request){

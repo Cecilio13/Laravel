@@ -1151,11 +1151,7 @@
                                     });
                                     });
                                     
-                                    function numberWithCommas(x) {
-                                        var parts = x.toString().split(".");
-                                        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                                        return parts.join(".");
-                                    }
+                                    
                                     
                                     function SetComma(){
                                         
@@ -1703,7 +1699,7 @@
 								<b id="AssetDDSS"><br><span id="EditViewAssetTagLabel"><?php echo $ViewAssetTag; ?></span></b>
 								<b id="AssetChar" style="display:none;"><br><span><?php echo $sp; ?></span></b>
 								<b id="AssetNum" style="display:none"><br><span ><?php echo $sp2; ?></span></b>
-								<br><br><button class="btn btn-primary" style="display:none;" id="PrintButtonViewAsset" onclick="printDiv('QRCODEDIV')"><span class="glyphicon glyphicon-print"></span> Print QR</button>
+								<br><br><button class="btn btn-primary" type="button" style="display:none;" id="PrintButtonViewAsset" onclick="printDiv('QRCODEDIV')"><span class="glyphicon glyphicon-print"></span> Print QR</button>
 								</div>
 								</td>
 								<td  style="vertical-align: middle;" rowspan="11">
@@ -1875,6 +1871,7 @@
                                             element=element+'</select>';
                                         $( "#SubCatName2" ).replaceWith( element );
                                         document.getElementById('SubCatName2').value=sub_initial;
+                                        document.getElementById('SubCatName2').disabled=true;
                                         sub_initial="";
 										SetAssetTag22222();
                                     }  
@@ -1913,6 +1910,7 @@
 								
 								}
 								function getQR222(){
+                                    var SerialCode=document.getElementById('SerialID').value;
 									var tag=document.getElementById('EditViewAssetTagLabel').innerHTML;
 									var Cat=$('#CatName2').find(':selected').text();
 									var Sub=$('#SubCatName2').find(':selected').text();
@@ -2556,7 +2554,7 @@
                                 
                             </tr>
                             <tr >
-                                <td style="vertical-align: middle;text-align:right; color:#083240;" width="15%">Data Entry By</td>
+                                <td style="vertical-align: middle;text-align:right; color:#083240;" width="10%">Data Entry By</td>
                                 <td width="23%;" style="vertical-align: middle;" >
                                     <select class="form-control"  name="dataentry" value="<?php echo $Employee_Name2; ?>">
                                         <option  value="<?php echo $Employee_I; ?>"><?php echo $Employee_Name2; ?></option>
