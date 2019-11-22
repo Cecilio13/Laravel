@@ -166,13 +166,15 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/getViewAssetInfoModalBody', 'GetController@getViewAssetInfoModalBody');
     Route::post('/ViewAssetSetupModalBody', 'GetController@ViewAssetSetupModalBody');
     Route::post('/EditAssetSetupModalBody', 'GetController@EditAssetSetupModalBody');
+    Route::post('/EditAssetSetupModalBodyasds', 'GetController@EditAssetSetupModalBodyasds');
     
     Route::post('/UploadMassAssetSetup', 'UploadController@UploadMassAssetSetup');
     Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
     Route::post('/DeleteTagging', 'AssetPostController@DeleteTagging');
     Route::post('/add_new_asset', 'AssetPostController@add_new_asset');
     Route::post('/update_asset_information', 'AssetPostController@update_asset_information');
-
+    Route::post('/update_asset_information_denied', 'AssetPostController@update_asset_information_denied');
+    
     Route::post('/NewAssetFirstApprove', 'AssetPostController@NewAssetFirstApprove');
     Route::post('/AssetSetupFirstApprove', 'AssetPostController@AssetSetupFirstApprove');
     Route::post('/NewAssetSecondApprove', 'AssetPostController@NewAssetSecondApprove');
@@ -183,6 +185,7 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/DisposeAssetSetup', 'AssetPostController@DisposeAssetSetup');
     Route::post('/delete_request_new_asset', 'AssetPostController@delete_request_new_asset');
     Route::post('/delete_request_asset_setup', 'AssetPostController@delete_request_asset_setup');
+    Route::post('/update_asset_setup_site_and_location', 'AssetPostController@update_asset_setup_site_and_location');
     
     
     

@@ -19,7 +19,7 @@ $(document).ready(function(){
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
-        url: 'update_asset_information',                
+        url: 'update_asset_information_denied',                
         data: $('#edit_asset_information_form').serialize(),
         success: function(data) {
             console.log(data);

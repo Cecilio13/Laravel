@@ -754,6 +754,21 @@ function ViewAssetSetup(id){
 	})
 	
 }
+function EditAssetSetup(id){
+	$.ajax({
+	type: 'POST',
+	headers: {
+		'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+	},
+	url: 'EditAssetSetupModalBodyasds',                
+	data:{AssetTagID:id,_token: '{{csrf_token()}}'},
+	success: function(data) {
+		$( "#ViewAssetSetupModalBody" ).replaceWith( data.html );
+		$('#ViewAssetSetup').modal();
+		
+	}  
+	})
+}
 function ViewPendingAssets(id){
 	$.ajax({
 	type: 'POST',
@@ -893,6 +908,325 @@ function MassDeny2(){
 }
 function EditAssetInfo2(){
 	
+}
+function GetExistingLocationEdit(){
+    var Location=document.getElementById('LocationSetupEdit').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_setup_location',                
+    data:{value:Location,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='LocSearchReultDivEdit'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#LocSearchReultDivEdit" ).replaceWith( element );
+        
+    }  
+    }) 
+    
+    CheckSiteEdit();
+}
+function GetExistingSitesEdit(){
+    var Site=document.getElementById('SiteSetupEdit').value;
+    var Location=document.getElementById('LocationSetupEdit').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_setup_site',                
+    data:{value:Location,Site:Site,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='siteSearchReultDivEdit'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#siteSearchReultDivEdit" ).replaceWith( element );
+        
+    }  
+    }) 
+    // $.ajax({
+    //     type: 'POST',
+    //     url: 'ShowSearchSite.php',                
+    //     data: {INPUT:Site,Loc:Location},
+    // success: function(data) {
+    //     $( "#siteSearchReultDiv" ).replaceWith( data );
+    // } 											 
+    // })
+    CheckSiteEdit();
+}
+
+function CheckSiteEdit(){
+    var site=document.getElementById('SiteSetupEdit').value;
+    var site2=document.getElementById('SiteSetupEdit').getAttribute('data-value');
+    var LocationSetup=document.getElementById('LocationSetupEdit').value;
+	var LocationSetup2=document.getElementById('LocationSetupEdit').getAttribute('data-value');
+    console.log(LocationSetup+" ----"+LocationSetup);
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'check_site',                
+    data:{value:LocationSetup,site:site,_token: '{{csrf_token()}}'},
+    success: function(data) {
+		if(site!=site2 || LocationSetup!=LocationSetup2){
+			if(data==0){
+            
+            document.getElementById('SaveBtnAssetSetupEdit').disabled=false;
+            document.getElementById('SiteSetupEdit').style.borderColor="green";
+            document.getElementById('LocationSetupEdit').style.borderColor="green";
+			}else{
+				document.getElementById('SiteSetupEdit').style.borderColor="red";
+				document.getElementById('LocationSetupEdit').style.borderColor="red";
+				document.getElementById('SaveBtnAssetSetupEdit').disabled=true;
+				
+			}
+		}else{
+			document.getElementById('SaveBtnAssetSetupEdit').disabled=false;
+            document.getElementById('SiteSetupEdit').style.borderColor="green";
+            document.getElementById('LocationSetupEdit').style.borderColor="green";
+		}
+        
+    }  
+    }) 
+    
+    
+}
+function CheckAssetTagaCombinationEdit(){
+    
+    var desc=document.getElementById('DESC_Edit').value;
+    var CN=document.getElementById('CNEdit').value;
+    var SC=document.getElementById('SC_CART').value;
+	var desc2=document.getElementById('DESC_Edit').getAttribute('data-value');
+    var CN2=document.getElementById('CNEdit').getAttribute('data-value');
+    var SC2=document.getElementById('SC_CART').getAttribute('data-value');
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'check_asset_setup_asset_tag_combination',                
+    data:{desc:desc,CN:CN,SC:SC,_token: '{{csrf_token()}}'},
+    success: function(data) {
+		if(desc!=desc2 || CN!=CN2 || SC!=SC2){
+			if(data>0){
+        
+				document.getElementById('ADCODEEdit').style.borderColor='red';
+				document.getElementById('CNCODEeDIT').style.borderColor='red';
+				document.getElementById('SCCODEEDIT').style.borderColor='red';
+				document.getElementById('DESC_Edit').style.borderColor='red';
+				document.getElementById('CNEdit').style.borderColor='red';
+				document.getElementById('SC_CART').style.borderColor='red';
+				document.getElementById('SaveBtnAssetSetupEdit').disabled=true;
+				
+			}
+			else{
+				document.getElementById('ADCODEEdit').style.borderColor='#ccc';
+				document.getElementById('CNCODEeDIT').style.borderColor='#ccc';
+				document.getElementById('SCCODEEDIT').style.borderColor='#ccc';
+				document.getElementById('DESC_Edit').style.borderColor='#ccc';
+				document.getElementById('CNEdit').style.borderColor='#ccc';
+				document.getElementById('SC_CART').style.borderColor='#ccc';
+				document.getElementById('SaveBtnAssetSetupEdit').disabled=false;
+			}
+		}else{
+				document.getElementById('ADCODEEdit').style.borderColor='#ccc';
+				document.getElementById('CNCODEeDIT').style.borderColor='#ccc';
+				document.getElementById('SCCODEEDIT').style.borderColor='#ccc';
+				document.getElementById('DESC_Edit').style.borderColor='#ccc';
+				document.getElementById('CNEdit').style.borderColor='#ccc';
+				document.getElementById('SC_CART').style.borderColor='#ccc';
+				document.getElementById('SaveBtnAssetSetupEdit').disabled=false;
+		}
+        
+        
+    }  
+    })
+}
+function ShowSearchAssetDescEdit(){
+    var desc=document.getElementById('DESC_Edit').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_desc',                
+    data:{value:desc,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='AssetDescSearchREsultEdit'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#AssetDescSearchREsultEdit" ).replaceWith( element );
+        
+    }  
+    }) 
+}
+function CheckCOdeEdit(){
+    var desc=document.getElementById('DESC_Edit').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_desc_code',             
+    data:{value:desc,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        document.getElementById('ADCODEEdit').value=data;
+        if(data==""){
+            document.getElementById('ADCODEEdit').readOnly=false;
+        }else{
+            document.getElementById('ADCODEEdit').readOnly=true;
+        }
+    }  
+    }) 
+    
+}
+function AssetDescCOdeSearchREsultEdit(){
+    var desc=document.getElementById('ADCODEEdit').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_desc_code_list',                
+    data:{value:desc,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='AssetDescCOdeSearchREsultEdit'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#AssetDescCOdeSearchREsultEdit" ).replaceWith( element );
+        
+    }  
+    }) 
+    
+}
+function CheckCOdeCNEdit(){
+    var desc=document.getElementById('CNEdit').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_cat_code',             
+    data:{value:desc,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        document.getElementById('CNCODEeDIT').value=data;
+        if(data==""){
+            document.getElementById('CNCODEeDIT').readOnly=false;
+        }else{
+            document.getElementById('CNCODEeDIT').readOnly=true;
+        }
+    }  
+    })
+    
+}
+function CheckCOdeSCeDIT(){
+    var desc=document.getElementById('SC_CART').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_sub_cat_code',             
+    data:{value:desc,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        document.getElementById('SCCODEEDIT').value=data;
+        if(data==""){
+            document.getElementById('SCCODEEDIT').readOnly=false;
+        }else{
+            document.getElementById('SCCODEEDIT').readOnly=true;
+        }
+    }  
+    })
+    
+}
+function AssetCategorySearchREsultEdit(){
+    var desc=document.getElementById('CNEdit').value;
+    var desc2=document.getElementById('DESC_Edit').value;
+    
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_category',                
+    data:{value:desc2,category:desc,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='AssetCategorySearchREsultEdit'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#AssetCategorySearchREsultEdit" ).replaceWith( element );
+        
+    }  
+    }) 
+    
+    
+}
+function AssetCNCodeSearchREsulteDIT(){
+    var desc=document.getElementById('CNCODEeDIT').value;
+    var desc2=document.getElementById('DESC_Edit').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_category_code_list',                
+    data:{value:desc2,category:desc,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='AssetCNCodeSearchREsulteDIT'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#AssetCNCodeSearchREsulteDIT" ).replaceWith( element );
+        
+    }  
+    }) 
+    
+    
+}
+function ShowSubCatEdit(){
+    var CN=document.getElementById('CNEdit').value;
+    var desc=document.getElementById('DESC_Edit').value;
+    var SC=document.getElementById('SC_CART').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_sub_cat',                
+    data:{value:desc,CN:CN,SC:SC,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='AssetSubCategorySearchResultEdit'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#AssetSubCategorySearchResultEdit" ).replaceWith( element );
+        
+    }  
+    }) 
+    
+}
+function ShowSubCatCodeEdit(){
+    var CN=document.getElementById('CNEdit').value;
+    var desc=document.getElementById('DESC_Edit').value;
+    var SC=document.getElementById('SC_CART').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_sub_cat_code_list',                
+    data:{value:desc,CN:CN,SC:SC,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='AssetSubCategoryCodeSearchResultEdit'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#AssetSubCategoryCodeSearchResultEdit" ).replaceWith( element );
+        
+    }  
+    }) 
+    
 }
 </script>
 <style>

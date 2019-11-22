@@ -2337,7 +2337,7 @@ $(document).ready(function(){
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;color:#083240;">Sub Category</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control"  id="SC" onkeyup="ShowSubCat,CheckCOdeSC(),CheckAssetTagaCombination()" onclick="ShowSubCat()" style="text-transform: capitalize" name="SubCategorySetup" list="AssetSubCategorySearchResult">
+                        <td style="vertical-align: middle;"><input type="text" class="form-control"  id="SC" onkeyup="ShowSubCat(),CheckCOdeSC(),CheckAssetTagaCombination()" onclick="ShowSubCat()" style="text-transform: capitalize" name="SubCategorySetup" list="AssetSubCategorySearchResult">
                         <datalist id="AssetSubCategorySearchResult"></datalist>
                         </td>
                         <td style="vertical-align: middle;text-align:right;color:#083240;" >SC CODE</td>

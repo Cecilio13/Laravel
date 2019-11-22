@@ -297,5 +297,48 @@ class Controller extends BaseController
         $data->save();
         
     }
+    protected function generate_transaction_log_denied_am($request_no,$request_tag,$action,$status,$transaction_ticket_no,$deny_reason){
+        date_default_timezone_set("Asia/Manila");
+		$date = new DateTime();
+		$result = $date->format('Y-m-d H:i:s');
+		$DAY=$date->format('Y-m-d');
+        $TIME=$date->format('H:i:s');
+        $log_id=$request_no; 
+		$Action=$action; 
+		$tag=$request_tag; 
+        $ID=Auth::user()->id;
+        $Requestor=Auth::user()->name;
+        $data=HR_hr_asset_transaction_log::where([
+            ['asset_transaction_log_id','=',$log_id]
+        ])->first();
+
+        //$data->asset_transaction_log_id=$log_id;
+        $data->asset_tag=$tag;
+        $data->log_date=$DAY;
+        $data->log_time=$TIME;
+        $data->audit_action_date=$DAY;
+        $data->log_action=$Action;
+        $data->log_action_requestor_id=$ID;
+        $data->log_action_requestor=$Requestor;
+        $data->transaction_action=$status;
+        $data->transaction_ticket_no=$transaction_ticket_no;
+        
+        $data->save();
+        $users=User::where([
+            ['approved_status','=','1'],
+            ['id','=',$ID]
+        ])->get();
+        $position_required="Asset Management Officer";
+        
+        $notif_text="Ticket No. ".$log_id;
+        foreach($users as $user){
+                $notif= new HR_hr_notification;
+                $notif->notif_subject="Pending Request";
+                $notif->notif_text=$notif_text;
+                $notif->notif_target=$user->id;
+                $notif->notif_status="1";
+                $notif->save();
+        }
+    }
     
 }

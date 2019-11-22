@@ -31,12 +31,31 @@
                     <tbody style="border-bottom:1px solid #cecece;">
                         @foreach ($pending_denied_new_assets as $rows)
                         <tr>
-                            <td  style="text-align:center;vertical-align:middle;">{{$rows->asset_setcheck_defualt}}</td>
-                            <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($rows->audit_action_date))}}</td>
-                            <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
-                            <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
-                            <td style="vertical-align:middle;" >
-                                <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetInfo('<?php echo $rows->ASSET_ID; ?>')"><?php echo $rows->asset_description;?></a>
+                            <td style="text-align:center;vertical-align:middle;">
+                                {{$rows->asset_setcheck_defualt}}
+                            </td>
+                            <td style="vertical-align:middle;">
+                                {{date("m-d-Y", strtotime($rows->audit_action_date))}}
+                            </td>
+                            <td style="vertical-align:middle;">
+                                {{$rows->log_action_requestor}}
+                            </td>
+                            <td style="vertical-align:middle;">
+                                {{$rows->log_action}}
+                            </td>
+                            <td style="vertical-align:middle;">
+                                <?php
+                                $cccccc="";
+                                ?>
+                                @foreach ($asset_description_grouped as $sad)
+                                    @if ($rows->asset_description==$sad->asset_setup_ad)
+                                    <?php
+                                        $cccccc=$sad->asset_setup_description;
+                                        break;
+                                    ?>
+                                    @endif
+                                @endforeach
+                                <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetInfo('<?php echo $rows->ASSET_ID; ?>')"><?php echo $cccccc;?></a>
                                 
                             </td>
                             
@@ -52,7 +71,7 @@
                             <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
                             <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
                             <td style="vertical-align:middle;" >
-                                <a class=" btn-link" style="cursor: pointer;" onclick="ViewAssetSetup('<?php echo $rows->ASSET_SETUP_ID; ?>')"><?php echo $rows->asset_setup_tag;?></a>
+                                <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetSetup('<?php echo $rows->ASSET_SETUP_ID; ?>')"><?php echo $rows->asset_setup_tag;?></a>
                                 
                             </td>
                             

@@ -1053,6 +1053,53 @@ class GetController extends Controller
         
         return response()->json(array('success' => true, 'html'=>$returnHTML));
     }
+    public function EditAssetSetupModalBodyasds(Request $request){
+        $setup_id=$request->AssetTagID;
+        $selected=HR_hr_Asset_setup::where([
+            ['id','=',$setup_id]
+        ])->first();
+        $Kind="";
+        $asset_setup_description="";
+        $asset_setup_sku="";
+        $asset_setup_category="";
+        $asset_setup_site="";
+        $asset_setup_sub_cat="";
+        $asset_setup_ad="";
+        $asset_setup_ac="";
+        $asset_setup_sc="";
+        $asset_setup_location="";
+        $uom="";
+        $uom_abbr="";
+        $ticket_no="";
+        $date_requested="";
+        $requested_by="";
+        $setup_require_serial="";
+        $setup_require_plate="";
+        $setup_consumable="";
+        if(!empty($selected)){
+            $Kind=$selected->asset_setup_tag;
+            $asset_setup_description=$selected->asset_setup_description;
+            $asset_setup_sku=$selected->asset_setup_sku;
+            $asset_setup_category=$selected->asset_setup_category;
+            $asset_setup_site=$selected->asset_setup_site;
+            $asset_setup_sub_cat=$selected->asset_setup_sub_cat;
+            $asset_setup_ad=$selected->asset_setup_ad;
+            $asset_setup_ac=$selected->asset_setup_ac;
+            $asset_setup_sc=$selected->asset_setup_sc;
+            $asset_setup_location=$selected->asset_setup_location;
+            $uom=$selected->uom;
+            $uom_abbr=$selected->uom_abbr;
+            $ticket_no=$selected->ticket_no;
+            $date_requested=$selected->date_requested;
+            $requested_by=$selected->requested_by;
+            $setup_require_serial=$selected->uom;
+            $setup_require_plate=$selected->asset_setup_sku;
+            $setup_consumable=$selected->uom_abbr;
+        }
+        $returnHTML = view('inc.editassetsetupinfofield', compact('setup_id','Kind','asset_setup_description','asset_setup_sku','asset_setup_category','asset_setup_site','asset_setup_sub_cat','asset_setup_ad','asset_setup_ac','asset_setup_sc','asset_setup_location','uom','uom_abbr','ticket_no','date_requested','requested_by','setup_require_serial','setup_require_plate','setup_consumable'))->render();
+        
+        return response()->json(array('success' => true, 'html'=>$returnHTML));
+    }
     
     public function EditAssetSetupModalBody(Request $request){
         $AssetTagID=$request->AssetTagID;

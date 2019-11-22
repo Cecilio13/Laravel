@@ -116,7 +116,18 @@
                             <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
                             <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
                             <td style="vertical-align:middle;" >
-                                <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetInfo('<?php echo $rows->ASSET_ID; ?>')"><?php echo $rows->asset_description;?></a>
+                                    <?php
+                                    $cccccc="";
+                                    ?>
+                                    @foreach ($asset_description_grouped as $sad)
+                                        @if ($rows->asset_description==$sad->asset_setup_ad)
+                                        <?php
+                                            $cccccc=$sad->asset_setup_description;
+                                            break;
+                                        ?>
+                                        @endif
+                                    @endforeach
+                                <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetInfo('<?php echo $rows->ASSET_ID; ?>')"><?php echo $cccccc;?></a>
                                 
                             </td>
                             <td style="vertical-align:middle;">{{$rows->transaction_action}}</td>
@@ -145,7 +156,7 @@
                             <td style="vertical-align:middle;">{{$rows->log_action_requestor}}</td>
                             <td style="vertical-align:middle;" >{{$rows->log_action}}</td>
                             <td style="vertical-align:middle;" >
-                                <a class=" btn-link" style="cursor: pointer;" onclick="ViewAssetSetup('<?php echo $rows->ASSET_SETUP_ID; ?>')"><?php echo $rows->asset_setup_tag;?></a>
+                                <a class=" btn-link" style="cursor: pointer;" onclick="EditAssetSetup('<?php echo $rows->ASSET_SETUP_ID; ?>')"><?php echo $rows->asset_setup_tag;?></a>
                             </td>
                             <td style="vertical-align:middle;">{{$rows->transaction_action}}</td>
                             <?php
@@ -209,7 +220,7 @@
                     <tbody style="color:#083240;padding:10px;" id="RequestBoyBody">
                         @foreach ($pending_new_assets as $new_assets)
                             <tr>
-                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->asset_setcheck_default}}' value="{{$new_assets->ASSET_ID}}" title="New Asset"></td>
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->asset_setcheck_defualt}}' value="{{$new_assets->ASSET_ID}}" title="New Asset"></td>
                                 <td style="vertical-align:middle;text-align:center;">{{$new_assets->asset_setcheck_defualt}}</td>
                                 <td  style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->date_added))}}</td>
                                 <td  style="vertical-align:middle;">{{$new_assets->name}}</td>
@@ -268,7 +279,7 @@
                             <td style="vertical-align:middle;">{{$new_assets->name}}</td>
                             <td style="vertical-align:middle;">{{'New Asset Setup'}}</td>
                             <td  style="vertical-align:middle;">
-                                <a onclick="ViewAssetSetup('<?php echo $new_assets->ASSET_SETUP_ID; ?>')"  class="btn btn-link" style="cursor: pointer;"><?php echo $new_assets->asset_setup_tag; ?></a>
+                                <a onclick="EditAssetSetup('<?php echo $new_assets->ASSET_SETUP_ID; ?>')"  class="btn btn-link" style="cursor: pointer;"><?php echo $new_assets->asset_setup_tag; ?></a>
                             </td>
                             <td  style="vertical-align:middle;">N/A</td>
                             @if($new_assets->transaction_action=="Denied by FA")

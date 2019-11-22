@@ -1524,8 +1524,9 @@ class PageController extends Controller
     
     }
     public function transaction(Request $request){
+        $page=$request->page;
         $None="";
-        return view('pages.test', compact('None'));
+        return view('pages.main.asset_transactions', compact('None','page'));
     
     }
     public function audit(Request $request){
