@@ -1323,4 +1323,17 @@ class GetController extends Controller
         
         return response()->json(array('success' => true, 'html'=>$returnHTML));
     }
+    public function get_asset_info_checkout(Request $request){
+        $value=$request->value;
+        $data = DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_IIDS FROM hr_assets 
+        JOIN 
+        hr_asset_setup ON hr_asset_setup.asset_setup_ad=hr_assets.asset_description
+        WHERE hr_assets.id='$value'");
+       
+        if(empty($data)){
+            $data="";
+        }
+
+        return $data;
+    }
 }

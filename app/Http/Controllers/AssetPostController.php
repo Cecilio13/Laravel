@@ -423,7 +423,7 @@ class AssetPostController extends Controller
             $this->generate_transaction_log($gen,$request->asset_setup_type,'Asset Setup','Queued on AM',$data->id,'');
         }
     }
-    function update_asset_setup_site_and_location(Request $request){
+    public function update_asset_setup_site_and_location(Request $request){
         //return $this->generate_id();
         
         $setup_require_serial="0";
@@ -461,5 +461,31 @@ class AssetPostController extends Controller
         if($data->save()){
             $this->generate_transaction_log_denied_am($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Queued on AM',$request->Asset_Setup_ID,'');
         }  
+    }
+    public function SaveAssetCheckOut(Request $request){
+        $tag=$request->Tag;
+        $Assignee=$request->Assignee;
+        $DueDate=$request->DueDate;
+        $datenow=date('Y-m-d');
+        $t=time();
+        $gen=$this->generate_id();
+        $data= new HR_hr_asset_request;
+        $data->request_id=$gen;
+        $data->emp_id=$Assignee;
+        $data->asset_tag=$tag;
+        $data->asset_due_date=$DueDate;
+        $data->request_status='2.1';
+        $data->asset_borrow_date=$datenow;
+        $data->save();
+
+        $asset=HR_hr_Asset::find($tag);
+        if(!empty($asset)){
+            $asset->asset_transaction_status='2.1';
+            if($asset->save()){
+                $this->generate_transaction_log_checkout($gen,$tag,'Check Out','Queued on AM',$Assignee,'');
+            }
+        }
+          
+
     }
 }

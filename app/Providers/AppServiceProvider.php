@@ -214,6 +214,10 @@ class AppServiceProvider extends ServiceProvider
         view()->share('asset_list',HR_hr_Asset::where([
             ['asset_approval','=','1']
         ])->get());
+        view()->share('for_checkout_asset_list',HR_hr_Asset::where([
+            ['asset_approval','=','1'],
+            ['asset_transaction_status','=','1']
+        ])->get());
         $asset_list_all = DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_IIDS FROM hr_assets 
         JOIN 
         hr_asset_setup ON hr_asset_setup.asset_setup_ad=hr_assets.asset_description

@@ -167,6 +167,7 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/ViewAssetSetupModalBody', 'GetController@ViewAssetSetupModalBody');
     Route::post('/EditAssetSetupModalBody', 'GetController@EditAssetSetupModalBody');
     Route::post('/EditAssetSetupModalBodyasds', 'GetController@EditAssetSetupModalBodyasds');
+    Route::post('/get_asset_info_checkout', 'GetController@get_asset_info_checkout');
     
     Route::post('/UploadMassAssetSetup', 'UploadController@UploadMassAssetSetup');
     Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
@@ -186,6 +187,7 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/delete_request_new_asset', 'AssetPostController@delete_request_new_asset');
     Route::post('/delete_request_asset_setup', 'AssetPostController@delete_request_asset_setup');
     Route::post('/update_asset_setup_site_and_location', 'AssetPostController@update_asset_setup_site_and_location');
+    Route::post('/SaveAssetCheckOut', 'AssetPostController@SaveAssetCheckOut');
     
     
     

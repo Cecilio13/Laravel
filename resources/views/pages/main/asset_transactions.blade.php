@@ -42,8 +42,216 @@
                 <tbody>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;color:#083240">Scan Here</td>
-                        <td style="vertical-align: middle;"><input id="ScanBox" type="text" class="form-control" onclick="GetInput()" onkeyup="GetInput()" placeholder="Scan Here">
-                        <div id="SearchResult"></div></td>
+                        <td style="vertical-align: middle;">
+                        <script>
+                            function getAssetInfoCheckOut(){
+                                var value=document.getElementById('ScanBox').value;
+                                document.getElementById('ScanBox').value="";
+                                $('#ScanBox').selectpicker('refresh');
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_info_checkout',                
+                                data:{value:value,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    if(data==""){
+                                        document.getElementById('AssetTag').value="";
+                                        document.getElementById('asset_description').value="";
+                                        document.getElementById('AssetSite').value="";
+                                        document.getElementById('AssetLocation').value="";
+                                        document.getElementById('DepartmentName').value="";
+                                        document.getElementById('asset_id_checkout').value="";
+                                        document.getElementById('AddQueueCheckout').disabled=true;
+                                    }else{
+                                        document.getElementById('asset_id_checkout').value=value;
+                                        document.getElementById('AssetTag').value=data[0]['asset_tag'];
+                                        document.getElementById('asset_description').value=data[0]['asset_setup_description'];
+                                        document.getElementById('AssetSite').value=data[0]['asset_site'];
+                                        document.getElementById('AssetLocation').value=data[0]['asset_location'];
+                                        document.getElementById('DepartmentName').value=data[0]['asset_department_code'];
+                                        document.getElementById('AddQueueCheckout').disabled=false;
+                                    }
+                                    
+                                }  
+                                }) 
+                            }
+                            function ClearAll(){
+                                document.getElementById('AssetTag').value="";
+                                document.getElementById('asset_description').value="";
+                                document.getElementById('AssetSite').value="";
+                                document.getElementById('AssetLocation').value="";
+                                document.getElementById('DepartmentName').value="";
+                                document.getElementById('CustomerID').value="";
+                                document.getElementById('Due').value="";
+                                document.getElementById('DueDate').value="Default";
+                                document.getElementById('ScanBox').value="";
+                                $('#ScanBox').selectpicker('refresh');
+                                $('#CustomerID').selectpicker('refresh');
+                                document.getElementById('AddQueueCheckout').disabled=true;
+                            }
+                            function AddToQueue(){
+                                var AssetTag=document.getElementById('AssetTag').value;
+                                var Assignto=document.getElementById('CustomerID').value;
+                                var Due=document.getElementById('Due').value;
+                                var DescriptionAsset=document.getElementById('asset_description').value;
+                                var CustomerID=document.getElementById('CustomerID').value;
+                                var DueDate=document.getElementById('DueDate').value;
+                                var AssetLocation=document.getElementById('AssetLocation').value;
+                                
+                                var DepartmentName=document.getElementById('DepartmentName').value;
+                                var HiddenType=document.getElementById('HiddenType').value;
+                                if(document.getElementById("TRASSETQUEUE"+AssetTag)){
+                                    alert('Asset Already in Queue...');
+                                }else{
+                                if(AssetTag=="" || CustomerID==""){
+                                    alert('Fill up the Necessary Fields...');
+                                    
+                                }else{
+                                var dat = new Date();
+                                var FinalDate="";
+                                if(Due=='Default'){
+                                    dat.setDate(dat.getDate()+5);
+                                    dat.setMonth(dat.getMonth()+1);
+                                    FinalDate=dat.getFullYear()+"-"+dat.getUTCMonth()+"-"+dat.getDate();
+                                }
+                                if(Due=='Custom'){
+                                    FinalDate=DueDate;
+                                }
+                                
+                                var t = document.getElementById('AssetQueueBody');
+                                var tr = document.createElement("tr");
+                                tr.setAttribute("id","TRASSETQUEUE"+AssetTag);
+                                var td1 = document.createElement("td"); 
+                                var td2 = document.createElement("td"); 
+                                var td3 = document.createElement("td"); 
+                                var td4 = document.createElement("td"); 
+                                var td5 = document.createElement("td"); 
+                                var td6 = document.createElement("td"); 
+                                var td7 = document.createElement("td"); 
+                                var td8 = document.createElement("td");
+                                td1.setAttribute('data-asset-id',document.getElementById('asset_id_checkout').value);
+                                td8.style.textAlign="center";
+                                td8.style.verticalAlign ="middle";
+                                
+                                var x8=document.createElement("a");
+                                x8.setAttribute("class", "fa fa-times btn btn-link");
+                                x8.setAttribute("onclick", "RemoveQueue('TRASSETQUEUE"+AssetTag+"')");
+                                x8.style.color ="#bf1616";
+                                var x1=document.createTextNode(AssetTag);
+                                //x1.innerHTML=AssetTag;
+                                var x2=document.createTextNode(DescriptionAsset);
+                                //x2.innerHTML=DescriptionAsset;
+                                var x3=document.createTextNode(HiddenType);
+                                //x3.innerHTML=HiddenType;
+                                var x4=document.createTextNode(AssetLocation);
+                                //x4.innerHTML=AssetLocation;
+                                var x5=document.createTextNode(DepartmentName);
+                                //x5.innerHTML=DepartmentName;
+                                var x6=document.createTextNode(CustomerID);
+                                //x6.innerHTML=Assignto;
+                                var x7=document.createTextNode(FinalDate);
+                                //x7.innerHTML=FinalDate;
+                                td1.appendChild(x1);
+                                td2.appendChild(x2);
+                                td3.appendChild(x3);
+                                td4.appendChild(x4);
+                                td5.appendChild(x5);
+                                td6.appendChild(x6);
+                                td7.appendChild(x7);
+                                td8.appendChild(x8);
+                                
+                                tr.appendChild(td1);
+                                tr.appendChild(td2);
+                                tr.appendChild(td3);
+                                tr.appendChild(td4);
+                                tr.appendChild(td5);
+                                tr.appendChild(td6);
+                                tr.appendChild(td7);
+                                tr.appendChild(td8);
+                                t.appendChild(tr);
+                                document.getElementById('AssetTag').value="";
+                                document.getElementById('AssetSite').value="";
+                                
+                                document.getElementById('asset_description').value="";
+                                document.getElementById('CustomerID').value="";
+                                document.getElementById('DueDate').value="";
+                                document.getElementById('AssetLocation').value="";
+                                
+                                document.getElementById('DepartmentName').value="";
+                                document.getElementById('HiddenType').value="";
+                                
+                                document.getElementById('AssetTag').style.backgroundColor="white";
+                                
+                                document.getElementById('asset_description').style.backgroundColor="white";
+                                document.getElementById('CustomerID').style.backgroundColor="white";
+                                document.getElementById('AssetLocation').style.backgroundColor="white";
+                                document.getElementById('DepartmentName').style.backgroundColor="white";
+                                
+                                $('#CustomerID').selectpicker('refresh');
+                                }
+                                }
+                            }
+                            function RemoveQueue(e){
+                                var t = document.getElementById('AssetQueueBody');
+                                var tr = document.getElementById(e);
+                                t.removeChild(tr);
+                                
+                            }
+                            function SaveAssetRequest() {
+                                // Declare variables 
+                                var input, filter, table, tr, td, i, td2;
+                                var count=0;
+                                    
+                                table = document.getElementById("TableQuueue");
+                                tr = table.getElementsByTagName("tr");
+                                // Loop through all table rows, and hide those who don't match the search query
+                                for (i = 2; i < tr.length; i++) {
+                                    td5 = tr[i].getElementsByTagName("td")[5];
+                                    td0 = tr[i].getElementsByTagName("td")[0];
+                                    td6 = tr[i].getElementsByTagName("td")[6];
+                                    console.log(td0.getAttribute('data-asset-id')); 
+                                    console.log(td5.innerHTML);
+                                    console.log(td6.innerHTML);
+                                    $.ajax({
+                                    type: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    url: 'SaveAssetCheckOut',                
+                                    data:{Tag:td0.getAttribute('data-asset-id'),Assignee:td5.innerHTML,DueDate:td6.innerHTML,_token: '{{csrf_token()}}'},
+                                    success: function(data) {
+                                        
+                                    }  
+                                    }) 
+                                    // $.ajax({
+                                    // type: 'POST',
+                                    // url: ' SaveAssetCheckOut.php',                
+                                    // data: {Tag:td0.getAttribute('data-asset-id'),Assignee:td5.innerHTML,DueDate:td6.innerHTML},
+                                    // success: function(data) {
+                                        
+                                    //     if(data!=0){
+                                    //         count++;
+                                    //         document.getElementById('AlertPanelOUT').innerHTML=count+' Successful Checkout/s';
+                                    //         $('#AlertPanelOUT').show();
+                                    //         RemoveQueue('TRASSETQUEUE'+td0.innerHTML);
+                                    //     }
+                                        
+                                    // } 											 
+                                    // })
+                                    
+                                }
+                                    
+                            }
+                        </script>
+                        <select id="ScanBox" class="form-control selectpicker" data-live-search="true" onchange="getAssetInfoCheckOut()">
+                            <option value="">--Select--</option>
+                            @foreach ($for_checkout_asset_list as $item)
+                                <option value="{{$item->id}}">{{$item->asset_tag}}</option>
+                            @endforeach
+                        </select>
+                        </td>
                         <td colspan="5"></td>
                     </tr>
                     <tr>
@@ -54,18 +262,23 @@
                         <td colspan="1" style="vertical-align: middle;color:#083240;padding:0px" id="Title5"><h3 style="margin:0px;">Due Date</h3></td>
                     </tr>
                     <tr>
-                        <td style="vertical-align: middle;text-align:right;">Asset Tag</td>
+                        <td style="vertical-align: middle;text-align:right;">Asset Tag <input type="hidden" id="asset_id_checkout"></td>
                         <td style="vertical-align: middle;"><input type="text" id="AssetTag" class="form-control" onkeyup="CheckEmpID()"></td>
                         
                         <td style="vertical-align: middle;text-align:right;">Employee ID</td>
-                        <td style="vertical-align: middle;"><input type="text" id="CustomerID" class="form-control" placeholder="Scan Person Here...." onclick="GetCustomer()" onkeyup="GetCustomer()">
-                        <div id="SearchResult2"></div></td>	
                         <td style="vertical-align: middle;">
-                                    <select class="form-control" id="Due" onchange="ShowDue(this)">
-                                        <option>Default</option>
-                                        
-                                        <option>Custom</option>
-                                    </select>
+                            <select type="text" id="CustomerID" class="form-control selectpicker"  data-live-search="true" placeholder="Scan Person Here...." >
+                                <option value="">--Select Employee--</option>
+                                @foreach ($employee_list as $emp)
+                            <option value="{{$emp->employee_id}}">{{$emp->fname." ".$emp->lname}}</option>
+                                @endforeach
+                            </select>
+                        </td>	
+                        <td style="vertical-align: middle;">
+                           <select class="form-control" id="Due" onchange="ShowDue(this)">
+                               <option>Default</option>
+                               <option>Custom</option>
+                           </select>
                         </td>
                         <td style="vertical-align: middle;"></td>
                         <td style="vertical-align: middle;"></td>
@@ -84,8 +297,8 @@
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Asset </td>
                         <td style="vertical-align: middle;"><input type="text" class="form-control" id="asset_description"></td>
-                        <td style="vertical-align: middle;text-align:right;">Employee Name</td>
-                        <td style="vertical-align: middle;"><input type="text" id="Assignto" class="form-control" readonly=""></td>
+                        <td style="vertical-align: middle;text-align:right;"></td>
+                        <td style="vertical-align: middle;"></td>
                         
                         <td style="vertical-align: middle;"><input type="date" class="form-control" min="2019-11-22" id="DueDate" style="display:none;"></td>
                         <td style="vertical-align: middle;"></td>
@@ -111,7 +324,14 @@
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Department Name</td>
-                        <td style="vertical-align: middle;"><input type="text" id="DepartmentName" class="form-control"></td>
+                        <td style="vertical-align: middle;">
+                            <select  id="DepartmentName" class="form-control" style="background-color:white !important;border: 1px solid #ced4da !important;" disabled>
+                                <option value=""></option>
+                                @foreach ($company_department_active as $dept)
+                                    <option value="{{$dept->department_id}}">{{$dept->department_name}}</option>
+                                @endforeach
+                            </select>
+                        </td>
                         <td style="vertical-align: middle;"></td>
                         <td style="vertical-align: middle;"></td>
                         <td style="vertical-align: middle;"></td>
@@ -123,9 +343,13 @@
                         <td style="vertical-align: middle;"></td>
                         <td style="vertical-align: middle;"></td>
                         <td style="vertical-align: middle;"></td>
+                        <td style="vertical-align: middle;"></td>
                         
                         <td style="vertical-align: middle;"><input type="hidden" id="HiddenType"></td>
-                        <td style="vertical-align: middle;text-align:right;" colspan="3"><button class="btn btn-default" onclick="ClearAll()">Clear</button><button class="btn btn-primary" disabled="" id="AddQueueCheckout" onclick="AddToQueue()">Add to Queue</button></td>
+                        <td style="vertical-align: middle;text-align:right;" colspan="2">
+                            <button class="btn btn-default" onclick="ClearAll()">Clear</button>
+                            <button class="btn btn-primary" disabled="" id="AddQueueCheckout" onclick="AddToQueue()">Add to Queue</button>
+                        </td>
                     </tr>
                     
                 </tbody>
