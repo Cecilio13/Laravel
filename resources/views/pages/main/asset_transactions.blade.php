@@ -78,6 +78,7 @@
                                 }) 
                             }
                             function ClearAll(){
+                                //check outs
                                 document.getElementById('AssetTag').value="";
                                 document.getElementById('asset_description').value="";
                                 document.getElementById('AssetSite').value="";
@@ -87,9 +88,36 @@
                                 document.getElementById('Due').value="";
                                 document.getElementById('DueDate').value="Default";
                                 document.getElementById('ScanBox').value="";
+                                document.getElementById('asset_id_checkout').value="";
                                 $('#ScanBox').selectpicker('refresh');
                                 $('#CustomerID').selectpicker('refresh');
                                 document.getElementById('AddQueueCheckout').disabled=true;
+
+                                //check ins
+                                document.getElementById('AssetTagIN').value="";
+                                document.getElementById('AssetDescIN').value="";
+                                document.getElementById('AssetSiteIN').value="";
+                                document.getElementById('LocationIN').value="";
+                                document.getElementById('DepartmentIN').value="";
+                                document.getElementById('asset_id_checkin').value="";
+                                document.getElementById('DueDateIN').value="";
+                                document.getElementById('AssignTOIN').value="";
+                                document.getElementById('HiddenTransactionIDIN').value="";
+                                document.getElementById('checkin_addtoqueue_btn').disabled=true;
+
+                                //extend due date
+                                document.getElementById('AssetTagExtendDue').value="";
+                                    document.getElementById('AssetDescExtendDue').value="";
+                                    document.getElementById('SiteExtendDue').value="";
+                                    document.getElementById('LocationExtendDue').value="";
+                                    document.getElementById('DepartmentExtendDue').value="";
+                                    document.getElementById('asset_id_extend_checout_due_date').value="";
+                                    document.getElementById('OldDueExtendDue').value="";
+                                    document.getElementById('EmployeeNameExtendDue').value="";
+                                    document.getElementById('HiddenTransactionIDExtendDue').value="";
+                                    document.getElementById('extend_duedate_add_to_queue').disabled=true;
+                                    document.getElementById('DueDateExtendDue').min="";
+                                    document.getElementById('DueDateExtendDue').value="";
                             }
                             function AddToQueue(){
                                 var AssetTag=document.getElementById('AssetTag').value;
@@ -222,26 +250,19 @@
                                     url: 'SaveAssetCheckOut',                
                                     data:{Tag:td0.getAttribute('data-asset-id'),Assignee:td5.innerHTML,DueDate:td6.innerHTML,_token: '{{csrf_token()}}'},
                                     success: function(data) {
-                                        
+                                        RemoveQueue('TRASSETQUEUE'+td0.innerHTML);
                                     }  
                                     }) 
-                                    // $.ajax({
-                                    // type: 'POST',
-                                    // url: ' SaveAssetCheckOut.php',                
-                                    // data: {Tag:td0.getAttribute('data-asset-id'),Assignee:td5.innerHTML,DueDate:td6.innerHTML},
-                                    // success: function(data) {
-                                        
-                                    //     if(data!=0){
-                                    //         count++;
-                                    //         document.getElementById('AlertPanelOUT').innerHTML=count+' Successful Checkout/s';
-                                    //         $('#AlertPanelOUT').show();
-                                    //         RemoveQueue('TRASSETQUEUE'+td0.innerHTML);
-                                    //     }
-                                        
-                                    // } 											 
-                                    // })
+                                   
                                     
                                 }
+                                Swal.fire({
+                                type: 'success',
+                                title: 'Success',
+                                text: 'Successfully Added Check Out Request',
+                                }).then((result) => {
+                                    location.href="transaction?page=1";
+                                })
                                     
                             }
                         </script>
@@ -270,7 +291,7 @@
                             <select type="text" id="CustomerID" class="form-control selectpicker"  data-live-search="true" placeholder="Scan Person Here...." >
                                 <option value="">--Select Employee--</option>
                                 @foreach ($employee_list as $emp)
-                            <option value="{{$emp->employee_id}}">{{$emp->fname." ".$emp->lname}}</option>
+                                    <option value="{{$emp->employee_id}}">{{$emp->fname." ".$emp->lname}}</option>
                                 @endforeach
                             </select>
                         </td>	
@@ -300,7 +321,7 @@
                         <td style="vertical-align: middle;text-align:right;"></td>
                         <td style="vertical-align: middle;"></td>
                         
-                        <td style="vertical-align: middle;"><input type="date" class="form-control" min="2019-11-22" id="DueDate" style="display:none;"></td>
+                        <td style="vertical-align: middle;"><input type="date" class="form-control" min="<?php echo date('Y-m-d') ?>" id="DueDate" style="display:none;"></td>
                         <td style="vertical-align: middle;"></td>
                         <td style="vertical-align: middle;"></td>
                     </tr>
@@ -390,8 +411,190 @@
                 <tbody>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;color:#083240">Scan Here</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="CheckinScanBox" onclick="GetSearchCheckIn()" onkeyup="GetSearchCheckIn()" placeholder="Scan here">
-                        <div id="SearchResultCheckin"></div></td>
+                        <td style="vertical-align: middle;">
+                            <select type="text" class="form-control selectpicker" data-live-search="true" id="CheckinScanBox" onchange="getAssetInfoCheckIn()">
+                                <option value="">--Select--</option>
+                                @foreach ($checked_out_asset_list as $co)
+                                    <option value="{{$co->id}}">{{$co->asset_tag}}</option>
+                                @endforeach
+                            </select>
+                            <script>
+                            function getAssetInfoCheckIn(){
+                                var value=document.getElementById('CheckinScanBox').value;
+                                document.getElementById('CheckinScanBox').value="";
+                                $('#CheckinScanBox').selectpicker('refresh');
+                                $.ajax({
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                url: 'get_asset_info_checkin',
+                                data:{value:value,_token: '{{csrf_token()}}'},
+                                success: function(data) {
+                                    if(data==""){
+                                        document.getElementById('AssetTagIN').value="";
+                                        document.getElementById('AssetDescIN').value="";
+                                        document.getElementById('AssetSiteIN').value="";
+                                        document.getElementById('LocationIN').value="";
+                                        document.getElementById('DepartmentIN').value="";
+                                        document.getElementById('asset_id_checkin').value="";
+                                        document.getElementById('DueDateIN').value="";
+                                        document.getElementById('AssignTOIN').value="";
+                                        document.getElementById('HiddenTransactionIDIN').value="";
+                                        document.getElementById('checkin_addtoqueue_btn').disabled=true;
+                                    }else{
+                                        document.getElementById('asset_id_checkin').value=data[0]['REQUEST_ID'];
+                                        document.getElementById('AssetTagIN').value=data[0]['ASSET_TAG'];
+                                        document.getElementById('AssetDescIN').value=data[0]['asset_setup_description'];
+                                        document.getElementById('AssetSiteIN').value=data[0]['asset_site'];
+                                        document.getElementById('LocationIN').value=data[0]['asset_location'];
+                                        document.getElementById('DepartmentIN').value=data[0]['asset_department_code'];
+                                        document.getElementById('AssignTOIN').value=data[0]['emp_id'];
+                                        document.getElementById('DueDateIN').value=data[0]['asset_due_date'];
+                                        document.getElementById('HiddenTransactionIDIN').value=data[0]['request_id'];
+                                        document.getElementById('checkin_addtoqueue_btn').disabled=false;
+                                    }
+                                    
+                                }  
+                                }) 
+                            }
+                            function QueueCheckinAsset(){
+                                var AssetTagIN=document.getElementById('AssetTagIN').value;
+                                var AssignTOIN=document.getElementById('AssignTOIN').value;
+                                var AssetDescIN=document.getElementById('AssetDescIN').value;
+                                
+                                var LocationIN=document.getElementById('LocationIN').value;
+                                var DueDateIN=document.getElementById('DueDateIN').value;
+                                var DepartmentIN=document.getElementById('DepartmentIN').value;
+                                var HiddenTypeIN=document.getElementById('HiddenTypeIN').value;
+                                var HiddenTransactionIDIN=document.getElementById('HiddenTransactionIDIN').value;
+                                //var RemainingAmountAsset=document.getElementById('RemainingIN').value;
+                                if(document.getElementById("TRASSETQUEUEIN"+AssetTagIN)){
+                                    alert('Asset Already in Queue...');
+                                }else{
+                                var t = document.getElementById('AssetQueueBodyIN');
+                                var tr = document.createElement("tr");
+                                tr.setAttribute("id","TRASSETQUEUEIN"+AssetTagIN);
+                                var td1 = document.createElement("td"); 
+                                    td1.setAttribute('data-request-id',document.getElementById('asset_id_checkin').value);
+                                var td2 = document.createElement("td"); 
+                                var td3 = document.createElement("td"); 
+                                var td4 = document.createElement("td"); 
+                                var td5 = document.createElement("td"); 
+                                var td6 = document.createElement("td"); 
+                                var td7 = document.createElement("td"); 
+                                var td8 = document.createElement("td");
+                                var td9 = document.createElement("td");
+                                //var td10 = document.createElement("td");
+                                td9.style.textAlign="center";
+                                td9.style.verticalAlign ="middle";
+                                
+                                var x9=document.createElement("a");
+                                x9.setAttribute("class", "fa fa-times btn btn-link");
+                                x9.setAttribute("onclick", "RemoveQueueIN('TRASSETQUEUEIN"+AssetTagIN+"')");
+                                x9.style.color ="#bf1616";
+                                //var x10=document.createTextNode(RemainingAmountAsset);
+                                //td10.setAttribute("style", "display:none");
+                                
+                                var x1=document.createTextNode(AssetTagIN);
+                                //x1.innerHTML=AssetTag;
+                                var x2=document.createTextNode(HiddenTransactionIDIN);
+                                //x2.innerHTML=DescriptionAsset;
+                                var x3=document.createTextNode(AssetDescIN);
+                                //x3.innerHTML=HiddenType;
+                                var x4=document.createTextNode(HiddenTypeIN);
+                                //x4.innerHTML=AssetLocation;
+                                var x5=document.createTextNode(LocationIN);
+                                //x5.innerHTML=DepartmentName;
+                                var x6=document.createTextNode(DepartmentIN);
+                                //x6.innerHTML=Assignto;
+                                var x7=document.createTextNode(AssignTOIN);
+                                var x8=document.createTextNode(DueDateIN);
+                                
+                                //x7.innerHTML=FinalDate;
+                                td1.appendChild(x1);
+                                td2.appendChild(x2);
+                                td3.appendChild(x3);
+                                //td4.appendChild(x4);
+                                td5.appendChild(x5);
+                                td6.appendChild(x6);
+                                td7.appendChild(x7);
+                                td8.appendChild(x8);
+                                td9.appendChild(x9);
+                                //td10.appendChild(x10);
+                                
+                                tr.appendChild(td1);
+                                tr.appendChild(td2);
+                                tr.appendChild(td3);
+                                //tr.appendChild(td4);
+                                tr.appendChild(td5);
+                                tr.appendChild(td6);
+                                tr.appendChild(td7);
+                                tr.appendChild(td8);
+                                tr.appendChild(td9);
+                                //tr.appendChild(td10);
+                                t.appendChild(tr);
+                                document.getElementById('AssetTagIN').value="";
+                                document.getElementById('AssignTOIN').value="";
+                                
+                                document.getElementById('AssetDescIN').value="";
+                                
+                                document.getElementById('LocationIN').value="";
+                                document.getElementById('DueDateIN').value="";
+                                document.getElementById('AssetSiteIN').value="";
+                                document.getElementById('DepartmentIN').value="";
+                                document.getElementById('HiddenTypeIN').value="";
+                                document.getElementById('HiddenTransactionIDIN').value="";
+                                
+                                document.getElementById('AssetDescIN').readOnly =false;
+                               
+                                document.getElementById('LocationIN').readOnly =false;
+                                document.getElementById('DueDateIN').readOnly =false;
+                                document.getElementById('DepartmentIN').readOnly =false;
+                                document.getElementById('AssetTagIN').readOnly =false;
+                                document.getElementById('AssignTOIN').readOnly =false;
+                                
+                                }
+                            }
+                            function RemoveQueueIN(e){
+                                var t = document.getElementById('AssetQueueBodyIN');
+                                var tr = document.getElementById(e);
+                                t.removeChild(tr);
+                                
+                            }
+                            function SaveAssetRequestIN() {
+                                // Declare variables 
+                                var input, filter, table, tr, td, i, td2;
+                                var count=0;
+                                    
+                                table = document.getElementById("TableQuueueIN");
+                                tr = table.getElementsByTagName("tr");
+                                // Loop through all table rows, and hide those who don't match the search query
+                                for (i = 2; i < tr.length; i++) {
+                                    td0 = tr[i].getElementsByTagName("td")[0];
+                                    console.log(td0.getAttribute('data-request-id'));
+                                    
+                                    $.ajax({
+                                    type: 'POST',
+                                    url: ' SaveAssetCheckIn',                
+                                    data: {request_id:td0.getAttribute('data-request-id'),_token:'{{csrf_token()}}'},
+                                    success: function(data) {
+                                        RemoveQueueIN('TRASSETQUEUEIN'+td0.innerHTML);
+                                        
+                                    } 											 
+                                    })
+                                    
+                                }
+                                Swal.fire({
+                                type: 'success',
+                                title: 'Success',
+                                text: 'Successfully Added Check In Request',
+                                }).then((result) => {
+                                    location.href="transaction?page=2";
+                                })
+                            }
+                            </script>
+                        </td>
                         <td colspan="2"></td>
                         <td colspan="2"></td>
                     </tr>
@@ -404,35 +607,53 @@
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Asset Tag</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="AssetTagIN"></td>
-                        <td style="vertical-align: middle;text-align:right;">Employee ID</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="AssignTOIN"></td>
+                        <td style="vertical-align: middle;">
+                            <input type="hidden" id="asset_id_checkin">
+                            <input type="text" class="form-control" id="AssetTagIN" readonly style="background-color:white !important;border: 1px solid #ced4da !important;cursor:default !important;">
+                        </td>
+                        <td style="vertical-align: middle;text-align:right;">Employee</td>
+                        <td style="vertical-align: middle;">
+                            <select type="text" id="AssignTOIN" class="form-control" style="background-color:white !important;border: 1px solid #ced4da !important;cursor:default !important;" disabled  >
+                                <option value=""></option>
+                                @foreach ($employee_list as $emp)
+                                    <option value="{{$emp->employee_id}}">{{$emp->fname." ".$emp->lname}}</option>
+                                @endforeach
+                            </select>
+                            
+                        </td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Asset </td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="AssetDescIN"></td>
-                        <td style="vertical-align: middle;text-align:right;">Employee Name</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="CustomerNumberIN"></td>
+                        <td style="vertical-align: middle;"><input type="text" class="form-control" style="background-color:white !important;border: 1px solid #ced4da !important;" readonly id="AssetDescIN"></td>
+                        <td style="vertical-align: middle;text-align:right;">Due Date</td>
+                        <td style="vertical-align: middle;"><input type="date" class="form-control" style="background-color:white !important;border: 1px solid #ced4da !important;" readonly id="DueDateIN"></td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Site</td>
-                        <td style="vertical-align: middle;"><input type="text" id="AssetSiteIN" class="form-control"></td>
-                        <td style="vertical-align: middle;text-align:right;">Due Date</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="DueDateIN"></td>
+                        <td style="vertical-align: middle;"><input type="text" id="AssetSiteIN" style="background-color:white !important;border: 1px solid #ced4da !important;" readonly class="form-control"></td>
+                        <td style="vertical-align: middle;text-align:right;"></td>
+                        <td style="vertical-align: middle;"></td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Location</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="LocationIN"></td>
+                        <td style="vertical-align: middle;"><input type="text" class="form-control" style="background-color:white !important;border: 1px solid #ced4da !important;" readonly id="LocationIN"></td>
                         <td style="vertical-align: middle;text-align:right;"></td>
                         <td style="vertical-align: middle;"></td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Department</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="DepartmentIN"></td>
+                        <td style="vertical-align: middle;">
+                            <select  id="DepartmentIN" class="form-control" style="background-color:white !important;border: 1px solid #ced4da !important;" disabled>
+                                <option value=""></option>
+                                @foreach ($company_department_active as $dept)
+                                    <option value="{{$dept->department_id}}">{{$dept->department_name}}</option>
+                                @endforeach
+                            </select>
+                        </td>
                         <td style="vertical-align: middle;"></td>
                         <td style="vertical-align: middle;"></td>
                         <td colspan="2"></td>
@@ -443,7 +664,10 @@
                         <td style="vertical-align: middle;"><input type="hidden" id="HiddenTransactionIDIN"></td>
                         <td style="vertical-align: middle;"><input type="hidden" id="HiddenTypeIN"></td>
                         <td colspan="2"></td>
-                        <td style="vertical-align: middle;text-align:right;"><button class="btn btn-default" style="margin-right:10px;" onclick="ClearAll()">Clear</button><button class="btn btn-primary" disabled="" onclick="QueueCheckinAsset()">Add to Queue</button></td>
+                        <td style="vertical-align: middle;text-align:right;">
+                            <button class="btn btn-default" style="margin-right:10px;" onclick="ClearAll()">Clear</button>
+                            <button class="btn btn-primary" id="checkin_addtoqueue_btn" disabled="" onclick="QueueCheckinAsset()">Add to Queue</button>
+                        </td>
                     </tr>
                     
                 </tbody>
@@ -457,7 +681,6 @@
                     <th>Asset Tag</th>
                     <th>Ticket No.</th>
                     <th>Asset </th>
-                    <th>Asset Type</th>
                     
                     <th>Location</th>
                     <th>Department</th>
@@ -1081,26 +1304,63 @@
                     </tr>
                 </thead>
                     <script>
-                        function SearchExtendDueDate(){
-                            var x = document.getElementById("ExtendDueScanBox").value;
-                
+                       function GetAssetInfoExtendDueDate(){
+                            var value=document.getElementById('ExtendDueScanBox').value;
+                            document.getElementById('ExtendDueScanBox').value="";
+                            $('#ExtendDueScanBox').selectpicker('refresh');
                             $.ajax({
-                                type: 'POST',
-                                url: ' SearchResultExtendDue.php',                
-                                data: {INPUT:x},
+                            type: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: 'get_asset_info_checkin',
+                            data:{value:value,_token: '{{csrf_token()}}'},
                             success: function(data) {
-                                $( "#SearchResultExtendDue" ).replaceWith( data );
+                                if(data==""){
+                                    document.getElementById('AssetTagExtendDue').value="";
+                                    document.getElementById('AssetDescExtendDue').value="";
+                                    document.getElementById('SiteExtendDue').value="";
+                                    document.getElementById('LocationExtendDue').value="";
+                                    document.getElementById('DepartmentExtendDue').value="";
+                                    document.getElementById('asset_id_extend_checout_due_date').value="";
+                                    document.getElementById('OldDueExtendDue').value="";
+                                    document.getElementById('EmployeeNameExtendDue').value="";
+                                    document.getElementById('HiddenTransactionIDExtendDue').value="";
+                                    document.getElementById('extend_duedate_add_to_queue').disabled=true;
+                                    document.getElementById('DueDateExtendDue').min="";
+                                    document.getElementById('DueDateExtendDue').value="";
+                                }else{
+                                    document.getElementById('asset_id_extend_checout_due_date').value=data[0]['REQUEST_ID'];
+                                    document.getElementById('AssetTagExtendDue').value=data[0]['ASSET_TAG'];
+                                    document.getElementById('AssetDescExtendDue').value=data[0]['asset_setup_description'];
+                                    document.getElementById('SiteExtendDue').value=data[0]['asset_site'];
+                                    document.getElementById('LocationExtendDue').value=data[0]['asset_location'];
+                                    document.getElementById('DepartmentExtendDue').value=data[0]['asset_department_code'];
+                                    document.getElementById('EmployeeNameExtendDue').value=data[0]['emp_id'];
+                                    document.getElementById('OldDueExtendDue').value=data[0]['asset_due_date'];
+                                    document.getElementById('HiddenTransactionIDExtendDue').value=data[0]['request_id'];
+                                    document.getElementById('DueDateExtendDue').value=data[0]['asset_borrow_date'];
+                                    document.getElementById('DueDateExtendDue').min=data[0]['asset_borrow_date'];
+                                    
+                                    document.getElementById('extend_duedate_add_to_queue').disabled=false;
+                                }
                                 
-                            } 											 
-                            })
-                        }
-                        
+                            }  
+                            }) 
+                       }
                     </script>
                 <tbody>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;color:#083240">Scan Here</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="ExtendDueScanBox" onclick="SearchExtendDueDate()" onkeyup="SearchExtendDueDate()" placeholder="Scan here">
-                        <div id="SearchResultExtendDue"></div></td>
+                        <td style="vertical-align: middle;">
+                            <input type="hidden" id="asset_id_extend_checout_due_date">
+                            <select class="form-control selectpicker" data-live-search="true" id="ExtendDueScanBox" onchange="GetAssetInfoExtendDueDate()">
+                                <option value="">--Select--</option>
+                                @foreach ($checked_out_asset_list as $co)
+                                    <option value="{{$co->id}}">{{$co->asset_tag}}</option>
+                                @endforeach
+                            </select>
+                        </td>
                         <td colspan="2"></td>
                         <td colspan="2"></td>
                     </tr>
@@ -1113,35 +1373,49 @@
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Asset Tag</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="AssetTagExtendDue"></td>
+                        <td style="vertical-align: middle;"><input type="text" style="background-color:white !important;border: 1px solid #ced4da !important;cursor:default !important;" class="form-control" id="AssetTagExtendDue" readonly></td>
                         <td style="vertical-align: middle;text-align:right;">Employee Name</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="EmployeeNameExtendDue"></td>
+                        <td style="vertical-align: middle;">
+                            <select type="text" id="EmployeeNameExtendDue" class="form-control" style="background-color:white !important;border: 1px solid #ced4da !important;cursor:default !important;" disabled  >
+                                <option value=""></option>
+                                @foreach ($employee_list as $emp)
+                                    <option value="{{$emp->employee_id}}">{{$emp->fname." ".$emp->lname}}</option>
+                                @endforeach
+                            </select>
+                        </td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Asset </td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" rows="3 " id="AssetDescExtendDue"></td>
+                        <td style="vertical-align: middle;"><input type="text" style="background-color:white !important;border: 1px solid #ced4da !important;cursor:default !important;" class="form-control" rows="3 " id="AssetDescExtendDue" readonly></td>
                         <td style="vertical-align: middle;text-align:right;">Due Date</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="OldDueExtendDue"></td>
+                        <td style="vertical-align: middle;"><input type="date" style="background-color:white !important;border: 1px solid #ced4da !important;cursor:default !important;" class="form-control" id="OldDueExtendDue" readonly></td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Site</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="SiteExtendDue"></td>
+                        <td style="vertical-align: middle;"><input type="text" style="background-color:white !important;border: 1px solid #ced4da !important;cursor:default !important;" class="form-control" id="SiteExtendDue" readonly></td>
                         <td style="vertical-align: middle;text-align:right;">New Due Date</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="DueDateExtendDue"></td>
+                        <td style="vertical-align: middle;"><input type="date"  class="form-control" id="DueDateExtendDue" ></td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Location</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="LocationExtendDue"></td>
+                        <td style="vertical-align: middle;"><input type="text" style="background-color:white !important;border: 1px solid #ced4da !important;cursor:default !important;" class="form-control" id="LocationExtendDue" readonly></td>
                         <td style="vertical-align: middle;text-align:right;"></td>
                         <td style="vertical-align: middle;"></td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: middle;text-align:right;">Department</td>
-                        <td style="vertical-align: middle;"><input type="text" class="form-control" id="DepartmentExtendDue"></td>
+                        <td style="vertical-align: middle;">
+                            <select  id="DepartmentExtendDue" class="form-control" style="background-color:white !important;border: 1px solid #ced4da !important;" disabled>
+                                <option value=""></option>
+                                @foreach ($company_department_active as $dept)
+                                    <option value="{{$dept->department_id}}">{{$dept->department_name}}</option>
+                                @endforeach
+                            </select>
+                        </td>
                         <td style="vertical-align: middle;"></td>
                         <td style="vertical-align: middle;"></td>
                         <td colspan="2"></td>
@@ -1152,7 +1426,10 @@
                         <td style="vertical-align: middle;"><input type="hidden" id="HiddenTransactionIDExtendDue"></td>
                         <td style="vertical-align: middle;"><input type="hidden" id="HiddenTypeExtendDue"></td>
                         <td colspan="2"></td>
-                        <td style="vertical-align: middle;text-align:right;"><button class="btn btn-default" style="margin-right:10px;" onclick="ClearAll()">Clear</button><button class="btn btn-primary" disabled="" onclick="QueueExtendDueAsset()">Add to Queue</button></td>
+                        <td style="vertical-align: middle;text-align:right;">
+                            <button class="btn btn-default" style="margin-right:10px;" onclick="ClearAll()">Clear</button>
+                            <button class="btn btn-primary" disabled="" id="extend_duedate_add_to_queue" onclick="QueueExtendDueAsset()">Add to Queue</button>
+                        </td>
                     </tr>
                     
                 </tbody>

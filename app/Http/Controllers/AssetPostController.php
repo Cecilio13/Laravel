@@ -356,6 +356,18 @@ class AssetPostController extends Controller
             $this->generate_transaction_log_deny_am($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Denied',$tag,$reason);
         }
     }
+    public function CheckinSecondApprove(Request $request){
+        $id=$request->tag;
+        $data=HR_hr_asset_request::find($id);
+        $data->request_status='1';
+        if($data->save()){
+            $asset=HR_hr_Asset::find($data->asset_tag);
+            $asset->asset_transaction_status='1';
+            if($asset->save()){
+                $this->generate_transaction_log_confirmation_checkout($data->request_id,$data->asset_tag,'Check In','Approved',$data->emp_id,'');
+            }
+        }
+    }
     public function delete_request_new_asset(Request $request){
         $tag=$request->id;
         $data=HR_hr_Asset::find($tag);
@@ -371,6 +383,48 @@ class AssetPostController extends Controller
         $data->asset_setup_status='DELETED';
         if($data->save()){
             $this->generate_transaction_log_deny_am($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Denied',$tag,'');
+        }
+    }
+    public function CheckoutSecondApprove(Request $request){
+        $id=$request->tag;
+        $data=HR_hr_asset_request::find($id);
+        $data->request_status='2';
+        if($data->save()){
+            $asset=HR_hr_Asset::find($data->asset_tag);
+            $asset->asset_transaction_status='2';
+            if($asset->save()){
+                $this->generate_transaction_log_confirmation_checkout($data->request_id,$data->asset_tag,'Check Out','Approved',$data->emp_id,'');
+            }
+        }
+    }
+    public function CheckoutDeny(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data=HR_hr_asset_request::find($tag);
+        $data->request_active='INCATIVE';
+        if($data->save()){
+            $asset=HR_hr_Asset::find($data->asset_tag);
+            $asset->asset_transaction_status='1';
+            if($asset->save()){
+                $this->generate_transaction_log_deny_checkout_am($data->request_id,$data->asset_tag,'Check Out','Denied',$data->emp_id,$reason);
+                //$this->generate_transaction_log_deny_am($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Denied',$tag,$reason);
+            }
+            
+        }
+    }
+    public function CheckinDeny(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data=HR_hr_asset_request::find($tag);
+        $data->request_status='2';
+        if($data->save()){
+            $asset=HR_hr_Asset::find($data->asset_tag);
+            $asset->asset_transaction_status='2';
+            if($asset->save()){
+                $this->generate_transaction_log_deny_checkout_am($data->request_id,$data->asset_tag,'Check In','Denied',$data->emp_id,$reason);
+                //$this->generate_transaction_log_deny_am($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Denied',$tag,$reason);
+            }
+            
         }
     }
     public function DeleteTagging(Request $request){
@@ -481,6 +535,7 @@ class AssetPostController extends Controller
         $asset=HR_hr_Asset::find($tag);
         if(!empty($asset)){
             $asset->asset_transaction_status='2.1';
+            $asset->asset_setcheck_defualt=$gen;
             if($asset->save()){
                 $this->generate_transaction_log_checkout($gen,$tag,'Check Out','Queued on AM',$Assignee,'');
             }
@@ -488,4 +543,21 @@ class AssetPostController extends Controller
           
 
     }
+    public function SaveAssetCheckIn(Request $request){
+        $request_id=$request->request_id;
+        $data= HR_hr_asset_request::find($request_id);
+        $data->request_status='1.1';
+        if($data->save()){
+            $asset=HR_hr_Asset::find($data->asset_tag);
+            if(!empty($asset)){
+                $asset->asset_transaction_status='1.1';
+                
+                if($asset->save()){
+                    $this->generate_transaction_log_checkin($data->request_id,$data->asset_tag,'Check In','Queued on AM',$data->emp_id,'');
+                }
+            } 
+        }
+
+    }
+    
 }

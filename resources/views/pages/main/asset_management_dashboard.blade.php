@@ -313,7 +313,122 @@
                             </td>
                         </tr>
                         @endforeach
-                        
+                        @foreach ($pending_check_out_request as $request)
+                            <tr>
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" value="<?php echo $request->REQUEST_ID; ?>" title="Check Out"></td>
+                                <td  style="vertical-align:middle;text-align:center;"><?php echo $request->request_id; ?></td>
+                                <td  style="vertical-align:middle;"><?php echo date("m-d-Y", strtotime($request->asset_borrow_date)); ?></td>
+                                <td  style="vertical-align:middle;"><?php echo $request->fname." ".$request->lname; ?></td>
+                                <td  style="vertical-align:middle;"><?php echo "Check Out";?></td>
+                                <?php
+                                    $cccccc="";
+                                ?>
+                                @foreach ($asset_description_grouped as $sad)
+                                    @if ($request->asset_description==$sad->asset_setup_ad)
+                                    <?php
+                                        $cccccc=$sad->asset_setup_description;
+                                        break;
+                                    ?>
+                                    @endif
+                                @endforeach
+                                <td  style="vertical-align:middle;"><a onclick="ViewPendingAssets('<?php echo $request->asset_tag; ?>')" class="btn btn-link" style="cursor: pointer;"><?php echo $cccccc;?></a></td>
+                                <td  style="vertical-align:middle;"><?php echo date("m-d-Y", strtotime($request->asset_due_date)); ?></td>
+                                <?php
+                                
+                                if($request->transaction_action=="Denied by FA"){
+                                ?>
+                                <td style="vertical-align:middle"><?php echo $request->transaction_action; ?></td>
+                                <?php
+                                $preview=str_split($request->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
+                                ?>
+                                <td><a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $request->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                <?php
+                                }else{
+                                ?>	
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                <?php
+                                }
+                                ?>
+                                <td width="10%" style="vertical-align:middle;text-align:center;">
+                                <?php 
+                                    if($user_position->position!="Data Entry Officer" && $user_position->position!="Fixed Asset Officer"){
+                                    ?>
+                                    <a class="btn btn-sm btn-success" style="margin-right:8px;color:white !important;" onclick="ApproveRequest('Check Out','<?php echo $request->REQUEST_ID; ?>')"><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn-danger" style="color:white !important;"   onclick="DenyRequest('Check Out','<?php echo $request->REQUEST_ID; ?>','{{$request->request_id}}')"><span class="fa fa-times-circle"></span></a>
+                                <?php
+                                    }else{
+                                    ?>
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled  style="color:white !important;"><span class="fa fa-times-circle"></span></a>
+                                    <?php	
+                                    }
+                                ?>									
+                                </td>
+                            </tr>
+                        @endforeach
+                        @foreach ($pending_check_in_request as $request)
+                        <tr>
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" value="<?php echo $request->REQUEST_ID; ?>" title="Check Out"></td>
+                                <td  style="vertical-align:middle;text-align:center;"><?php echo $request->request_id; ?></td>
+                                <td  style="vertical-align:middle;"><?php echo date("m-d-Y", strtotime($request->asset_borrow_date)); ?></td>
+                                <td  style="vertical-align:middle;"><?php echo $request->fname." ".$request->lname; ?></td>
+                                <td  style="vertical-align:middle;"><?php echo "Check In";?></td>
+                                <?php
+                                    $cccccc="";
+                                ?>
+                                @foreach ($asset_description_grouped as $sad)
+                                    @if ($request->asset_description==$sad->asset_setup_ad)
+                                    <?php
+                                        $cccccc=$sad->asset_setup_description;
+                                        break;
+                                    ?>
+                                    @endif
+                                @endforeach
+                                <td  style="vertical-align:middle;"><a onclick="ViewPendingAssets('<?php echo $request->asset_tag; ?>')" class="btn btn-link" style="cursor: pointer;"><?php echo $cccccc;?></a></td>
+                                <td  style="vertical-align:middle;"><?php echo date("m-d-Y", strtotime($request->asset_due_date)); ?></td>
+                                <?php
+                                
+                                if($request->transaction_action=="Denied by FA"){
+                                ?>
+                                <td style="vertical-align:middle"><?php echo $request->transaction_action; ?></td>
+                                <?php
+                                $preview=str_split($request->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
+                                ?>
+                                <td><a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $request->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                <?php
+                                }else{
+                                ?>	
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                <?php
+                                }
+                                ?>
+                                <td width="10%" style="vertical-align:middle;text-align:center;">
+                                <?php 
+                                    if($user_position->position!="Data Entry Officer" && $user_position->position!="Fixed Asset Officer"){
+                                    ?>
+                                    <a class="btn btn-sm btn-success" style="margin-right:8px;color:white !important;" onclick="ApproveRequest('Check In','<?php echo $request->REQUEST_ID; ?>')"><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn-danger" style="color:white !important;"   onclick="DenyRequest('Check In','<?php echo $request->REQUEST_ID; ?>','{{$request->request_id}}')"><span class="fa fa-times-circle"></span></a>
+                                <?php
+                                    }else{
+                                    ?>
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled  style="color:white !important;"><span class="fa fa-times-circle"></span></a>
+                                    <?php	
+                                    }
+                                ?>									
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

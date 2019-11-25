@@ -162,46 +162,24 @@ function ApproveRequest(request,asset_tag){
             
         }  
         }) 
-		// $.ajax({
-		// 	type: 'POST',
-		// 	url: 'NewAssetFirstApprove.php',                
-		// 	data: {tag:asset_tag},
-		// success: function(data) {
-		// 	$('.modal-backdrop').remove();
-		// 	$( "#NewAssetModal" ).replaceWith( data );
-			
-		// 	demo('#NewAssetModal');
-			
-		// } 											 
-		// })
+		
 		
 	}
 	if(request=="AssetSetup"){
-			$.ajax({
-			type: 'POST',
-			headers: {
-				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			},
-			url: 'AssetSetupFirstApprove',                
-			data:{tag:asset_tag,_token: '{{csrf_token()}}'},
-			success: function(data) {
-				
-			checkreload()
-				
-			}  
-			})
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'AssetSetupFirstApprove.php',                
-			// 	data: {tag:asset_tag},
-			// success: function(data) {
-				
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#DisposalModal" ).replaceWith( data );
-			// 	demo('#DisposalModal');
-			// } 											 
-			// })
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'AssetSetupFirstApprove',                
+		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
+		success: function(data) {
 			
+		checkreload()
+			
+		}  
+		})
+		
 	}
 	if(request=="Transfer"){
 		// $.ajax({
@@ -218,6 +196,19 @@ function ApproveRequest(request,asset_tag){
 		
 	}
 	if(request=="Check Out"){
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'CheckoutSecondApprove',                
+		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
+		success: function(data) {
+			
+		checkreload()
+			
+		}  
+		})
 		// $.ajax({
 		// 	type: 'POST',
 		// 	url: 'CheckoutSecondApprove.php',                
@@ -232,16 +223,19 @@ function ApproveRequest(request,asset_tag){
 		
 	}
 	if(request=="Check In"){
-		// $.ajax({
-		// 	type: 'POST',
-		// 	url: 'CheckinSecondApprove.php',                
-		// 	data: {tag:asset_tag},
-		// success: function(data) {
-		// 	$('.modal-backdrop').remove();
-		// 	$( "#CheckinModal" ).replaceWith( data );
-		// 	demo('#CheckinModal');
-		// } 											 
-		// })
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'CheckinSecondApprove',                
+		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
+		success: function(data) {
+			
+		checkreload()
+			
+		}  
+		})
 		
 	}
 	if(request=="Maintenance"){
@@ -558,6 +552,20 @@ function DenyRequest(request,asset_tag,ticket_no){
 			
 		}
 		if(request=="Check Out"){
+
+			$.ajax({
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'CheckoutDeny',                
+			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
+			success: function(data) {
+				
+			checkreload()
+				
+			}  
+			})
 			// $.ajax({
 			// 	type: 'POST',
 			// 	url: 'CheckoutDeny.php',                
@@ -572,6 +580,19 @@ function DenyRequest(request,asset_tag,ticket_no){
 			
 		}
 		if(request=="Check In"){
+			$.ajax({
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'CheckinDeny',                
+			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
+			success: function(data) {
+				
+			checkreload()
+				
+			}  
+			})
 			// console.log('YOYO');
 			// $.ajax({
 			// 	type: 'POST',

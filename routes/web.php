@@ -168,6 +168,7 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/EditAssetSetupModalBody', 'GetController@EditAssetSetupModalBody');
     Route::post('/EditAssetSetupModalBodyasds', 'GetController@EditAssetSetupModalBodyasds');
     Route::post('/get_asset_info_checkout', 'GetController@get_asset_info_checkout');
+    Route::post('/get_asset_info_checkin', 'GetController@get_asset_info_checkin');
     
     Route::post('/UploadMassAssetSetup', 'UploadController@UploadMassAssetSetup');
     Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
@@ -188,6 +189,11 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/delete_request_asset_setup', 'AssetPostController@delete_request_asset_setup');
     Route::post('/update_asset_setup_site_and_location', 'AssetPostController@update_asset_setup_site_and_location');
     Route::post('/SaveAssetCheckOut', 'AssetPostController@SaveAssetCheckOut');
+    Route::post('/CheckoutSecondApprove', 'AssetPostController@CheckoutSecondApprove');
+    Route::post('/CheckoutDeny', 'AssetPostController@CheckoutDeny');
+    Route::post('/SaveAssetCheckIn', 'AssetPostController@SaveAssetCheckIn');
+    Route::post('/CheckinSecondApprove', 'AssetPostController@CheckinSecondApprove');
+    Route::post('/CheckinDeny', 'AssetPostController@CheckinDeny');
     
     
     

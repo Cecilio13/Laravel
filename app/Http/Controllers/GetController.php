@@ -672,11 +672,15 @@ class GetController extends Controller
                 $table.='<td style="vertical-align: middle;color:#083240;">'.(!empty($desc_data)? $desc_data->asset_setup_description: '').'</td>';
                 $table.='<td style="vertical-align: middle;color:#083240;">'.(!empty($cat)? $cat->asset_setup_category: '').'</td>';
                 $table.='<td style="vertical-align: middle;color:#083240;">'.(!empty($cat_sub)? $cat_sub->asset_setup_sub_cat: '').'</td>';
-                $data1 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5') AND asset_approval='1'");
+                $sub_query_statement="AND asset_sub_category='$subcateg'";
+                if($subcateg==''){
+                    $sub_query_statement="";
+                }
+                $data1 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' $sub_query_statement  AND (asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5') AND asset_approval='1'");
                 $table.='<td style="vertical-align: middle;color:#083240;">'.count($data1).'</td>';
-                $data2 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status='2' OR asset_transaction_status='1.1' OR asset_transaction_status='1.2' OR asset_transaction_status='4' OR asset_transaction_status='-1.7' OR asset_transaction_status='-1.8') AND asset_approval='1'");
+                $data2 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' $sub_query_statement AND (asset_transaction_status='2' OR asset_transaction_status='1.1' OR asset_transaction_status='1.2' OR asset_transaction_status='4' OR asset_transaction_status='-1.7' OR asset_transaction_status='-1.8') AND asset_approval='1'");
                 $table.='<td style="vertical-align: middle;color:#083240;">'.count($data2).'</td>';
-                $data3 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status='1' OR asset_transaction_status='2.1' OR asset_transaction_status='2.2' OR asset_transaction_status='4.2'OR asset_transaction_status='4.1' OR asset_transaction_status='3.2'OR asset_transaction_status='3.1') AND asset_approval='1'");
+                $data3 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' $sub_query_statement AND (asset_transaction_status='1' OR asset_transaction_status='2.1' OR asset_transaction_status='2.2' OR asset_transaction_status='4.2'OR asset_transaction_status='4.1' OR asset_transaction_status='3.2'OR asset_transaction_status='3.1') AND asset_approval='1'");
                 $table.='<td style="vertical-align: middle;color:#083240;">'.count($data3).'</td>';
                 $table.='</tr>';
             }
@@ -807,11 +811,15 @@ class GetController extends Controller
                     $table.='<td '.($h10==0? 'style="display:none;"'  : '').'>'.$rows->asset_condition.'</td>';
                     $table.='<td '.($h14==0? 'style="display:none;"'  : '').'>'.$rows->asset_site.'</td>';
                     $table.='<td '.($h15==0? 'style="display:none;"'  : '').'>'.$rows->asset_location.'</td>';
-                    $data1 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5') AND asset_approval='1'");
-                    $table.='<td '.($h11==0? 'style="display:none;"'  : '').''.count($data1).'</td>';
-                    $data2 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status='2' OR asset_transaction_status='1.1' OR asset_transaction_status='1.2' OR asset_transaction_status='4' OR asset_transaction_status='-1.7' OR asset_transaction_status='-1.8') AND asset_approval='1'");
-                    $table.='<td '.($h12==0? 'style="display:none;"'  : '').''.count($data2).'</td>';
-                    $data3 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' AND asset_sub_category='$subcateg' AND (asset_transaction_status='1' OR asset_transaction_status='2.1' OR asset_transaction_status='2.2' OR asset_transaction_status='4.2'OR asset_transaction_status='4.1' OR asset_transaction_status='3.2'OR asset_transaction_status='3.1') AND asset_approval='1'");
+                    $sub_query=" AND asset_sub_category='$subcateg'";
+                    if($subcateg==''){
+                        $sub_query='';
+                    }
+                    $data1 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' $sub_query  AND (asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5') AND asset_approval='1'");
+                    $table.='<td '.($h11==0? 'style="display:none;"'  : '').'>'.count($data1).'</td>';
+                    $data2 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' $sub_query AND (asset_transaction_status='2' OR asset_transaction_status='1.1' OR asset_transaction_status='1.2' OR asset_transaction_status='4' OR asset_transaction_status='-1.7' OR asset_transaction_status='-1.8') AND asset_approval='1'");
+                    $table.='<td '.($h12==0? 'style="display:none;"'  : '').'>'.count($data2).'</td>';
+                    $data3 = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_description='$desc' AND asset_category_name='$categ' $sub_query AND (asset_transaction_status='1' OR asset_transaction_status='2.1' OR asset_transaction_status='2.2' OR asset_transaction_status='4.2'OR asset_transaction_status='4.1' OR asset_transaction_status='3.2'OR asset_transaction_status='3.1') AND asset_approval='1'");
                     $table.='<td '.($h13==0? 'style="display:none;"'  : '').'>'.count($data3).'</td>';
                     $table.='</tr>';
                 }
@@ -832,10 +840,14 @@ class GetController extends Controller
         $desc=$_POST['desc'];
         $cat=$_POST['cat'];
         $sub=$_POST['sub'];
+        $subquery=" AND asset_sub_category='$sub'";
+        if($sub==""){
+            $subquery="";
+        }
         $body='';
         $body.='<tbody id="selected_asset_tbody_sadas">';
                                                 
-        $data = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5' AND asset_approval='1' AND  asset_description='$desc' AND asset_category_name='$cat' AND asset_sub_category='$sub'");
+        $data = DB::connection('mysql')->select("SELECT * FROM hr_assets WHERE asset_transaction_status!='3' AND asset_transaction_status!='-1' AND asset_transaction_status!='-1.5' AND asset_approval='1' AND  asset_description='$desc' AND asset_category_name='$cat' $subquery");
             if(!empty($data)){
                 foreach($data as $rows){
                     $body.='<tr>';
@@ -844,7 +856,8 @@ class GetController extends Controller
 					$ViewAssetCategoryName=$rows->asset_category_name;
 					$ViewAssetSub=$rows->asset_sub_category;
 					$ViewAssetSerialNumber=$rows->asset_serial_number;
-					$sku_code=$rows->sku_code;
+                    $sku_code=$rows->sku_code;
+                    $ViewAssetSub1='';
 					if($ViewAssetSub!=""){
 						//$ViewAssetSub1="SC - ".$ViewAssetSub."%0A";
 						$ViewAssetSub1="";
@@ -853,7 +866,8 @@ class GetController extends Controller
 					if($ViewAssetSerialNumber!=""){
 						$ViewAssetSerialNumber1="SN-".$ViewAssetSerialNumber."%0A";
 						
-					}
+                    }
+                    $sku_code1='';
 					if($sku_code!=""){
 						$sku_code1="PN-".$sku_code."%0A";
 						
@@ -927,7 +941,8 @@ class GetController extends Controller
 					$ViewAssetCategoryName=$rows->asset_category_name;
 					$ViewAssetSub=$rows->asset_sub_category;
 					$ViewAssetSerialNumber=$rows->asset_serial_number;
-					$sku_code=$rows->sku_code;
+                    $sku_code=$rows->sku_code;
+                    $ViewAssetSub1='';
 					if($ViewAssetSub!=""){
 						//$ViewAssetSub1="SC - ".$ViewAssetSub."%0A";
 						$ViewAssetSub1="";
@@ -936,7 +951,8 @@ class GetController extends Controller
 					if($ViewAssetSerialNumber!=""){
 						$ViewAssetSerialNumber1="SN-".$ViewAssetSerialNumber."%0A";
 						
-					}
+                    }
+                    $sku_code1='';
 					if($sku_code!=""){
 						$sku_code1="PN-".$sku_code."%0A";
 						
@@ -1328,6 +1344,23 @@ class GetController extends Controller
         $data = DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_IIDS FROM hr_assets 
         JOIN 
         hr_asset_setup ON hr_asset_setup.asset_setup_ad=hr_assets.asset_description
+        WHERE hr_assets.id='$value'");
+       
+        if(empty($data)){
+            $data="";
+        }
+
+        return $data;
+    }
+    public function get_asset_info_checkin(Request $request){
+        $value=$request->value;
+        $data = DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_IIDS,hr_assets.asset_tag as ASSET_TAG,hr_asset_request.id as REQUEST_ID FROM hr_assets 
+        JOIN 
+        hr_asset_setup ON hr_asset_setup.asset_setup_ad=hr_assets.asset_description
+        JOIN 
+        hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_assets.asset_setcheck_defualt
+        JOIN 
+        hr_asset_request ON hr_asset_request.request_id=hr_assets.asset_setcheck_defualt
         WHERE hr_assets.id='$value'");
        
         if(empty($data)){
