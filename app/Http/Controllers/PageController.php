@@ -59,6 +59,7 @@ use App\HR_hr_cash_advances_payment;
 use App\HR_hr_asset_transaction_log;
 use App\HR_hr_Asset;
 use App\User;
+use App\HR_hr_Asset_setup;
 class PageController extends Controller
 {
     public function access_denied(Request $request){
@@ -1592,7 +1593,17 @@ class PageController extends Controller
     }
     public function print_qr(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
+        $asset_setup_lists=HR_hr_Asset_setup::where([
+            ['asset_setup_tag','=','Asset Tag'],
+            ['asset_setup_status','=','1']
+        ])->get();
+        $asset_list_qr=HR_hr_Asset::where([
+            ['asset_approval','=','1'],
+            ['asset_transaction_status','!=','3'],
+            ['asset_transaction_status','!=','-1'],
+            ['asset_transaction_status','!=','-1.5']
+        ])->get();
+        return view('pages.main.qr', compact('None','asset_setup_lists','asset_list_qr'));
     
     }
     public function department(Request $request){

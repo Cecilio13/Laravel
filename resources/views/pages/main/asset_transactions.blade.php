@@ -1322,7 +1322,7 @@
                                         } 											 
                                         })
                                     }else{
-                                        alert('Please Enter the Asset Tag...');
+                                        alert('Please Enter the Reason...');
                                         document.getElementById('ReasonRecover').style.borderColor = "red";
                                     }
                                     
