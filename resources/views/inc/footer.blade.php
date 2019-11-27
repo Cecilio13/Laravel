@@ -182,17 +182,19 @@ function ApproveRequest(request,asset_tag){
 		
 	}
 	if(request=="Transfer"){
-		// $.ajax({
-		// 	type: 'POST',
-		// 	url: 'TransferSecondApprove.php',                
-		// 	data: {tag:asset_tag},
-		// success: function(data) {
-		// 	$('.modal-backdrop').remove();
-		// 	$( "#TransferModal" ).replaceWith( data );
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'TransferSecondApprove',                
+		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
+		success: function(data) {
 			
-		// 	demo('#TransferModal');
-		// } 											 
-		// })
+		checkreload()
+			
+		}  
+		})
 		
 	}
 	if(request=="Check Out"){
@@ -239,56 +241,69 @@ function ApproveRequest(request,asset_tag){
 		
 	}
 	if(request=="Maintenance"){
-		// $.ajax({
-		// 	type: 'POST',
-		// 	url: 'MaintenanceSecondApprove.php',                
-		// 	data: {tag:asset_tag},
-		// success: function(data) {
-		// 	$('.modal-backdrop').remove();
-		// 	$( "#MaintenanceModal" ).replaceWith( data );
-		// 	demo('#MaintenanceModal');
-		// } 											 
-		// })
 		
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'MaintenanceSecondApprove',                
+		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
+		success: function(data) {
+			
+		checkreload()
+			
+		}  
+		})
 	}
 	if(request=="Dispose"){
-		// $.ajax({
-		// 	type: 'POST',
-		// 	url: 'DisposeSecondApprove.php',                
-		// 	data: {tag:asset_tag},
-		// success: function(data) {
-		// 	$('.modal-backdrop').remove();
-		// 	$( "#DisposalModal" ).replaceWith( data );
-		// 	demo('#DisposalModal');
-		// } 											 
-		// })
 		
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'DisposeSecondApprove',                
+		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
+		success: function(data) {
+			
+		checkreload()
+			
+		}  
+		})
 	}
 	if(request=="Recover"){
-		// $.ajax({
-		// 	type: 'POST',
-		// 	url: 'RecoverFirstApprove.php',                
-		// 	data: {tag:asset_tag},
-		// success: function(data) {
-		// 	$('.modal-backdrop').remove();
-		// 	$( "#RecoveryModal" ).replaceWith( data );
-		// 	demo('#RecoveryModal');
-		// } 											 
-		// })
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'RecoverFirstApprove',                
+		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
+		success: function(data) {
+			
+		checkreload()
+			
+		}  
+		})
+		
 		
 	}
 	if(request=="Extend Due Date"){
-		// $.ajax({
-		// 	type: 'POST',
-		// 	url: 'ExtendSecondApprove.php',                
-		// 	data: {tag:asset_tag},
-		// success: function(data) {
+		$.ajax({
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: 'ExtendSecondApprove',                
+        data:{tag:asset_tag,_token: '{{csrf_token()}}'},
+        success: function(data) {
 			
-		// 	$('.modal-backdrop').remove();
-		// 	$( "#RecoveryModal" ).replaceWith( data );
-		// 	demo('#RecoveryModal');
-		// } 											 
-		// })
+			checkreload()
+            
+        }  
+        }) 
+		
 	}
 	
 	
@@ -390,6 +405,19 @@ function ConfirmRequest(request,asset_tag){
 		
 	}
 	if(request=="Recover"){
+		$.ajax({
+		type: 'POST',
+		headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		},
+		url: 'RecoverSecondApprove',                
+		data:{tag:asset_tag,_token: '{{csrf_token()}}'},
+		success: function(data) {
+			
+			checkreload()
+			
+		}  
+		})
 		// $.ajax({
 		// 	type: 'POST',
 		// 	url: 'RecoverSecondApprove.php',                
@@ -482,18 +510,7 @@ function DenyRequest(request,asset_tag,ticket_no){
 			// })
 		}
 		if(request=="New Asset"){
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'NewAssetDeny.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#NewAssetModal" ).replaceWith( data );
-				
-			// 	demo('#NewAssetModal');
-				
-			// } 											 
-			// })
+			
 			$.ajax({
 			type: 'POST',
 			headers: {
@@ -510,18 +527,7 @@ function DenyRequest(request,asset_tag,ticket_no){
 			
 		}
 		if(request=="New Asset2"){
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'NewAssetDenySecond.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#NewAssetModal" ).replaceWith( data );
-				
-			// 	demo('#NewAssetModal');
-				
-			// } 											 
-			// })
+			
 			$.ajax({
 			type: 'POST',
 			headers: {
@@ -538,17 +544,19 @@ function DenyRequest(request,asset_tag,ticket_no){
 			
 		}
 		if(request=="Transfer"){
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'TransferDeny.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#TransferModal" ).replaceWith( data );
+			$.ajax({
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'TransferDeny',                
+			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
+			success: function(data) {
 				
-			// 	demo('#TransferModal');
-			// } 											 
-			// })
+			checkreload()
+				
+			}  
+			})
 			
 		}
 		if(request=="Check Out"){
@@ -566,17 +574,6 @@ function DenyRequest(request,asset_tag,ticket_no){
 				
 			}  
 			})
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'CheckoutDeny.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#CheckoutModal" ).replaceWith( data );
-				
-			// 	demo('#CheckoutModal');
-			// } 											 
-			// })
 			
 		}
 		if(request=="Check In"){
@@ -593,62 +590,42 @@ function DenyRequest(request,asset_tag,ticket_no){
 				
 			}  
 			})
-			// console.log('YOYO');
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'CheckinDeny.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-			// 	//alert(data);
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#CheckinModal" ).replaceWith( data );
-			// 	demo('#CheckinModal');
-			// 	console.log('YOYO22');
-			// },
-			// error: function (request, status, error) {
-			// 		alert(request.responseText);
-			// 	}					
-			// })
 			
 		}
 		if(request=="Maintenance"){
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'MaintenanceDeny.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#MaintenanceModal" ).replaceWith( data );
-			// 	demo('#MaintenanceModal');
-			// } 											 
-			// })
+			$.ajax({
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'MaintenanceDeny',                
+			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
+			success: function(data) {
+				
+			checkreload()
+				
+			}  
+			})
 			
 		}
 		if(request=="Dispose"){
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'DisposeDeny.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#DisposalModal" ).replaceWith( data );
-			// 	demo('#DisposalModal');
-			// } 											 
-			// })
 			
+			$.ajax({
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'DisposeDeny',                
+			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
+			success: function(data) {
+				
+			checkreload()
+				
+			}  
+			})
 		}
 		if(request=="AssetSetup"){
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'DisposeAssetSetup.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-				
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#DisposalModal" ).replaceWith( data );
-			// 	demo('#DisposalModal');
-			// } 											 
-			// })
+			
 			$.ajax({
 			type: 'POST',
 			headers: {
@@ -665,17 +642,7 @@ function DenyRequest(request,asset_tag,ticket_no){
 			
 		}
 		if(request=="AssetSetup2"){
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'DisposeAssetSetup2.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-				
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#DisposalModal" ).replaceWith( data );
-			// 	demo('#DisposalModal');
-			// } 											 
-			// })
+			
 			$.ajax({
 			type: 'POST',
 			headers: {
@@ -692,6 +659,19 @@ function DenyRequest(request,asset_tag,ticket_no){
 			
 		}
 		if(request=="Recover"){
+			$.ajax({
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'RecoverDeny',                
+			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
+			success: function(data) {
+				
+			checkreload()
+				
+			}  
+			})
 			// $.ajax({
 			// 	type: 'POST',
 			// 	url: 'RecoverDeny.php',                
@@ -705,17 +685,20 @@ function DenyRequest(request,asset_tag,ticket_no){
 			
 		}
 		if(request=="Extend Due Date"){
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'ExtendDeny.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
+			$.ajax({
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'ExtendDeny',                
+			data:{tag:asset_tag,reason:txt,_token: '{{csrf_token()}}'},
+			success: function(data) {
 				
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#RecoveryModal" ).replaceWith( data );
-			// 	demo('#RecoveryModal');
-			// } 											 
-			// })
+			checkreload()
+				
+			}  
+			})
+			
 		}
 	}
 	
@@ -949,6 +932,46 @@ function GetExistingLocationEdit(){
     }) 
     
     CheckSiteEdit();
+}
+function GetExistingLocationGeneral(){
+    var Location=document.getElementById('MoveAssetToLocation').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_setup_location',                
+    data:{value:Location,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='LocSearchReultGeneral'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#LocSearchReultGeneral" ).replaceWith( element );
+        
+    }  
+    }) 
+    
+    GetExistingSitesGeneral();
+}
+function GetExistingSitesGeneral(){
+    var Site=document.getElementById('MoveAssetToSite').value;
+    var Location=document.getElementById('MoveAssetToLocation').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_setup_site',                
+    data:{value:Location,Site:Site,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<datalist id='siteSearchReultDivGeneral'>";
+            element=element+data;
+            element=element+"</datalist>";
+        $( "#siteSearchReultDivGeneral" ).replaceWith( element );
+        
+    }  
+    }) 
+    
 }
 function GetExistingSitesEdit(){
     var Site=document.getElementById('SiteSetupEdit').value;
@@ -1256,6 +1279,9 @@ select option[disabled] {
 }
 
 </style>
+
+<datalist id="siteSearchReultDivGeneral"></datalist>
+<datalist id="LocSearchReultGeneral"></datalist>
 <div class="modal fade modal-full" id="ViewAssetModal"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog " role="document">
         <div class="modal-content">

@@ -212,7 +212,9 @@ class AppServiceProvider extends ServiceProvider
             ['asset_setup_status','=','1']
         ])->groupBy('asset_setup_description')->get());
         view()->share('asset_list',HR_hr_Asset::where([
-            ['asset_approval','=','1']
+            ['asset_approval','=','1'],
+            ['asset_transaction_status','!=','3'],
+            ['asset_transaction_status','!=','4']
         ])->get());
         view()->share('for_checkout_asset_list',HR_hr_Asset::where([
             ['asset_approval','=','1'],
@@ -222,6 +224,33 @@ class AppServiceProvider extends ServiceProvider
             ['asset_approval','=','1'],
             ['asset_transaction_status','=','2']
         ])->get());
+
+        view()->share('asset_list_for_move',HR_hr_Asset::where([
+            ['asset_approval','=','1'],
+            ['asset_transaction_status','!=','3'],
+            ['asset_transaction_status','!=','4'],
+            ['asset_transaction_status','!=','-1'],
+            ['asset_transaction_status','!=','-1.7'],
+            ['asset_transaction_status','!=','-1.5'],
+            ['asset_transaction_status','!=','-1.8']
+        ])->get());
+        view()->share('disposed_asset_list',HR_hr_Asset::where([
+            ['asset_transaction_status','=','3']
+        ])->orWhere([
+            ['asset_transaction_status','=','-1']
+        ])->get());
+        view()->share('maintenance_asset_list',HR_hr_Asset::where([
+            ['asset_transaction_status','=','4']
+            
+        ])->orWhere([
+            ['asset_transaction_status','=','-1.7']
+        ])->get());
+        view()->share('recover_asset_list',HR_hr_Asset::where([
+            ['asset_transaction_status','=','4']
+        ])->orWhere([
+            ['asset_transaction_status','=','3']
+        ])->get());
+
         
         $asset_list_all = DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_IIDS FROM hr_assets 
         JOIN 

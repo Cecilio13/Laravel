@@ -272,46 +272,46 @@
                             </tr> 
                         @endforeach
                         @foreach ($pending_new_asset_setup as $new_assets)
-                        <tr> 
-                            <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->ticket_no}}'  value="{{$new_assets->ASSET_SETUP_ID}}" title="AssetSetup"></td>
-                            <td style="vertical-align:middle;text-align:center;">{{$new_assets->ticket_no}}</td>
-                            <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->created_at))}}</td>
-                            <td style="vertical-align:middle;">{{$new_assets->name}}</td>
-                            <td style="vertical-align:middle;">{{'New Asset Setup'}}</td>
-                            <td  style="vertical-align:middle;">
-                                <a onclick="EditAssetSetup('<?php echo $new_assets->ASSET_SETUP_ID; ?>')"  class="btn btn-link" style="cursor: pointer;"><?php echo $new_assets->asset_setup_tag; ?></a>
-                            </td>
-                            <td  style="vertical-align:middle;">N/A</td>
-                            @if($new_assets->transaction_action=="Denied by FA")
-                            <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
-                            <?php
-                            $preview=str_split($new_assets->deny_reason,5);
-                            $pp=$preview[0];
-                            if(count($preview)>1){
-                                $pp=$preview[0]."..";	
-                            }
-                            ?>
-                            <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
-                            @else 
-                            <td style="vertical-align:middle"></td>
-                            <td style="vertical-align:middle"></td>
-                            @endif
-                            <td style="vertical-align:middle;text-align:center;">
-                                <?php 
-                                if($new_assets->position!="Data Entry Officer" && $new_assets->position!="Fixed Asset Officer"){
-                                ?>
-                                <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ApproveRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
-                                <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>','{{$new_assets->ticket_no}}')"><span class="fa fa-times-circle"></span></a>
+                            <tr> 
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->ticket_no}}'  value="{{$new_assets->ASSET_SETUP_ID}}" title="AssetSetup"></td>
+                                <td style="vertical-align:middle;text-align:center;">{{$new_assets->ticket_no}}</td>
+                                <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->created_at))}}</td>
+                                <td style="vertical-align:middle;">{{$new_assets->name}}</td>
+                                <td style="vertical-align:middle;">{{'New Asset Setup'}}</td>
+                                <td  style="vertical-align:middle;">
+                                    <a onclick="EditAssetSetup('<?php echo $new_assets->ASSET_SETUP_ID; ?>')"  class="btn btn-link" style="cursor: pointer;"><?php echo $new_assets->asset_setup_tag; ?></a>
+                                </td>
+                                <td  style="vertical-align:middle;">N/A</td>
+                                @if($new_assets->transaction_action=="Denied by FA")
+                                <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
                                 <?php
-                                }else{
-                                ?>
-                                <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
-                                <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
-                                <?php	
+                                $preview=str_split($new_assets->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
                                 }
                                 ?>
-                            </td>
-                        </tr>
+                                <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                @else 
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                @endif
+                                <td style="vertical-align:middle;text-align:center;">
+                                    <?php 
+                                    if($new_assets->position!="Data Entry Officer" && $new_assets->position!="Fixed Asset Officer"){
+                                    ?>
+                                    <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ApproveRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('AssetSetup','<?php echo $new_assets->ASSET_SETUP_ID; ?>','{{$new_assets->ticket_no}}')"><span class="fa fa-times-circle"></span></a>
+                                    <?php
+                                    }else{
+                                    ?>
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
+                                    <?php	
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
                         @endforeach
                         @foreach ($pending_check_out_request as $request)
                             <tr>
@@ -372,7 +372,7 @@
                             </tr>
                         @endforeach
                         @foreach ($pending_check_in_request as $request)
-                        <tr>
+                            <tr>
                                 <td><input onclick="toggleindi(this)" type="checkbox" name="LG" value="<?php echo $request->REQUEST_ID; ?>" title="Check Out"></td>
                                 <td  style="vertical-align:middle;text-align:center;"><?php echo $request->request_id; ?></td>
                                 <td  style="vertical-align:middle;"><?php echo date("m-d-Y", strtotime($request->asset_borrow_date)); ?></td>
@@ -426,6 +426,279 @@
                                     <?php	
                                     }
                                 ?>									
+                                </td>
+                            </tr>
+                        @endforeach
+                        @foreach ($pending_extend_request as $request)
+                            <tr>
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" value="<?php echo $request->EXTEND_ID; ?>" title="Extend Due Date"></td>
+                                <td  style="vertical-align:middle;text-align:center;"><?php echo $request->extend_due_request_id; ?></td>
+                                <td  style="vertical-align:middle;"><?php echo date("m-d-Y", strtotime($request->asset_borrow_date)); ?></td>
+                                <td  style="vertical-align:middle;"><?php echo $request->fname." ".$request->lname; ?></td>
+                                <td  style="vertical-align:middle;"><?php echo "Extend Due Date";?></td>
+                                <?php
+                                    $cccccc="";
+                                ?>
+                                @foreach ($asset_description_grouped as $sad)
+                                    @if ($request->asset_description==$sad->asset_setup_ad)
+                                    <?php
+                                        $cccccc=$sad->asset_setup_description;
+                                        break;
+                                    ?>
+                                    @endif
+                                @endforeach
+                                <td  style="vertical-align:middle;"><a onclick="ViewPendingAssets('<?php echo $request->asset_tag; ?>')" class="btn btn-link" style="cursor: pointer;"><?php echo $cccccc;?></a></td>
+                                <td  style="vertical-align:middle;"><?php echo date("m-d-Y", strtotime($request->newduedate)); ?></td>
+                                <?php
+                                
+                                if($request->transaction_action=="Denied by FA"){
+                                ?>
+                                <td style="vertical-align:middle"><?php echo $request->transaction_action; ?></td>
+                                <?php
+                                $preview=str_split($request->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
+                                ?>
+                                <td><a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $request->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                <?php
+                                }else{
+                                ?>	
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                <?php
+                                }
+                                ?>
+                                
+                                <td width="10%" style="vertical-align:middle;text-align:center;">
+                                <?php 
+                                    if($user_position->position!="Data Entry Officer" && $user_position->position!="Fixed Asset Officer"){
+                                    ?>
+                                    <a class="btn btn-sm btn-success" style="margin-right:8px;color:white !important;" onclick="ApproveRequest('Extend Due Date','<?php echo $request->EXTEND_ID; ?>')"><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn-danger" style="color:white !important;"   onclick="DenyRequest('Extend Due Date','<?php echo $request->EXTEND_ID; ?>','{{$request->extend_due_request_id}}')"><span class="fa fa-times-circle"></span></a>
+                                <?php
+                                    }else{
+                                    ?>
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled  style="color:white !important;"><span class="fa fa-times-circle"></span></a>
+                                    <?php	
+                                    }
+                                ?>	
+                                
+                                </td>
+                            </tr> 
+                        @endforeach
+                        @foreach ($pending_move_request as $request)
+                            <tr>
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" value="<?php echo $request->TRANSFER_ID; ?>" title="Extend Due Date"></td>
+                                <td  style="vertical-align:middle;text-align:center;"><?php echo $request->asset_transfer_request_id; ?></td>
+                                <td  style="vertical-align:middle;"><?php echo date("m-d-Y", strtotime($request->request_date)); ?></td>
+                                <td  style="vertical-align:middle;"><?php echo $request->log_action_requestor; ?></td>
+                                <td  style="vertical-align:middle;"><?php echo "Move/Assign To";?></td>
+                                <?php
+                                    $cccccc="";
+                                ?>
+                                @foreach ($asset_description_grouped as $sad)
+                                    @if ($request->asset_description==$sad->asset_setup_ad)
+                                    <?php
+                                        $cccccc=$sad->asset_setup_description;
+                                        break;
+                                    ?>
+                                    @endif
+                                @endforeach
+                                <td  style="vertical-align:middle;"><a onclick="ViewPendingAssets('<?php echo $request->asset_tag; ?>')" class="btn btn-link" style="cursor: pointer;"><?php echo $cccccc;?></a></td>
+                                <td  style="vertical-align:middle;">N/A</td>
+                                <?php
+                                
+                                if($request->transaction_action=="Denied by FA"){
+                                ?>
+                                <td style="vertical-align:middle"><?php echo $request->transaction_action; ?></td>
+                                <?php
+                                $preview=str_split($request->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
+                                ?>
+                                <td><a style="cursor:pointer;" class="btn-link" onclick="ViewNotes('<?php echo $request->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                <?php
+                                }else{
+                                ?>	
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                <?php
+                                }
+                                ?>
+                                
+                                <td width="10%" style="vertical-align:middle;text-align:center;">
+                                <?php 
+                                    if($user_position->position!="Data Entry Officer" && $user_position->position!="Fixed Asset Officer"){
+                                    ?>
+                                    <a class="btn btn-sm btn-success" style="margin-right:8px;color:white !important;" onclick="ApproveRequest('Transfer','<?php echo $request->TRANSFER_ID; ?>')"><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn-danger" style="color:white !important;"   onclick="DenyRequest('Transfer','<?php echo $request->TRANSFER_ID; ?>','{{$request->asset_transfer_request_id}}')"><span class="fa fa-times-circle"></span></a>
+                                <?php
+                                    }else{
+                                    ?>
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled  style="color:white !important;"><span class="fa fa-times-circle"></span></a>
+                                    <?php	
+                                    }
+                                ?>	
+                                
+                                </td>
+                            </tr> 
+                        @endforeach
+                        @foreach ($pending_dispose_assets as $new_assets)
+                            <tr> 
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->asset_setcheck_defualt}}'  value="{{$new_assets->ASSET_ID}}" title="AssetSetup"></td>
+                                <td style="vertical-align:middle;text-align:center;">{{$new_assets->asset_setcheck_defualt}}</td>
+                                <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->asset_purchase_order))}}</td>
+                                <td style="vertical-align:middle;">{{$new_assets->name}}</td>
+                                <td style="vertical-align:middle;">{{'Dispose'}}</td>
+                                <?php
+                                    $cccccc="";
+                                ?>
+                                @foreach ($asset_description_grouped as $sad)
+                                    @if ($new_assets->asset_description==$sad->asset_setup_ad)
+                                    <?php
+                                        $cccccc=$sad->asset_setup_description;
+                                        break;
+                                    ?>
+                                    @endif
+                                @endforeach
+                                <td  style="vertical-align:middle;"><a onclick="ViewPendingAssets('<?php echo $new_assets->asset_tag; ?>')" class="btn btn-link" style="cursor: pointer;"><?php echo $cccccc;?></a></td>
+                                <td  style="vertical-align:middle;">N/A</td>
+                                @if($new_assets->transaction_action=="Denied by FA")
+                                <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
+                                <?php
+                                $preview=str_split($new_assets->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
+                                ?>
+                                <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                @else 
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                @endif
+                                <td style="vertical-align:middle;text-align:center;">
+                                    <?php 
+                                    if($new_assets->position!="Data Entry Officer" && $new_assets->position!="Fixed Asset Officer"){
+                                    ?>
+                                    <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ApproveRequest('Dispose','<?php echo $new_assets->ASSET_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('Dispose','<?php echo $new_assets->ASSET_ID; ?>','{{$new_assets->asset_setcheck_defualt}}')"><span class="fa fa-times-circle"></span></a>
+                                    <?php
+                                    }else{
+                                    ?>
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
+                                    <?php	
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+                        @endforeach
+                        @foreach ($pending_maintenance_assets as $new_assets)
+                            <tr> 
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->asset_setcheck_defualt}}'  value="{{$new_assets->ASSET_ID}}" title="AssetSetup"></td>
+                                <td style="vertical-align:middle;text-align:center;">{{$new_assets->maintenance_ticket_no}}</td>
+                                <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->asset_purchase_order))}}</td>
+                                <td style="vertical-align:middle;">{{$new_assets->name}}</td>
+                                <td style="vertical-align:middle;">{{'Maintenance'}}</td>
+                                <?php
+                                    $cccccc="";
+                                ?>
+                                @foreach ($asset_description_grouped as $sad)
+                                    @if ($new_assets->asset_description==$sad->asset_setup_ad)
+                                    <?php
+                                        $cccccc=$sad->asset_setup_description;
+                                        break;
+                                    ?>
+                                    @endif
+                                @endforeach
+                                <td  style="vertical-align:middle;"><a onclick="ViewPendingAssets('<?php echo $new_assets->asset_tag; ?>')" class="btn btn-link" style="cursor: pointer;"><?php echo $cccccc;?></a></td>
+                                <td  style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->MaintenanceDueDate))}}</td>
+                                @if($new_assets->transaction_action=="Denied by FA")
+                                <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
+                                <?php
+                                $preview=str_split($new_assets->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
+                                ?>
+                                <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                @else 
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                @endif
+                                <td style="vertical-align:middle;text-align:center;">
+                                    <?php 
+                                    if($new_assets->position!="Data Entry Officer" && $new_assets->position!="Fixed Asset Officer"){
+                                    ?>
+                                    <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ApproveRequest('Maintenance','<?php echo $new_assets->ASSET_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('Maintenance','<?php echo $new_assets->ASSET_ID; ?>','{{$new_assets->maintenance_ticket_no}}')"><span class="fa fa-times-circle"></span></a>
+                                    <?php
+                                    }else{
+                                    ?>
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
+                                    <?php	
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+                        @endforeach
+                        @foreach ($recover_request_asset_list as $new_assets)
+                            <tr> 
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->asset_setcheck_defualt}}'  value="{{$new_assets->ASSET_ID}}" title="AssetSetup"></td>
+                                <td style="vertical-align:middle;text-align:center;">{{$new_assets->asset_setcheck_defualt}}</td>
+                                <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->asset_purchase_order))}}</td>
+                                <td style="vertical-align:middle;">{{$new_assets->name}}</td>
+                                <td style="vertical-align:middle;">{{'Recover'}}</td>
+                                <?php
+                                    $cccccc="";
+                                ?>
+                                @foreach ($asset_description_grouped as $sad)
+                                    @if ($new_assets->asset_description==$sad->asset_setup_ad)
+                                    <?php
+                                        $cccccc=$sad->asset_setup_description;
+                                        break;
+                                    ?>
+                                    @endif
+                                @endforeach
+                                <td  style="vertical-align:middle;"><a onclick="ViewPendingAssets('<?php echo $new_assets->asset_tag; ?>')" class="btn btn-link" style="cursor: pointer;"><?php echo $cccccc;?></a></td>
+                                <td  style="vertical-align:middle;">N/A</td>
+                                @if($new_assets->transaction_action=="Denied by FA")
+                                <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
+                                <?php
+                                $preview=str_split($new_assets->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
+                                ?>
+                                <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                @else 
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                @endif
+                                <td style="vertical-align:middle;text-align:center;">
+                                    <?php 
+                                    if($new_assets->position!="Data Entry Officer" && $new_assets->position!="Fixed Asset Officer"){
+                                    ?>
+                                    <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ApproveRequest('Recover','<?php echo $new_assets->ASSET_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('Recover','<?php echo $new_assets->ASSET_ID; ?>','{{$new_assets->asset_setcheck_defualt}}')"><span class="fa fa-times-circle"></span></a>
+                                    <?php
+                                    }else{
+                                    ?>
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
+                                    <?php	
+                                    }
+                                    ?>
                                 </td>
                             </tr>
                         @endforeach
@@ -561,6 +834,57 @@
                                 ?>
                             </td>
                         </tr>
+                        @endforeach
+                        @foreach ($recover_request_asset_list_fa as $new_assets)
+                            <tr> 
+                                <td><input onclick="toggleindi(this)" type="checkbox" name="LG" data-ticket='{{$new_assets->asset_setcheck_defualt}}'  value="{{$new_assets->ASSET_ID}}" title="AssetSetup"></td>
+                                <td style="vertical-align:middle;text-align:center;">{{$new_assets->asset_setcheck_defualt}}</td>
+                                <td style="vertical-align:middle;">{{date("m-d-Y", strtotime($new_assets->asset_purchase_order))}}</td>
+                                <td style="vertical-align:middle;">{{$new_assets->name}}</td>
+                                <td style="vertical-align:middle;">{{'Recover'}}</td>
+                                <?php
+                                    $cccccc="";
+                                ?>
+                                @foreach ($asset_description_grouped as $sad)
+                                    @if ($new_assets->asset_description==$sad->asset_setup_ad)
+                                    <?php
+                                        $cccccc=$sad->asset_setup_description;
+                                        break;
+                                    ?>
+                                    @endif
+                                @endforeach
+                                <td  style="vertical-align:middle;"><a onclick="ViewPendingAssets('<?php echo $new_assets->asset_tag; ?>')" class="btn btn-link" style="cursor: pointer;"><?php echo $cccccc;?></a></td>
+                                <td  style="vertical-align:middle;">N/A</td>
+                                @if($new_assets->transaction_action=="Denied by FA")
+                                <td style="vertical-align:middle"><?php echo $new_assets->transaction_action; ?></td>
+                                <?php
+                                $preview=str_split($new_assets->deny_reason,5);
+                                $pp=$preview[0];
+                                if(count($preview)>1){
+                                    $pp=$preview[0]."..";	
+                                }
+                                ?>
+                                <td><a style="cursor:pointer;"  class=" btn btn-link" onclick="ViewNotes('<?php echo $new_assets->asset_transaction_log_id ?>')"><?php echo $pp; ?></a></td>
+                                @else 
+                                <td style="vertical-align:middle"></td>
+                                <td style="vertical-align:middle"></td>
+                                @endif
+                                <td style="vertical-align:middle;text-align:center;">
+                                    <?php 
+                                    if($user_position->position!='Data Entry Officer' && $user_position->position!='Asset Management Officer'){
+                                    ?>
+                                    <a class="btn btn-sm btn btn-success"  style="margin-right:8px;color:white !important;" onclick="ConfirmRequest('Recover','<?php echo $new_assets->ASSET_ID; ?>')" ><span class="fa fa-check-circle"></span></a> 
+                                    <a class="btn btn-sm btn btn-danger"   style="color:white !important;" onclick="DenyRequest('Recover','<?php echo $new_assets->ASSET_ID; ?>','{{$new_assets->asset_setcheck_defualt}}')"><span class="fa fa-times-circle"></span></a>
+                                    <?php
+                                    }else{
+                                    ?>
+                                    <a class="btn btn-sm btn-success"  disabled style="margin-right:8px;color:white !important;"  ><span class="fa fa-check-circle"></span></a>
+                                    <a class="btn btn-sm btn-danger"  disabled style="color:white !important;" ><span class="fa fa-times-circle"></span></a>
+                                    <?php	
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>

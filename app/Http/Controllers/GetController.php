@@ -636,7 +636,7 @@ class GetController extends Controller
                 $content.='</tr>';
             }
         }else{
-            $content.='<tr><td style="text-align:center;" colspan="8">No Log Found</td></tr>';
+            $content.='<tr><td style="text-align:center;" colspan="8">No Log Found'." ".$value.'</td></tr>';
         }
         
         

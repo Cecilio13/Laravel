@@ -194,6 +194,22 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/SaveAssetCheckIn', 'AssetPostController@SaveAssetCheckIn');
     Route::post('/CheckinSecondApprove', 'AssetPostController@CheckinSecondApprove');
     Route::post('/CheckinDeny', 'AssetPostController@CheckinDeny');
+    Route::post('/SaveAssetExtend', 'AssetPostController@SaveAssetExtend');
+    Route::post('/ExtendSecondApprove', 'AssetPostController@ExtendSecondApprove');
+    Route::post('/ExtendDeny', 'AssetPostController@ExtendDeny');
+    Route::post('/SaveAssetMove', 'AssetPostController@SaveAssetMove');
+    Route::post('/TransferDeny', 'AssetPostController@TransferDeny');
+    Route::post('/TransferSecondApprove', 'AssetPostController@TransferSecondApprove');
+    Route::post('/SaveAssetDisposal', 'AssetPostController@SaveAssetDisposal');
+    Route::post('/DisposeSecondApprove', 'AssetPostController@DisposeSecondApprove');
+    Route::post('/DisposeDeny', 'AssetPostController@DisposeDeny');
+    Route::post('/SaveAssetMaintenance', 'AssetPostController@SaveAssetMaintenance');
+    Route::post('/MaintenanceSecondApprove', 'AssetPostController@MaintenanceSecondApprove');
+    Route::post('/MaintenanceDeny', 'AssetPostController@MaintenanceDeny');
+    Route::post('/SaveAssetRecover', 'AssetPostController@SaveAssetRecover');
+    Route::post('/RecoverFirstApprove', 'AssetPostController@RecoverFirstApprove');
+    Route::post('/RecoverSecondApprove', 'AssetPostController@RecoverSecondApprove');
+    Route::post('/RecoverDeny', 'AssetPostController@RecoverDeny');
     
     
     

@@ -60,6 +60,8 @@ use App\HR_hr_a_digit;
 use App\HR_hr_asset_photo;
 use App\HR_hr_asset_request;
 use App\HR_hr_asset_transaction_log;
+use App\HR_hr_asset_extend_due_request;
+use App\HR_hr_asset_transfer_request;
 class AssetPostController extends Controller
 {
     //
@@ -397,6 +399,68 @@ class AssetPostController extends Controller
             }
         }
     }
+    public function ExtendSecondApprove(Request $request){
+        $id=$request->tag;
+        $data=HR_hr_asset_extend_due_request::find($id);
+        $data->request_status='1';
+        if($data->save()){
+            $ss=HR_hr_asset_request::find($data->request_id);
+            $ss->asset_due_date=$data->newduedate;
+            if($ss->save()){
+                $this->generate_transaction_log_confirmation_checkout($data->extend_due_request_id,$ss->asset_tag,'Extend Due Date','Approved',$ss->emp_id,'');
+            }
+        }
+    }
+    public function TransferSecondApprove(Request $request){
+        $id=$request->tag;
+        $data=HR_hr_asset_transfer_request::find($id);
+        $data->asset_transfer_request_status='1';
+        if($data->save()){
+            $asset=HR_hr_Asset::find($data->asset_tag);
+            $asset->asset_location=$data->asset_location;
+            $asset->asset_site=$data->asset_site;
+            $asset->asset_department_code=$data->asset_department_code;
+            $asset->asset_note=$data->asset_note;
+            $asset->asset_assign_to=$data->asset_assign_to;
+            if($asset->save()){
+                $ss=HR_hr_asset_transaction_log::where([
+                    ['asset_transaction_log_id','=',$data->asset_transfer_request_id]
+                ])->first();
+                $name="";
+                if(!empty($ss)){
+                    $name=$ss->log_action_requestor_id;
+                }
+                $this->generate_transaction_log_confirmation_move($data->asset_transfer_request_id,$asset->id,'Move/Assign To','Approved',$name,'');
+            }
+        }
+    }
+    public function TransferDeny(Request $request){
+        $id=$request->tag;
+        $reason=$request->reason;
+        $data=HR_hr_asset_transfer_request::find($id);
+        $data->asset_transfer_request_status='1';
+        if($data->save()){
+            $ss=HR_hr_asset_transaction_log::where([
+                ['asset_transaction_log_id','=',$data->asset_transfer_request_id]
+            ])->first();
+            $name="";
+            if(!empty($ss)){
+                $name=$ss->log_action_requestor_id;
+            }
+            $this->generate_transaction_log_deny_move_am($data->asset_transfer_request_id,$ss->asset_tag,'Move/Assign To','Denied',$name,$reason);
+        }
+    }
+    public function ExtendDeny(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data=HR_hr_asset_extend_due_request::find($tag);
+        $data->request_status='DENIED';
+        if($data->save()){
+            $ss=HR_hr_asset_request::find($data->request_id);
+            $this->generate_transaction_log_deny_checkout_am($data->extend_due_request_id,$ss->asset_tag,'Extend Due Date','Denied',$ss->emp_id,$reason);
+            //$this->generate_transaction_log_deny_am($data->ticket_no,$data->asset_setup_tag,'Asset Setup','Denied',$tag,$reason);
+        }
+    }
     public function CheckoutDeny(Request $request){
         $tag=$request->tag;
         $reason=$request->reason;
@@ -545,6 +609,7 @@ class AssetPostController extends Controller
     }
     public function SaveAssetCheckIn(Request $request){
         $request_id=$request->request_id;
+        
         $data= HR_hr_asset_request::find($request_id);
         $data->request_status='1.1';
         if($data->save()){
@@ -559,5 +624,181 @@ class AssetPostController extends Controller
         }
 
     }
-    
+    public function SaveAssetExtend(Request $request){
+        $request_id=$request->request_id;
+        $newdue=$request->newdue;
+        $gen=$this->generate_id();
+        $data= new HR_hr_asset_extend_due_request;
+        $data->extend_due_request_id=$gen;
+        $data->newduedate=$newdue;
+        $data->request_id=$request_id;
+        $data->request_date=date("Y-m-d");
+        if($data->save()){
+            $getrequest=DB::connection('mysql')->select("SELECT *,hr_asset_request.id as REQUEST_ID,hr_asset_request.asset_tag as ASSET_TAG FROM hr_asset_request
+            JOIN hr_assets ON hr_assets.id=hr_asset_request.asset_tag
+            JOIN hr_employee_info ON hr_employee_info.employee_id=hr_asset_request.emp_id
+            JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_asset_request.request_id
+            WHERE hr_asset_request.id='$request_id'");
+
+            $this->generate_transaction_log_extend($gen,$getrequest[0]->ASSET_TAG,'Extend Check Out','Queued on AM',$getrequest[0]->emp_id,'');
+        }
+    }
+    public function SaveAssetMove(Request $request){
+        $tag=$request->tag;
+        $site=$request->site;
+        $location=$request->location;
+        $department=$request->department;
+        $name=$request->name;
+        $note=$request->note;
+        $gen=$this->generate_id();
+        $data= new HR_hr_asset_transfer_request;
+        $data->asset_transfer_request_id=$gen;
+        $data->asset_tag=$tag;
+        $data->asset_location=$location;
+        $data->asset_department_code=$department;
+        $data->asset_note=$note;
+        $data->asset_assign_to=$name;
+        $data->request_date=date('Y-m-d');
+        $data->asset_site=$site;
+        if($data->save()){
+            $this->generate_transaction_log_move($gen,$tag,'Move/Assign To','Queued on AM','','');
+        }
+    }
+    public function SaveAssetDisposal(Request $request){
+        $ID=$request->Tag;
+        $Reason=$request->Reason;
+        $Note=$request->Note;
+        $gen=$this->generate_id();
+        $user=Auth::user()->id;
+        $data= HR_hr_Asset::find($ID);
+        $data->asset_transaction_status='3.1';
+        $data->asset_note=$Note;
+        $data->asset_reasons=$Reason;
+        $data->asset_purchase_order=date('Y-m-d');
+        $data->maintenance_requestor=$user;
+        $data->asset_setcheck_defualt=$gen;
+        if($data->save()){
+            $this->generate_transaction_log_dispose($gen,$ID,'Disposal','Queued on AM','','');
+        }
+    }
+    public function DisposeSecondApprove(Request $request){
+        $tag=$request->tag;
+        $data= HR_hr_Asset::find($tag);
+        $data->asset_transaction_status='3';
+        if($data->save()){
+            $this->generate_transaction_log_dispose_approve($data->asset_setcheck_defualt,$data->id,'Disposal','Approved',$data->maintenance_requestor,'');
+        }
+    }
+    public function DisposeDeny(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data= HR_hr_Asset::find($tag);
+        $data->asset_transaction_status='1';
+        if($data->save()){
+            $this->generate_transaction_log_dispose_deny($data->asset_setcheck_defualt,$data->id,'Disposal','Denied',$data->maintenance_requestor,'');
+        }
+    }
+    public function SaveAssetMaintenance(Request $request){
+        $ID=$request->Tag;
+        $Reason=$request->Reason;
+        $Note=$request->Note;
+        $MaintenanceDueDate=$request->MaintenanceDueDate;
+        
+        $gen=$this->generate_id();
+        $user=Auth::user()->id;
+        $data= HR_hr_Asset::find($ID);
+        $data->asset_transaction_status='4.1';
+        $data->asset_note=$Note;
+        $data->asset_reasons=$Reason;
+        $data->asset_purchase_order=date('Y-m-d');
+        $data->maintenance_requestor=$user;
+        $data->maintenance_ticket_no=$gen;
+        $data->MaintenanceDueDate=$MaintenanceDueDate;
+        if($data->save()){
+            $this->generate_transaction_log_dispose($gen,$ID,'Maintenance','Queued on AM','','');
+        }
+    }
+    public function MaintenanceSecondApprove(Request $request){
+        $tag=$request->tag;
+        $data= HR_hr_Asset::find($tag);
+        $data->asset_transaction_status='4';
+        if($data->save()){
+            $this->generate_transaction_log_dispose_approve($data->maintenance_ticket_no,$data->id,'Maintenance','Approved',$data->maintenance_requestor,'');
+        }
+    }
+    public function MaintenanceDeny(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data= HR_hr_Asset::find($tag);
+        $data->asset_transaction_status='1';
+        if($data->save()){
+            $this->generate_transaction_log_dispose_deny($data->maintenance_ticket_no,$data->id,'Maintenance','Denied',$data->maintenance_requestor,'');
+        }
+    }
+    public function SaveAssetRecover(Request $request){
+        $ID=$request->Tag;
+        $Reason=$request->Reason;
+        $Note=$request->Note;
+        $gen=$this->generate_id();
+        $user=Auth::user()->id;
+        $data= HR_hr_Asset::find($ID);
+        $stt="-1";
+        if($data->asset_transaction_status=="3"){
+            $stt="-1";
+        }
+        if($data->asset_transaction_status=="4"){
+            $stt="-1.7";
+        }
+        $data->asset_transaction_status=$stt;
+        $data->asset_note=$Note;
+        $data->asset_reasons=$Reason;
+        $data->asset_purchase_order=date('Y-m-d');
+        $data->maintenance_requestor=$user;
+        $data->asset_setcheck_defualt=$gen;
+        if($data->save()){
+            $this->generate_transaction_log_dispose($gen,$ID,'Recovery','Queued on AM','','');
+        }
+    }
+    public function RecoverFirstApprove(Request $request){
+        $ID=$request->tag;
+        
+        $data= HR_hr_Asset::find($ID);
+        $stt="-1.5";
+        if($data->asset_transaction_status=="-1"){
+            $stt="-1.5";
+        }
+        if($data->asset_transaction_status=="-1.7"){
+            $stt="-1.8";
+        }
+        $data->asset_transaction_status=$stt;
+        
+        if($data->save()){
+            $this->generate_transaction_log_recover_am($data->asset_setcheck_defualt,$ID,'Recovery','Queued on FA','','');
+        }
+    }
+    public function RecoverSecondApprove(Request $request){
+        $tag=$request->tag;
+        $data= HR_hr_Asset::find($tag);
+        $data->asset_transaction_status='1';
+        if($data->save()){
+            $this->generate_transaction_log_dispose_approve($data->asset_setcheck_defualt,$data->id,'Recovery','Approved',$data->maintenance_requestor,'');
+        }
+    }
+    public function RecoverDeny(Request $request){
+        $tag=$request->tag;
+        $reason=$request->reason;
+        $data= HR_hr_Asset::find($tag);
+        
+        $stt="4";
+        if($data->asset_transaction_status=="-1.5" || $data->asset_transaction_status=="-1"){
+            $stt="3";
+        }
+        if($data->asset_transaction_status=="-1.8" || $data->asset_transaction_status=="-1.7"){
+            $stt="4";
+        }
+        $data->asset_transaction_status=$stt;
+        if($data->save()){
+            $this->generate_transaction_log_dispose_deny($data->asset_setcheck_defualt,$data->id,'Recovery','Denied',$data->maintenance_requestor,'');
+        }
+    }
 }

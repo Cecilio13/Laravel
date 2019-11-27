@@ -1405,7 +1405,40 @@ class PageController extends Controller
         JOIN hr_employee_info ON hr_employee_info.employee_id=hr_asset_request.emp_id
         JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_asset_request.request_id
         WHERE request_status='1.1' AND request_active='ACTIVE'");
-        return view('pages.main.asset_management_dashboard', compact('None','asset_transaction_log','pending_new_assets','pending_new_asset_setup','pending_confirmation_new_assets','pending_confirmation_new_asset_setup','pending_denied_new_assets','pending_denied_new_asset_setup','pending_check_out_request','pending_check_in_request'));
+
+        $pending_extend_request=DB::connection('mysql')->select("SELECT *,hr_asset_extend_due_request.id as EXTEND_ID FROM hr_asset_request
+        JOIN hr_asset_extend_due_request ON hr_asset_extend_due_request.request_id=hr_asset_request.id 
+        JOIN hr_assets ON hr_assets.id=hr_asset_request.asset_tag
+        JOIN hr_employee_info ON hr_employee_info.employee_id=hr_asset_request.emp_id
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_asset_request.request_id
+        WHERE hr_asset_extend_due_request.request_status='0'");
+
+        $pending_move_request=DB::connection('mysql')->select("SELECT *,hr_asset_transfer_request.id as TRANSFER_ID FROM hr_asset_transfer_request
+        JOIN hr_assets ON hr_assets.id=hr_asset_transfer_request.asset_tag
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_asset_transfer_request.asset_transfer_request_id
+        WHERE asset_transfer_request_status='-1'");
+
+        $pending_dispose_assets=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+		JOIN users ON users.id=hr_assets.maintenance_requestor
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_assets.asset_setcheck_defualt
+        WHERE asset_transaction_status='3.1'");
+
+        $pending_maintenance_assets=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+        JOIN users ON users.id=hr_assets.maintenance_requestor
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_assets.maintenance_ticket_no
+        WHERE asset_transaction_status='4.1'");
+
+        $recover_request_asset_list=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+        JOIN users ON users.id=hr_assets.maintenance_requestor
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_assets.asset_setcheck_defualt
+        WHERE asset_transaction_status='-1' OR  asset_transaction_status='-1.7'");
+        
+        $recover_request_asset_list_fa=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+        JOIN users ON users.id=hr_assets.maintenance_requestor
+        JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_assets.asset_setcheck_defualt
+        WHERE asset_transaction_status='-1.5' OR  asset_transaction_status='-1.8'");
+
+        return view('pages.main.asset_management_dashboard', compact('None','asset_transaction_log','pending_new_assets','pending_new_asset_setup','pending_confirmation_new_assets','pending_confirmation_new_asset_setup','pending_denied_new_assets','pending_denied_new_asset_setup','pending_check_out_request','pending_check_in_request','pending_extend_request','pending_move_request','pending_dispose_assets','pending_maintenance_assets','recover_request_asset_list','recover_request_asset_list_fa'));
     
     }
     public function asset_management_dispose(Request $request){

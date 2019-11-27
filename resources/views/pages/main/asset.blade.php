@@ -2646,7 +2646,7 @@
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },              
-                            data: {value:'<?php echo $ViewAssetTag; ?>',_token: '{{csrf_token()}}'},
+                            data: {value:'<?php echo $asset_id; ?>',_token: '{{csrf_token()}}'},
                             success: function(data) {
                                 var element="<tbody id='AssetInfoAuditLogTbody'>";
                                 
@@ -2662,7 +2662,7 @@
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },              
-                            data: {value:'<?php echo $ViewAssetTag; ?>',_token: '{{csrf_token()}}'},
+                            data: {value:'<?php echo $asset_id; ?>',_token: '{{csrf_token()}}'},
                             success: function(data) {
                                 var element="<tbody id='AssetInfoTransactionLogTbody'>";
                                 
