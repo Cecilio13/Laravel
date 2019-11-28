@@ -1439,7 +1439,19 @@ class PageController extends Controller
         JOIN hr_asset_transaction_log ON hr_asset_transaction_log.asset_transaction_log_id=hr_assets.asset_setcheck_defualt
         WHERE asset_transaction_status='-1.5' OR  asset_transaction_status='-1.8'");
 
-        return view('pages.main.asset_management_dashboard', compact('None','asset_transaction_log','pending_new_assets','pending_new_asset_setup','pending_confirmation_new_assets','pending_confirmation_new_asset_setup','pending_denied_new_assets','pending_denied_new_asset_setup','pending_check_out_request','pending_check_in_request','pending_extend_request','pending_move_request','pending_dispose_assets','pending_maintenance_assets','recover_request_asset_list','recover_request_asset_list_fa'));
+        $asset_on_maintenance=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets 
+        LEFT JOIN users ON users.id=hr_assets.maintenance_requestor
+        LEFT JOIN hr_company_department ON hr_company_department.department_id=hr_assets.asset_department_code
+        WHERE asset_transaction_status='-1.7' OR  asset_transaction_status='-1.8' OR  asset_transaction_status='4'");
+        
+        $asset_oncheckout=DB::connection('mysql')->select("SELECT *,hr_asset_request.id as REQUEST_ID,hr_assets.id as ASSET_ID FROM hr_asset_request
+        JOIN hr_assets ON hr_assets.id=hr_asset_request.asset_tag
+        LEFT JOIN hr_employee_info ON hr_employee_info.employee_id=hr_asset_request.emp_id
+        LEFT JOIN hr_employee_job_detail ON hr_employee_job_detail.emp_id=hr_employee_info.employee_id
+        LEFT JOIN hr_company_department ON hr_company_department.department_id=hr_employee_job_detail.department
+        WHERE (request_status='1.1' OR request_status='2') AND request_active='ACTIVE'");
+
+        return view('pages.main.asset_management_dashboard', compact('None','asset_transaction_log','pending_new_assets','pending_new_asset_setup','pending_confirmation_new_assets','pending_confirmation_new_asset_setup','pending_denied_new_assets','pending_denied_new_asset_setup','pending_check_out_request','pending_check_in_request','pending_extend_request','pending_move_request','pending_dispose_assets','pending_maintenance_assets','recover_request_asset_list','recover_request_asset_list_fa','asset_on_maintenance','asset_oncheckout'));
     
     }
     public function asset_management_dispose(Request $request){

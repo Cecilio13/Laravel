@@ -238,12 +238,16 @@ class AppServiceProvider extends ServiceProvider
             ['asset_transaction_status','=','3']
         ])->orWhere([
             ['asset_transaction_status','=','-1']
+        ])->orWhere([
+            ['asset_transaction_status','=','-1.5']
         ])->get());
         view()->share('maintenance_asset_list',HR_hr_Asset::where([
             ['asset_transaction_status','=','4']
             
         ])->orWhere([
             ['asset_transaction_status','=','-1.7']
+        ])->orWhere([
+            ['asset_transaction_status','=','-1.8']
         ])->get());
         view()->share('recover_asset_list',HR_hr_Asset::where([
             ['asset_transaction_status','=','4']

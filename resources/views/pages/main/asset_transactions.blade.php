@@ -180,12 +180,14 @@
                                 var FinalDate="";
                                 if(Due=='Default'){
                                     dat.setDate(dat.getDate()+5);
-                                    dat.setMonth(dat.getMonth()+1);
+                                    dat.setMonth(dat.getMonth());
+                                    
                                     FinalDate=dat.getFullYear()+"-"+dat.getUTCMonth()+"-"+dat.getDate();
                                 }
                                 if(Due=='Custom'){
                                     FinalDate=DueDate;
                                 }
+                                console.log(dat);
                                 
                                 var t = document.getElementById('AssetQueueBody');
                                 var tr = document.createElement("tr");

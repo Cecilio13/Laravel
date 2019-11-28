@@ -1003,20 +1003,69 @@
 				</tr>
             </thead>
             <tbody style="color:#083240;" id="checkout_tbody">
-                <tr>
-                    <td style="vertical-align: middle;text-align:center;"></td>
-                    <td style="vertical-align: middle;"></td>
-                    <td style="vertical-align: middle;"></td>
-                    <td style="vertical-align: middle;"></td>
-                    <td style="vertical-align: middle;text-align:center;"></td>
-                    <td style="vertical-align: middle;"></td>
-                    <td style="vertical-align: middle;"></td>
-                    
-                    <td style="vertical-align: middle;text-align:center;"></td>
-                    <td style="text-align:center;vertical-align: middle;">
-                        
-                    </td>
-                </tr>
+                @foreach ($asset_oncheckout as $rows)
+                    <tr>
+                        <td style="vertical-align: middle;text-align:center;">{{$rows->request_id}}</td>
+                        <td style="vertical-align: middle;">{{$rows->fname." ".$rows->lname}}</td>
+                        <?php 
+                            $ViewAssetDesc="";
+                        ?>
+                        @foreach ($asset_description_grouped as $setup)
+                            @if ($setup->asset_setup_ad==$rows->asset_description)
+                            <?php 
+                            $ViewAssetDesc=$setup->asset_setup_description;
+                            ?>
+                            @endif
+                            
+                        @endforeach
+                        <td style="vertical-align: middle;" ><a onclick="ViewPendingAssets('<?php echo $rows->ASSET_ID; ?>')" class="btn-link" style="cursor: pointer;">{{$ViewAssetDesc}}</a></td>
+                        <td style="vertical-align: middle;">{{$rows->department_name}}</td>
+                        <td style="vertical-align: middle;text-align:center;">1</td>
+                        <td style="vertical-align: middle;">{{date("m-d-Y", strtotime($rows->asset_borrow_date))}}</td>
+                        <td style="vertical-align: middle;">{{date("m-d-Y", strtotime($rows->asset_due_date))}}</td>
+                        <?php
+							$date1=date_create($rows->asset_due_date);
+							$date2=date_create(date("Y-m-d"));
+							$diff=date_diff($date1,$date2);
+							$result=$diff->format("%R");
+							if($result=="-"){
+								$result2="0";
+								
+							}else{
+								$result2=$diff->format("%a")+1;
+								
+							}
+							
+							
+
+						?>
+						<td style="vertical-align: middle;text-align:center;"><?php echo $result2; ?></td>
+                        <td style="text-align:center;vertical-align: middle;">
+                            <?php
+                                $date1=date_create($rows->asset_due_date);
+                                $date2=date_create(date("Y-m-d"));
+                                $diff=date_diff($date1,$date2);
+                                $result=$diff->format("%R");
+                                if($rows->request_status=="2" || $rows->request_status=="1.1"){
+                                    if($result=="-"){
+                                    ?>
+                                    <button class="btn  btn-warning"><span class="fa fa-flag-o"></span></button>
+                                    <?php
+                                    }else{
+                                    ?>	
+                                    <button class="btn  btn-danger"><span class="fa fa-flag-o"></span></button>
+                                    <?php
+                                    }
+                                }else{
+                                    ?>	
+                                    <button class="btn  btn-success"><span class="fa fa-flag-o"></span></button>
+                                    <?php
+                                }
+                            ?>
+                        </td>
+                    </tr>
+                @endforeach
+                
             </tbody>
         </table>
     </div>
@@ -1039,21 +1088,68 @@
                 </tr>
             </thead>
             <tbody style="color:#083240;" id="maintenance_tbody">
-            
-                <tr>
-                    <td style="vertical-align: middle;text-align:center;"></td>
-                    <td style="vertical-align: middle;"></td>
-                    <td style="vertical-align: middle;"></td>
-                    <td style="vertical-align: middle;"></td>
-                    <td style="vertical-align: middle;text-align:center;"></td>
-                    <td style="vertical-align: middle;"></td>
-                    <td style="vertical-align: middle;"></td>
-                   
-                    <td style="vertical-align: middle;text-align:center;"></td>
-                    <td style="text-align:center;vertical-align: middle;">
-                        
-                    </td>
-                </tr>
+                @if (!empty($asset_on_maintenance))
+                    @foreach ($asset_on_maintenance as $rows)
+                        <tr>
+                            <td style="vertical-align: middle;text-align:center;">{{$rows->maintenance_ticket_no}}</td>
+                            <td style="vertical-align: middle;">{{$rows->name}}</td>
+                            <?php 
+                                $ViewAssetDesc="";
+                            ?>
+                            @foreach ($asset_description_grouped as $setup)
+                                @if ($setup->asset_setup_ad==$rows->asset_description)
+                                <?php 
+                                $ViewAssetDesc=$setup->asset_setup_description;
+                                ?>
+                                @endif
+                                
+                            @endforeach
+                            <td style="vertical-align: middle;" ><a onclick="ViewPendingAssets('<?php echo $rows->ASSET_ID; ?>')" class="btn-link" style="cursor: pointer;">{{$ViewAssetDesc}}</a></td>
+                            <td style="vertical-align: middle;">{{$rows->department_name}}</td>
+                            <td style="vertical-align: middle;text-align:center;">1</td>
+                            <td style="vertical-align: middle;">{{date("m-d-Y", strtotime($rows->asset_purchase_order))}}</td>
+                            <td style="vertical-align: middle;">{{date("m-d-Y", strtotime($rows->MaintenanceDueDate))}}</td>
+                            <?php
+                                $date1=date_create($rows->MaintenanceDueDate);
+                                $date2=date_create(date("Y-m-d"));
+                                $diff=date_diff($date1,$date2);
+                                $result=$diff->format("%R");
+                                if($result=="-"){
+                                    $result2="0";
+                                    
+                                }else{
+                                    $result2=$diff->format("%a")+1;
+                                    
+                                }
+                                
+                                
+
+                            ?>
+                            <td style="vertical-align: middle;text-align:center;">{{$result2}}</td>
+                            <td style="text-align:center;vertical-align: middle;">
+                                <?php
+                                    $date1=date_create($rows->MaintenanceDueDate);
+                                    $date2=date_create(date("Y-m-d"));
+                                    $diff=date_diff($date1,$date2);
+                                    $result=$diff->format("%R");
+                                    if($result=="-"){
+                                    ?>
+                                    <button class="btn  btn-warning"><span class="fa fa-flag-o"></span></button>
+                                    <?php
+                                    }else{
+                                    ?>	
+                                    <button class="btn  btn-danger"><span class="fa fa-flag-o"></span></button>
+                                    <?php
+                                    }
+                                ?>
+                            </td>
+                        </tr>   
+                    @endforeach 
+                @else
+                    
+                @endif
+                
+                
             
             </tbody>
         </table>
