@@ -8,11 +8,65 @@
             <h2 style="font-weight:bold;color:#083240;margin-bottom:0px;margin-left:10px;">QR CODES</h2>
         </div>
     </div>
-    <table class="table table-sm" style="background-color:white;">
-		<thead style="background-color:#124f62; color:white;">
+    <script>
+    $(document).ready(function(){
+        if(document.getElementById('qr_list_table')){
+            var table = $('#qr_list_table').DataTable( {
+                order: [2, 'desc'],
+                ordering:false,
+                paging:false
+            } );
+            if(document.getElementById('qr_list_table_length')){
+                document.getElementById('qr_list_table_info').style.display="none";
+                
+                document.getElementById('qr_list_table_paginate').style.textAlign ="center";
+                document.getElementById('qr_list_table_paginate').style.cssFloat ="none";
+                
+            } 
+        }
+        $('#PrintButtonQR').click(function() {
+        checked = $("input[type=checkbox]:checked").length;
+
+        if(!checked) {
+            alert("You must check at least one checkbox.");
+            return false;
+        }
+
+        });
+        $('#selectall').change(function(event) {
+            
+            if(this.value=="1") {
+                // Iterate each checkbox
+                $(':checkbox').each(function() {
+                    this.checked = true;                        
+                });
+            } else {
+                $(':checkbox').each(function() {
+                    this.checked = false;                       
+                });
+            }
+        });
+    })
+    </script>
+    <form id="print_qr_form" method="POST" action="print_qr" target="_blank">
+    {{ csrf_field() }}
+    <table class="table table-sm" id="qr_list_table" style="background-color:white;">
+		<thead style="background-color:#124f62; color:white;padding:0px !important;">
 			<tr>
-				<th colspan="3">Print Asset Tag QR Codes </th>
-			</tr>
+				<th colspan="4" style="vertical-align:middle;">Print Asset Tag QR Codes </th>
+            </tr>
+            <tr>
+                <th style="vertical-align:middle;" width="10%">
+                    <select id="selectall" class="form-control">
+                        <option value=""></option>
+                        <option value="1">Select All</option>
+                        <option value="0">Select None</option>
+                    </select>
+                </th>
+                <th style="vertical-align:middle;">QR Code</th>
+                <th style="vertical-align:middle;">Asset Description</th>
+                <th style="vertical-align:middle;" style="display:none;"></th>
+            </tr>
 		</thead>
 		<tbody>
             @foreach ($asset_list_qr as $asset)
@@ -22,7 +76,7 @@
                             <?php
 								if($asset->depreciation_date!=""){
 								?>
-								<label><input type="checkbox" name="include[]" value="<?php echo $asset->id; ?>"></label>
+								<label><input type="checkbox" name="include[]" value="<?php echo $asset->id; ?>" ></label>
 								<?php
 								}else{
 								?>
@@ -89,9 +143,9 @@
                     <td style="display:none;">{{$asset->asset_site." ".$asset->asset_location}}</td>
                 </tr>
             @endforeach
-			
 		</tbody>
-	</table>
+    </table>
+    </form>
     <div style="margin-bottom:10px;position: fixed;bottom:1%;right:1%;width:20%">
         <table class="table borderless" style="margin-bottom:0px;">
             <tbody>
@@ -100,7 +154,7 @@
             
             </td>
             <td style="vertical-align:middle;text-align:right;">
-            <button class="btn btn-primary btn-lg" onclick="checkCkeckboxGroup()" id="PrintButtonQR"><span class="fa fa-print"></span></button>
+            <button class="btn btn-primary btn-lg" form="print_qr_form" id="PrintButtonQR"><span class="fa fa-print"></span></button>
             </td>
             </tr>
             </tbody>

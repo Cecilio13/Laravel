@@ -1069,6 +1069,27 @@ class GetController extends Controller
         
         return response()->json(array('success' => true, 'html'=>$returnHTML));
     }
+    public function print_qr(Request $request){
+        $includes=$request->include;
+        $data=HR_hr_Asset::all();
+        $included =[]; 
+        foreach($data as $row){
+            foreach($includes as $id){
+                if($row->id==$id){
+                    array_push($included, $row);
+                }
+            }
+            
+        }
+        
+        //return $included;
+        $asset_setup_lists=HR_hr_Asset_setup::where([
+            ['asset_setup_tag','=','Asset Tag'],
+            ['asset_setup_status','=','1']
+        ])->get();
+        return view('inc.print_qr', compact('included','asset_setup_lists'));
+        
+    }
     public function EditAssetSetupModalBodyasds(Request $request){
         $setup_id=$request->AssetTagID;
         $selected=HR_hr_Asset_setup::where([

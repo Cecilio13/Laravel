@@ -169,6 +169,7 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/EditAssetSetupModalBodyasds', 'GetController@EditAssetSetupModalBodyasds');
     Route::post('/get_asset_info_checkout', 'GetController@get_asset_info_checkout');
     Route::post('/get_asset_info_checkin', 'GetController@get_asset_info_checkin');
+    Route::post('/print_qr', 'GetController@print_qr');
     
     Route::post('/UploadMassAssetSetup', 'UploadController@UploadMassAssetSetup');
     Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
