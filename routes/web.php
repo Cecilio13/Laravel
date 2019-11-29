@@ -212,7 +212,10 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/RecoverSecondApprove', 'AssetPostController@RecoverSecondApprove');
     Route::post('/RecoverDeny', 'AssetPostController@RecoverDeny');
     
-    
+    Route::post('/CountExistingAudit','AuditController@CountExistingAudit');
+    Route::post('/FetchExistingAudit','AuditController@FetchExistingAudit');
+    Route::post('/get_assets_audit','AuditController@get_assets_audit');
+    Route::get('/GETAUDITEXCEL','AuditController@GETAUDITEXCEL');
     
 });
 

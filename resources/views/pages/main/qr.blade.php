@@ -63,9 +63,9 @@
                         <option value="0">Select None</option>
                     </select>
                 </th>
-                <th style="vertical-align:middle;">QR Code</th>
-                <th style="vertical-align:middle;">Asset Description</th>
-                <th style="vertical-align:middle;" style="display:none;"></th>
+                <th style="vertical-align:middle;text-align:center;">QR Code</th>
+                <th style="vertical-align:middle;text-align:center;">Asset Description</th>
+                <th style="vertical-align:middle;display:none;" ></th>
             </tr>
 		</thead>
 		<tbody>

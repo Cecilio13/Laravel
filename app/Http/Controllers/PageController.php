@@ -1589,7 +1589,7 @@ class PageController extends Controller
     }
     public function audit(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
+        return view('pages.main.audit_first_page', compact('None'));
     
     }
     public function audit_detail(Request $request){

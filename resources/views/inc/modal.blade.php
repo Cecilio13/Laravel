@@ -11,6 +11,9 @@
 		$.ajax({
             url:"fetch_notif",
             method:"POST",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             data:{id:'<?php echo $user_position->id; ?>',_token: '{{csrf_token()}}'},
             dataType:"json",
             success:function(data){
@@ -30,6 +33,9 @@
     function clearnotif(){
 		$.ajax({
 			type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
 			url: ' clearnotif',                
 			data: {id:'<?php echo $user_position->id; ?>',_token: '{{csrf_token()}}'},
 		success: function(data) {
@@ -614,6 +620,9 @@ function enable_input_form(form){
             
             $.ajax({
             type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             url: 'get_adjustment_template_data',                
             data: {id:e,_token: '{{csrf_token()}}'},
             success: function(data) {
@@ -860,6 +869,9 @@ function enable_input_form(form){
             $.ajax({
                 url: 'UploadMassEmployee',
                 type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 processData: false,
                 contentType: false,
                 data: fd,
@@ -1171,6 +1183,9 @@ var update = function() {
         if(TemplateName!=""){
             $.ajax({
             type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             url: 'check_form_template_name',                
             data: {TemplateName:TemplateName,_token: '{{csrf_token()}}'},
             success: function(data) {
@@ -1843,6 +1858,9 @@ $(document).ready(function(){
                     $.ajax({
                         url: 'extra/attendance/XLS/index.php',
                         type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
                         processData: false,
                         contentType: false,
                         data: fd,
@@ -2437,6 +2455,9 @@ $(document).ready(function(){
                             $.ajax({
                                 url: 'UploadMassAssetSetup',
                                 type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
                                 processData: false,
                                 contentType: false,
                                 data: fd,

@@ -1,4 +1,21 @@
 <script>
+function printhtmltocanvas(element){
+	html2canvas(document.querySelector("#"+element)).then(function(canvas) {
+    var canvasImg = canvas.toDataURL("image/jpg");
+    //$('#test').html('<img src="'+canvasImg+'" alt="">');
+    var myImage = canvas.toDataURL("image/png");
+    var tmp = document.body.innerHTML;
+    document.body.innerHTML = '<img style="display: block;margin-top:10%;margin-left: auto;margin-right: auto;" src="'+myImage+'" alt="" >';
+    setTimeout(function()
+    {
+        var printWindow = window.print();
+        document.body.innerHTML = tmp;
+        window.close();
+    }, 2000);
+
+
+    });
+}
 function alphaOnly(evt) {
  var charCode = (evt.which) ? evt.which : event.keyCode
  console.log(charCode);
@@ -672,16 +689,7 @@ function DenyRequest(request,asset_tag,ticket_no){
 				
 			}  
 			})
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: 'RecoverDeny.php',                
-			// 	data: {tag:asset_tag,reason:txt},
-			// success: function(data) {
-			// 	$('.modal-backdrop').remove();
-			// 	$( "#RecoveryModal" ).replaceWith( data );
-			// 	demo('#RecoveryModal');
-			// } 											 
-			// })
+			
 			
 		}
 		if(request=="Extend Due Date"){

@@ -224,7 +224,11 @@ class AppServiceProvider extends ServiceProvider
             ['asset_approval','=','1'],
             ['asset_transaction_status','=','2']
         ])->get());
-
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_tag','=','Site And Location'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_location')->get();
+        view()->share('location_list_active',$data);
         view()->share('asset_list_for_move',HR_hr_Asset::where([
             ['asset_approval','=','1'],
             ['asset_transaction_status','!=','3'],
