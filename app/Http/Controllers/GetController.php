@@ -79,6 +79,21 @@ class GetController extends Controller
         }
         return $rr;
     }
+    public function get_asset_setup_siteaudit(Request $request){
+        $value=$request->value;
+        $Site=$request->Site;
+        $data=HR_hr_Asset_setup::where([
+            ['asset_setup_location','=',$value],
+            
+            ['asset_setup_tag','=','Site And Location'],
+            ['asset_setup_status','=','1']
+        ])->groupBy('asset_setup_site')->get();
+        $rr="";
+        foreach($data as $ss){
+            $rr.='<option>'.$ss->asset_setup_site.'</option>';
+        }
+        return $rr;
+    }
     public function GetSiteNewAsset(Request $request){
         $value=$request->value2;
         $Site=$request->value;

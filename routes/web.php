@@ -145,6 +145,8 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/get_asset_setup_location', 'GetController@get_asset_setup_location');
     Route::post('/check_site', 'GetController@check_site');
     Route::post('/get_asset_setup_site', 'GetController@get_asset_setup_site');
+    Route::post('/get_asset_setup_siteaudit', 'GetController@get_asset_setup_siteaudit');
+    
     Route::post('/getComapny_defined_Tagging', 'GetController@getComapny_defined_Tagging');
     Route::post('/getComapny_defined_Tagging_site_and_location', 'GetController@getComapny_defined_Tagging_site_and_location');
     Route::post('/getCategoryNewAsset', 'GetController@getCategoryNewAsset');

@@ -92,8 +92,8 @@
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
-                            url: 'get_asset_setup_site',                
-                            data:{value:Location,Site:Site,_token: '{{csrf_token()}}'},
+                            url: 'get_asset_setup_siteaudit',                
+                            data:{value:Location,Site:"",_token: '{{csrf_token()}}'},
                             success: function(data) {
                                 var element="<select class='form-control' id='SiteAudit' name='SiteAudit' required ><option value=''>--Select Site--</option>";
                                     element=element+data;

@@ -98,4 +98,40 @@
         <a class="btn btn-primary" href="#" onclick="printhtmltocanvas('AuditTable')">Print</a>
         <a class="btn btn-primary" href="GETAUDITEXCEL?name={{$AuditName}}&location={{$LocationAudit}}&site={{$SiteAudit}}">Download Excel</a>
     </div>
+    <div class="col-md-12 mt-4">
+        <table class="table borderless table-sm" style="background-color:white;color:#083240;" id="" tabindex="-1">
+			<thead style="background-color:#124f62; color:white;">
+                <tr style="background-color:#083240">
+                    <th colspan="12" style="text-align:center;">ASSET UNASSIGNED TO THIS SITE/LOCATION</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th>Asset Tag</th>
+                    <th>Asset</th>
+                    <th style="display:none;">Asset Type</th>
+                    <th>Brand</th>
+                    <th>Model</th>
+                    <th>Serial Number</th>
+                    <th>Department</th>
+                    <th>Site</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Employee</th>
+                </tr>
+			</thead>
+			<tbody id="ANOTHERLOC">
+                
+            </tbody>
+		</table>
+    </div>
+    <div class="col-md-12" style="text-align:right;">
+        <button class="btn btn-light btn-sm" onclick="CancelAudit()" id="ClearAuditBTN">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="ProcessAudit()" id="ProcessBTN">Save Audit</button>
+        <button class="btn btn-primary btn-sm" id="Save_ProcessBtn" onclick="Save_Process_Audit()">Process Audit</button>
+        <script>
+            function CancelAudit(){
+               location.reload();
+            }
+        </script>
+    </div>
 </div>
