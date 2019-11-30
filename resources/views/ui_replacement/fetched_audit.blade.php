@@ -126,12 +126,123 @@
     </div>
     <div class="col-md-12" style="text-align:right;">
         <button class="btn btn-light btn-sm" onclick="CancelAudit()" id="ClearAuditBTN">Cancel</button>
-        <button class="btn btn-primary btn-sm" onclick="ProcessAudit()" id="ProcessBTN">Save Audit</button>
-        <button class="btn btn-primary btn-sm" id="Save_ProcessBtn" onclick="Save_Process_Audit()">Process Audit</button>
+        <button class="btn btn-primary btn-sm" onclick="ProcessAudit('0')" id="ProcessBTN">Save Audit</button>
+        <button class="btn btn-primary btn-sm" id="Save_ProcessBtn" onclick="ProcessAudit('1')">Process Audit</button>
         <script>
             function CancelAudit(){
                location.reload();
             }
+            function ProcessAudit(action_proceed){
+				
+				var AuditWindowName=document.getElementById('AuditName').value;
+				var AuditDate=document.getElementById('AuditDate').value;
+				var AuditNote=document.getElementById('AuditNote').value;
+				var Location=document.getElementById('LocationAudit').value;
+				var SiteAudit=document.getElementById('SiteAudit').value;
+				if(AuditWindowName=="" || AuditDate=="" || Location=="" || SiteAudit==""){
+					alert('Please Fill All Field Higlighted....');
+					document.getElementById('AuditDate').style.borderColor = "#e23d3d";
+					document.getElementById('AuditName').style.borderColor = "#e23d3d";
+					document.getElementById('LocationAudit').style.borderColor = "#e23d3d";
+					document.getElementById('SiteAudit').style.borderColor = "#e23d3d";
+				}else{
+					var input, filter, table, tr, td, i, td2;
+					  var count=0;
+						var difflocation = new Array();
+					  table = document.getElementById("ANOTHERLOC");
+					  tr = table.getElementsByTagName("tr");
+					  
+					  // Loop through all table rows, and hide those who don't match the search query
+					  for (i = 0; i < tr.length; i++) {
+						
+						td1 = tr[i].getElementsByTagName("td")[1];
+						
+						difflocation.push(td1.innerHTML); 
+						
+						
+						
+					  }
+					
+					var checked = new Array();
+					$("input:checkbox[name=Processed]:checked").each(function() {
+						   checked.push($(this).val());
+					  });
+					if (checked && checked.length) {   
+					   // not empty 
+					} else {
+					   checked.push("");
+					}
+					var unchecked = new Array();
+					$("input:checkbox[name=Processed]:not(:checked)").each(function() {
+						   unchecked.push($(this).val());
+					  });
+					if (unchecked && unchecked.length) {   
+					   // not empty 
+					} else {
+					   unchecked.push("");
+					}
+					console.log(checked);
+					console.log(unchecked);
+					$.ajax({
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: 'SaveFirstAudit',                
+                    data:{SiteAudit:SiteAudit,difflocation:difflocation,checked:checked,unchecked:unchecked,AuditWindowName:AuditWindowName,AuditDate:AuditDate,AuditNote:AuditNote,Location:Location,_token: '{{csrf_token()}}'},
+                    success: function(data) {
+                        if(action_proceed=='1'){
+                            post('audit_detail', {name: 'PhaseTwoAuditSubmit'},'POST',AuditWindowName);
+                        }else{
+                            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                            var today  = new Date();
+                            alert('Audit Saved.\nLocation and Site : '+Location+' - '+SiteAudit+'\nDate :'+today.toLocaleDateString("en-US"));
+                        }
+                        
+                    }  
+                    }) 
+					
+                    
+				}
+			}
+            function post(path, params, method,AuditName) {
+				method = method || "post"; // Set method to post by default if not specified.
+
+				// The rest of this code assumes you are not using a library.
+				// It can be made less wordy if you use one.
+				var form = document.createElement("form");
+				form.setAttribute("method", method);
+				form.setAttribute("action", path);
+
+				for(var key in params) {
+					if(params.hasOwnProperty(key)) {
+						var hiddenField = document.createElement("input");
+						hiddenField.setAttribute("type", "hidden");
+						hiddenField.setAttribute("id", "hiddenPostSubmit");
+						hiddenField.setAttribute("name", params[key]);
+						hiddenField.setAttribute("value", AuditName);
+
+						form.appendChild(hiddenField);
+						
+						var hiddenField = document.createElement("input");
+						hiddenField.setAttribute("type", "hidden");
+						
+						hiddenField.setAttribute("name", 'AuditWindowName');
+						hiddenField.setAttribute("value", AuditName);
+
+						form.appendChild(hiddenField);
+					}
+				}
+                    var hiddenField = document.createElement("input");
+                    hiddenField.setAttribute("type", "hidden");
+                    
+                    hiddenField.setAttribute("name", '_token');
+                    hiddenField.setAttribute("value", '{{csrf_token()}}');
+
+                    form.appendChild(hiddenField);
+				document.body.appendChild(form);
+				form.submit();
+			}
         </script>
     </div>
 </div>

@@ -45,10 +45,26 @@
                         url: 'FetchExistingAudit',                
                         data: {AuditName:AuditName,_token: '{{csrf_token()}}'},
                         success: function(data) {
-                            $( "#Audit-Equipment-Section" ).replaceWith( data.html );
+                            if(data.result=="1"){
+                                alert('Audit Named '+AuditName+' not Found!!');
+                            }else{
+                                $( "#Audit-Equipment-Section" ).replaceWith( data.html );
+                            }
+                            
                            
                         } 											 
                     })
+                }else{
+                    document.getElementById('AuditDate').disabled=false;
+                    document.getElementById('AuditDate').value="{{date('Y-m-d')}}";
+                    document.getElementById('LocationAudit').disabled=false;
+                    if(document.getElementById('SiteAudit').value!=""){
+                        document.getElementById('SiteAudit').disabled=false;
+                    }
+                    document.getElementById('AuditNote').value="";
+                    document.getElementById('AuditNote').disabled=false;
+                    document.getElementById('FetchBtn').disabled=false;
+                    clear_div_below()
                 }
             } 											 
             })
@@ -69,7 +85,15 @@
                 </tr>
                 <tr>
                     <td style="vertical-align: middle;text-align:right;color:#083240;">Audit Window Name</td>
-                    <td style="vertical-align: middle;"><input type="text"  onkeyup="FetchExistingAudit()" placeholder=" e.g. Audit-Department_Name..." class="form-control" id="AuditName" name="AuditName"></td>
+                    <td style="vertical-align: middle;">
+                        <div class="input-group">
+                         
+                        <input type="text" {{-- onkeyup="FetchExistingAudit()" --}} placeholder=" e.g. Audit-Department_Name..." class="form-control" id="AuditName" name="AuditName">
+                        <div class="input-group-prepend">
+                          <button class="btn btn-outline-secondary" type="button" onclick="FetchExistingAudit()" title="Fetch/Reset Data"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></button>
+                        </div>
+                        </div>
+                    </td>
                     <td style="vertical-align: middle;text-align:right;color:#083240;">Start Date</td>
                     <td style="vertical-align: middle;"><input type="date" id="AuditDate" name="AuditDate"  class="form-control" value="{{date('Y-m-d')}}"></td>
                     <td></td>
@@ -77,14 +101,17 @@
                 <tr>
                     <td style="vertical-align: middle;text-align:right;color:#083240;">Location</td>
                     <td style="vertical-align: middle;">
-                    <select class="form-control" id="LocationAudit" name="LocationAudit" required onchange="FetchSites()">
+                    <select class="form-control" id="LocationAudit" name="LocationAudit" required onchange="clear_div_below(),FetchSites('')">
                         <option value="">--Select Location--</option>
                         @foreach ($location_list_active as $loc)
                             <option >{{$loc->asset_setup_location}}</option>
                         @endforeach                                     
                     </select>
                     <script>
-                        function FetchSites(){
+                        function clear_div_below(){
+                            $( "#Audit-Equipment-Section" ).replaceWith('<div class="row" id="Audit-Equipment-Section"><div class="col-md-12"></div></div>');
+                        }
+                        function FetchSites(selected){
                             var Site=document.getElementById('SiteAudit').value;
                             var Location=document.getElementById('LocationAudit').value;
                             $.ajax({
@@ -95,11 +122,14 @@
                             url: 'get_asset_setup_siteaudit',                
                             data:{value:Location,Site:"",_token: '{{csrf_token()}}'},
                             success: function(data) {
-                                var element="<select class='form-control' id='SiteAudit' name='SiteAudit' required ><option value=''>--Select Site--</option>";
+                                var element="<select class='form-control' id='SiteAudit' name='SiteAudit' required onchange='clear_div_below()'><option value=''>--Select Site--</option>";
                                     element=element+data;
                                     element=element+"</select>";
                                 $( "#SiteAudit" ).replaceWith( element );
-                                
+                                document.getElementById('SiteAudit').value=selected;
+                                if(selected!=''){
+                                    document.getElementById('SiteAudit').disabled=true;
+                                }
                             }  
                             }) 
                             

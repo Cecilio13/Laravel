@@ -49,7 +49,7 @@ Route::group(['middleware'=>['auth']], function() {
     Route::get('/asset', 'PageController@asset')->middleware(AssetMiddleWare::class);
     Route::get('/transaction', 'PageController@transaction')->middleware(AssetMiddleWare::class);
     Route::get('/audit', 'PageController@audit')->middleware(AssetMiddleWare::class);
-    Route::get('/audit_detail', 'PageController@audit_detail')->middleware(AssetMiddleWare::class);
+    Route::post('/audit_detail', 'PageController@audit_detail')->middleware(AssetMiddleWare::class);
     Route::get('/report', 'PageController@report')->middleware(AssetMiddleWare::class);
     Route::get('/print_qr', 'PageController@print_qr')->middleware(AssetMiddleWare::class);
     Route::get('/department', 'PageController@department');
@@ -218,6 +218,7 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/FetchExistingAudit','AuditController@FetchExistingAudit');
     Route::post('/get_assets_audit','AuditController@get_assets_audit');
     Route::get('/GETAUDITEXCEL','AuditController@GETAUDITEXCEL');
+    Route::post('/SaveFirstAudit','AuditController@SaveFirstAudit');
     
 });
 

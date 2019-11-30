@@ -75,7 +75,7 @@ class Controller extends BaseController
         }
         $notif_text="Ticket No. ".$log_id;
         foreach($users as $user){
-            if($position_required==$user->position){
+            if($position_required==$user->position && $position_required!=""){
                 $notif= new HR_hr_notification;
                 $notif->notif_subject="Pending Request";
                 $notif->notif_text=$notif_text;

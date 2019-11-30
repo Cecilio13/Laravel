@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Auth;
+use DateTime;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use App\UserCostCenterAccess;
@@ -80,12 +81,33 @@ class AuditController extends Controller
     }
     public function FetchExistingAudit(Request $request){
         $AuditName=$request->AuditName;
+        
+        $result="";
         $audit_list=HR_hr_audit::where([
             ['audit_window_name','=',$AuditName]
-        ])->get();
-        $returnHTML = view('ui_replacement.existing_audit', compact('audit_list'))->render();
+        ])->first();
+        $LocationAudit=!empty($audit_list)? $audit_list->audit_location : '';
+        $AuditNote=!empty($audit_list)? $audit_list->audit_note : '';
+        $SiteAudit=!empty($audit_list)? $audit_list->audit_site : '';
+        $AuditDate=!empty($audit_list)? $audit_list->audit_date : '';
+        if(empty($audit_list)){
+            $result="1";
+        }
         
-        return response()->json(array('success' => true, 'html'=>$returnHTML));
+        $asset_by_location_and_site=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+        JOIN hr_audit ON hr_audit.audit_asset_tag=hr_assets.id
+        LEFT JOIN hr_company_department ON hr_company_department.department_id=hr_assets.asset_department_code
+        WHERE audit_window_name='$AuditName'");
+
+        $selected_asset_checkouts_list=DB::connection('mysql')->select("SELECT *,hr_asset_request.id as REQUEST_ID ,hr_asset_request.asset_tag as Request_Asset_tag,hr_assets.id as ASSET_ID FROM hr_asset_request
+        JOIN hr_assets ON hr_assets.id=hr_asset_request.asset_tag
+        JOIN hr_audit ON hr_audit.audit_asset_tag=hr_assets.id
+        LEFT JOIN hr_employee_info ON hr_employee_info.employee_id=hr_asset_request.emp_id
+        WHERE audit_window_name='$AuditName'  and (request_status='2' OR request_status='1.1' OR request_status='1.2') AND request_active='ACTIVE'");
+
+        $returnHTML = view('ui_replacement.existing_audit', compact('audit_list','asset_by_location_and_site','selected_asset_checkouts_list','AuditName','LocationAudit','SiteAudit','AuditDate','AuditNote'))->render();
+        
+        return response()->json(array('success' => true, 'html'=>$returnHTML,'result'=>$result));
     }
     public function get_assets_audit(Request $request){
         $AuditName=$request->AuditName;
@@ -195,5 +217,179 @@ class AuditController extends Controller
             
 
         // })->setFilename('Audit Asset List '.date('m-d-Y'))->download('xlsx');
+    }
+    public function SaveFirstAudit(Request $request){
+        $difflocation=$request->difflocation;
+        $unchecked=$request->unchecked;
+        $checked=$request->checked;
+        $AuditWindowName=$request->AuditWindowName;
+        $AuditDate=$request->AuditDate;
+        $AuditNote=$request->AuditNote;
+        $Location=$request->Location;
+        $Site=$request->SiteAudit;
+        if(!empty($difflocation)){
+            foreach($difflocation as $check){
+                $datenow=date('Y-m-d');
+                $t=time();
+                $transaction="";
+                $Reuquestor="";
+                $Loc=HR_hr_Asset::find($check);
+                if(!empty($Loc)){
+                    if($Loc->asset_transaction_status=="2" || $Loc->asset_transaction_status=="1.1" || $Loc->asset_transaction_status=="1.2"){
+                        $transaction="Check Out";
+                        $asset_oncheckout=DB::connection('mysql')->select("SELECT *,hr_asset_request.id as REQUEST_ID FROM hr_asset_request
+                        LEFT JOIN hr_employee_info ON hr_employee_info.employee_id=hr_asset_request.emp_id
+                        WHERE (request_status='2' OR request_status='1.1' OR request_status='1.2') AND request_active='ACTIVE'");
+                        foreach($asset_oncheckout as $ss){
+                            $Reuquestor=$ss->fname." ".$ss->lname;
+                            break;
+                        }
+                        
+                    }
+                    
+                    if($Loc->asset_transaction_status=="4"){
+                        $transaction="Maintenace";
+                        $asset_on_maintenance=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets 
+                        LEFT JOIN users ON users.id=hr_assets.maintenance_requestor WHERE hr_assets.id='$check'");
+                        foreach($asset_on_maintenance as $ss){
+                            $Reuquestor=$ss->name;
+                        }
+                        
+                    }
+                    $Audit=HR_hr_audit::where([
+                        ['audit_window_name','=',$AuditWindowName],
+                        ['audit_asset_tag','=',$check]
+                    ])->first();
+                    if(empty($Audit)){
+                        $Audit=new HR_hr_audit;
+                    }
+                    $Audit->audit_window_name=$AuditWindowName;
+                    $Audit->audit_asset_tag=$check;
+                    $Audit->audit_date=$AuditDate;
+                    $Audit->audit_location=$Location;
+                    $Audit->audit_note=$AuditNote;
+                    $Audit->audit_status='1';
+                    $Audit->audit_check='2';
+                    $Audit->audit_site=$Site;
+                    $Audit->auditor=Auth::user()->id;
+                    $Audit->transaction=$transaction;
+                    $Audit->requestor=$Reuquestor;
+                    if($Audit->save()){
+                        $date = new DateTime();
+                        $result = $date->format('Y-m-d H:i:s');
+                        $this->generate_transaction_log($AuditWindowName.$check.$result,$check,'','Audited',$AuditWindowName,'');
+                    }
+                }
+                
+            }
+        }
+        if(!empty($checked)){
+            foreach($checked as $check){
+                $datenow=date('Y-m-d');
+                $t=time();
+                $transaction="";
+                $Reuquestor="";
+                $Loc=HR_hr_Asset::find($check);
+                if(!empty($Loc)){
+                    if($Loc->asset_transaction_status=="2" || $Loc->asset_transaction_status=="1.1" || $Loc->asset_transaction_status=="1.2"){
+                        $transaction="Check Out";
+                        $asset_oncheckout=DB::connection('mysql')->select("SELECT *,hr_asset_request.id as REQUEST_ID FROM hr_asset_request
+                        LEFT JOIN hr_employee_info ON hr_employee_info.employee_id=hr_asset_request.emp_id
+                        WHERE (request_status='2' OR request_status='1.1' OR request_status='1.2') AND request_active='ACTIVE'");
+                        foreach($asset_oncheckout as $ss){
+                            $Reuquestor=$ss->fname." ".$ss->lname;
+                            break;
+                        }
+                        
+                    }
+                    
+                    if($Loc->asset_transaction_status=="4"){
+                        $transaction="Maintenace";
+                        $asset_on_maintenance=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets 
+                        LEFT JOIN users ON users.id=hr_assets.maintenance_requestor WHERE hr_assets.id='$check'");
+                        foreach($asset_on_maintenance as $ss){
+                            $Reuquestor=$ss->name;
+                        }
+                        
+                    }
+                    $Audit=HR_hr_audit::where([
+                        ['audit_window_name','=',$AuditWindowName],
+                        ['audit_asset_tag','=',$check]
+                    ])->first();
+                    if(empty($Audit)){
+                        $Audit=new HR_hr_audit;
+                    }
+                    $Audit->audit_window_name=$AuditWindowName;
+                    $Audit->audit_asset_tag=$check;
+                    $Audit->audit_date=$AuditDate;
+                    $Audit->audit_location=$Location;
+                    $Audit->audit_note=$AuditNote;
+                    $Audit->audit_status='1';
+                    $Audit->audit_check='1';
+                    $Audit->audit_site=$Site;
+                    $Audit->auditor=Auth::user()->id;
+                    $Audit->transaction=$transaction;
+                    $Audit->requestor=$Reuquestor;
+                    if($Audit->save()){
+                        $date = new DateTime();
+                        $result = $date->format('Y-m-d H:i:s');
+                        $this->generate_transaction_log($AuditWindowName.$check.$result,$check,'','Audited',$AuditWindowName,'');
+                    }
+                }
+                
+            }
+        }
+        if(!empty($unchecked)){
+            foreach($unchecked as $check){
+                $datenow=date('Y-m-d');
+                $t=time();
+                $transaction="";
+                $Reuquestor="";
+                $Loc=HR_hr_Asset::find($check);
+                if(!empty($Loc)){
+                    if($Loc->asset_transaction_status=="2" || $Loc->asset_transaction_status=="1.1" || $Loc->asset_transaction_status=="1.2"){
+                        $transaction="Check Out";
+                        $asset_oncheckout=DB::connection('mysql')->select("SELECT *,hr_asset_request.id as REQUEST_ID FROM hr_asset_request
+                        LEFT JOIN hr_employee_info ON hr_employee_info.employee_id=hr_asset_request.emp_id
+                        WHERE (request_status='2' OR request_status='1.1' OR request_status='1.2') AND request_active='ACTIVE'");
+                        foreach($asset_oncheckout as $ss){
+                            $Reuquestor=$ss->fname." ".$ss->lname;
+                            break;
+                        }
+                        
+                    }
+                    
+                    if($Loc->asset_transaction_status=="4"){
+                        $transaction="Maintenace";
+                        $asset_on_maintenance=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets 
+                        LEFT JOIN users ON users.id=hr_assets.maintenance_requestor WHERE hr_assets.id='$check'");
+                        foreach($asset_on_maintenance as $ss){
+                            $Reuquestor=$ss->name;
+                        }
+                        
+                    }
+                    $Audit=HR_hr_audit::where([
+                        ['audit_window_name','=',$AuditWindowName],
+                        ['audit_asset_tag','=',$check]
+                    ])->first();
+                    if(empty($Audit)){
+                        $Audit=new HR_hr_audit;
+                    }
+                    $Audit->audit_window_name=$AuditWindowName;
+                    $Audit->audit_asset_tag=$check;
+                    $Audit->audit_date=$AuditDate;
+                    $Audit->audit_location=$Location;
+                    $Audit->audit_note=$AuditNote;
+                    $Audit->audit_status='0';
+                    $Audit->audit_check='0';
+                    $Audit->audit_site=$Site;
+                    $Audit->auditor=Auth::user()->id;
+                    $Audit->transaction=$transaction;
+                    $Audit->requestor=$Reuquestor;
+                    $Audit->save();
+                }
+                
+            } 
+        }
     }
 }
