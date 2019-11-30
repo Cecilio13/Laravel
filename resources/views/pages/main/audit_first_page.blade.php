@@ -50,8 +50,6 @@
                             }else{
                                 $( "#Audit-Equipment-Section" ).replaceWith( data.html );
                             }
-                            
-                           
                         } 											 
                     })
                 }else{
