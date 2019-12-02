@@ -961,6 +961,7 @@ function GetExistingLocationGeneral(){
     
     GetExistingSitesGeneral();
 }
+
 function GetExistingSitesGeneral(){
     var Site=document.getElementById('MoveAssetToSite').value;
     var Location=document.getElementById('MoveAssetToLocation').value;
@@ -969,7 +970,7 @@ function GetExistingSitesGeneral(){
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     },
-    url: 'get_asset_setup_site',                
+    url: 'get_asset_setup_site',
     data:{value:Location,Site:Site,_token: '{{csrf_token()}}'},
     success: function(data) {
         var element="<datalist id='siteSearchReultDivGeneral'>";

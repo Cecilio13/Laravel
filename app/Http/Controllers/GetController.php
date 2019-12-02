@@ -591,7 +591,7 @@ class GetController extends Controller
                 $content.=$statusss;
                 $content.='</td>';
                 $content.='<td>';
-                $content.=$da->transaction;
+                $content.=(!empty($audit_data)? $audit_data->transaction : '');
                 $content.='</td>';
                 $content.='<td>';
                 $content.=(!empty($audit_data)? $audit_data->requestor : '');

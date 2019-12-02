@@ -1594,7 +1594,30 @@ class PageController extends Controller
     }
     public function audit_detail(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
+        $AuditWindowName=$request->AuditWindowName;
+        //SELECT * FROM audit JOIN assets ON assets.id=audit.audit_asset_tag WHERE audit_window_name='$AuditWindowName' AND audit_check='1'
+
+        $audit_asset_found=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+        JOIN hr_audit ON hr_audit.audit_asset_tag=hr_assets.id
+        LEFT JOIN hr_company_department ON hr_company_department.department_id=hr_assets.asset_department_code
+        WHERE audit_window_name='$AuditWindowName' AND audit_check='1' ");
+
+        $audit_asset_not_found=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+        JOIN hr_audit ON hr_audit.audit_asset_tag=hr_assets.id
+        LEFT JOIN hr_company_department ON hr_company_department.department_id=hr_assets.asset_department_code
+        WHERE audit_window_name='$AuditWindowName' AND audit_check='0' ORDER BY  audit_status ASC");
+
+        $audit_asset_from_other_location=DB::connection('mysql')->select("SELECT *,hr_assets.id as ASSET_ID FROM hr_assets
+        JOIN hr_audit ON hr_audit.audit_asset_tag=hr_assets.id
+        LEFT JOIN hr_company_department ON hr_company_department.department_id=hr_assets.asset_department_code
+        WHERE audit_window_name='$AuditWindowName' AND audit_check='2' ORDER BY  audit_status ASC");
+
+        $asset_setup_lists=HR_hr_Asset_setup::where([
+            ['asset_setup_tag','=','Asset Tag'],
+            ['asset_setup_status','=','1']
+        ])->get();
+
+        return view('pages.main.phase_two_audit', compact('None','AuditWindowName','audit_asset_found','audit_asset_not_found','audit_asset_from_other_location','asset_setup_lists'));
     
     }
     

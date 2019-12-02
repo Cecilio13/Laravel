@@ -219,6 +219,12 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/get_assets_audit','AuditController@get_assets_audit');
     Route::get('/GETAUDITEXCEL','AuditController@GETAUDITEXCEL');
     Route::post('/SaveFirstAudit','AuditController@SaveFirstAudit');
+    Route::post('/GetNotFoundReconcileModal','AuditController@GetNotFoundReconcileModal');
+    Route::post('/SaveAssetMoveAudit','AuditController@SaveAssetMoveAudit');
+    Route::post('/SaveAssetDisposalAudit','AuditController@SaveAssetDisposalAudit');
+    Route::post('/SaveAssetMaintenanceAudit','AuditController@SaveAssetMaintenanceAudit');
+    Route::post('/SaveAssetOtherAudit','AuditController@SaveAssetOtherAudit');
+    Route::post('/FinishAudit','AuditController@FinishAudit');
     
 });
 

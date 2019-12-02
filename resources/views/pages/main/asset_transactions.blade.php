@@ -335,7 +335,7 @@
                                     <option value="{{$emp->employee_id}}">{{$emp->fname." ".$emp->lname}}</option>
                                 @endforeach
                             </select>
-                        </td>	
+                        </td>
                         <td style="vertical-align: middle;">
                            <select class="form-control" id="Due" onchange="ShowDue(this)">
                                <option>Default</option>

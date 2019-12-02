@@ -47,6 +47,8 @@
                         success: function(data) {
                             if(data.result=="1"){
                                 alert('Audit Named '+AuditName+' not Found!!');
+                            }else if(data.result=="2"){
+                                alert('Audit Already Finished');
                             }else{
                                 $( "#Audit-Equipment-Section" ).replaceWith( data.html );
                             }
