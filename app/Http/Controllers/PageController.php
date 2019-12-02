@@ -1623,7 +1623,7 @@ class PageController extends Controller
     
     public function report(Request $request){
         $None="";
-        return view('pages.test', compact('None'));
+        return view('pages.main.reports', compact('None'));
     
     }
     public function print_qr(Request $request){
