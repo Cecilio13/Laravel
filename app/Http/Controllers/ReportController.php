@@ -271,4 +271,20 @@ class ReportController extends Controller
         $table.='</table>';
         return view('report', compact('column_list','Kind','value','value2','table'));
     }
+    public function GetReportAsExcel(Request $request){
+        
+        $streamedResponse = new StreamedResponse();
+        $streamedResponse->setCallback(function () use($request) {
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
+            $spreadsheet = $reader->loadFromString($request->table);
+    
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save('php://output'); 
+            //$writer->save('php://output');
+        });
+        $streamedResponse->setStatusCode(Response::HTTP_OK);
+        $streamedResponse->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $streamedResponse->headers->set('Content-Disposition', 'attachment; filename="Report.xlsx"');
+        return $streamedResponse->send();
+    }
 }

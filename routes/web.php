@@ -230,6 +230,7 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/ReportAsset_type','ReportController@ReportAsset_type');
     Route::post('/ReplaceAuditParam','ReportController@ReplaceAuditParam');
     Route::get('/Report','ReportController@Report');
+    Route::post('/GetReportAsExcel','ReportController@GetReportAsExcel');
     
     
 });
