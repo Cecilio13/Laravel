@@ -961,7 +961,25 @@ function GetExistingLocationGeneral(){
     
     GetExistingSitesGeneral();
 }
-
+function ChangeSiteValues(){
+	var Site='';
+    var Location=document.getElementById('Parameter').value;
+    $.ajax({
+    type: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    url: 'get_asset_setup_site',
+    data:{value:Location,Site:Site,_token: '{{csrf_token()}}'},
+    success: function(data) {
+        var element="<select class='form-control' id='Parameter2'><option></option>";
+            element=element+data;
+            element=element+"</select>";
+        $( "#Parameter2" ).replaceWith( element );
+        
+    }  
+    }) 
+}
 function GetExistingSitesGeneral(){
     var Site=document.getElementById('MoveAssetToSite').value;
     var Location=document.getElementById('MoveAssetToLocation').value;

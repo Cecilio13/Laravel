@@ -8,98 +8,156 @@
             <h2 style="font-weight:bold;color:#083240;margin-bottom:0px;margin-left:10px;">REPORTS</h2>
         </div>
     </div>
+    <script>
+    function ShowReportDescription(e){
+		
+		document.getElementById('RunBtn').style.display="inline";
+		document.getElementById('hiddenCt').value=e;
+		// $.ajax({
+		// 	type: 'POST',
+		// 	url: 'ReportAsset_type.php',
+		// 	data: {Type:e},
+		// success: function(data) {
+		// 	$( "#parameterTR" ).replaceWith( data );
+		// 	//printDiv('tableitems');
+		// } 											 
+		// })
+		$.ajax({
+        type: 'POST',
+        url: ' ReportAsset_type',                
+        data: {Type:e,_token:'{{csrf_token()}}'},
+        success: function(data) {
+            $( "#parameterTR" ).replaceWith( data.html );
+            
+        } 											 
+        })
+		document.getElementById('AuditYearTR').style.display="none";
+		document.getElementById('ColumnParameter').style.display="table-row";
+		if(e=="LS1"){
+			document.getElementById('ReportDescriptionBody').innerHTML="This Report displays Lapsing Schedule of Assets. The report will display all assets or use the option in the Report Parameter Section to limit the report to a specific asset or assets.";
+			document.getElementById('ReportHeader').innerHTML="Lapsing Schedule Report";
+            var data='<tr id="ColumnParameter" ><td width="20%" style="text-align:right;vertical-align:middle;">Columns</td><td colspan="4"><label for="sel2">Mutiple select list (hold shift to select more than one):</label><select multiple class="form-control" id="sel2"><option selected>Asset Tag</option><option selected>Asset</option><option selected>Serial Number</option><option selected>Plate Number</option><option selected>Vendor Name</option><option selected>Purchase Order</option><option selected>Invoice Number</option><option selected>Purchase Cost</option><option selected>Purchase Date</option><option selected>Start Date</option><option selected>Initial Value</option><option selected>Salvage Cost</option><option selected>Depreciable Cost</option><option selected>Depreciation Frequency</option><option selected>Useful Life</option><option selected>Depreciation Cost</option></select></td></tr>';
+            $( "#ColumnParameter" ).replaceWith( data );
+		}
+		if(e=="A1" || e=="B1" || e=="C1" || e=="D1"){
+			document.getElementById('ReportDescriptionBody').innerHTML="This Report displays asset Group by Asset Type. The report will display all assets or use the option in the Report Parameter Section to limit the report to a specific asset or assets.";
+			
+			if(e=="A1"){
+				document.getElementById('ReportHeader').innerHTML="Asset Report by Asset Type";
+			}
+			if(e=="B1"){
+				document.getElementById('ReportHeader').innerHTML="Asset Depreciation Report Asset Type";
+			}
+			if(e=="C1"){
+				document.getElementById('ReportHeader').innerHTML="Audit Report";
+				document.getElementById('AuditYearTR').style.display="table-row";
+			}
+			if(e=="D1"){
+				document.getElementById('ReportHeader').innerHTML="Check Out Report by Asset Type";
+			}
+            
+		}
+		if(e=="A2" || e=="B2" || e=="C2" || e=="D2"){
+			document.getElementById('ReportDescriptionBody').innerHTML="This Report displays asset Group by Asset Location. The report will display all assets or use the option in the Report Parameter Section to limit the report to a specific asset or assets.";
+			
+			if(e=="A2"){
+				document.getElementById('ReportHeader').innerHTML="Asset Report by Location And Site";
+			}
+			if(e=="B2"){
+				document.getElementById('ReportHeader').innerHTML="Asset Depreciation Report by Location And Site";
+			}
+			if(e=="C2"){
+				document.getElementById('ReportHeader').innerHTML="Audit Report by Location And Site";
+			}
+			if(e=="D2"){
+				document.getElementById('ReportHeader').innerHTML="Check Out Report by Location And Site";
+			}
+		}
+		if(e=="A3" || e=="B3" || e=="C3" || e=="D3"){
+			document.getElementById('ReportDescriptionBody').innerHTML="This Report displays asset Group by Asset Department. The report will display all assets or use the option in the Report Parameter Section to limit the report to a specific asset or assets.";
+			
+			if(e=="A3"){
+				document.getElementById('ReportHeader').innerHTML="Asset Report by Department";
+			}
+			if(e=="B3"){
+				document.getElementById('ReportHeader').innerHTML="Asset Depreciation Report by Department";
+			}
+			if(e=="C3"){
+				document.getElementById('ReportHeader').innerHTML="Audit Report by Department";
+			}
+			if(e=="D3"){
+				document.getElementById('ReportHeader').innerHTML="Check Out Report by Department";
+			}
+		}
+
+        if(e=="A1" || e=="A2" || e=="A3" || e=="A4"){
+            var data='<tr id="ColumnParameter" ><td width="20%" style="text-align:right;vertical-align:middle;">Columns</td><td colspan="4"><label for="sel2">Mutiple select list (hold shift to select more than one):</label><select multiple class="form-control" id="sel2"><option selected>Asset Tag</option><option selected>Asset</option><option selected>Category</option><option selected>Sub Category</option><option selected>Brand</option><option selected>Serial Number</option><option selected>Plate Number</option><option selected>Department</option><option selected>Assigned To</option><option selected>Location</option><option selected>Site</option><option selected>Vendor Name</option><option selected>Purchase Order</option><option selected>Invoice Number</option><option selected>Purchase Cost</option><option selected>Purchase Date</option><option selected>Start Date</option><option selected>Initial Value</option><option selected>Salvage Cost</option><option selected>Depreciable Cost</option><option selected>Depreciation Frequency</option><option selected>Useful Life</option><option selected>Depreciation Cost</option><option selected>Total Accumulated Depreciation</option><option selected>Book Value</option></select></td></tr>';
+            $( "#ColumnParameter" ).replaceWith( data ); 
+        }
+        if(e=="B1" || e=="B2" || e=="B3" || e=="B4"){
+            var data='<tr id="ColumnParameter" ><td width="20%" style="text-align:right;vertical-align:middle;">Columns</td><td colspan="4"><label for="sel2">Mutiple select list (hold shift to select more than one):</label><select multiple class="form-control" id="sel2"><option selected>Asset Tag</option><option selected>Asset</option><option selected>Department</option><option selected>Location</option><option selected>Site</option><option selected>Serial Number</option><option selected>Plate Number</option><option selected>Vendor Name</option><option selected>Purchase Order</option><option selected>Invoice Number</option><option selected>Purchase Cost</option><option selected>Purchase Date</option><option selected>Start Date</option><option selected>Initial Value</option><option selected>Salvage Cost</option><option selected>Depreciable Cost</option><option selected>Depreciation Frequency</option><option selected>Useful Life</option><option selected>Depreciation Cost</option><option selected>Total Accumulated Depreciation</option><option selected>Book Value</option></select></td></tr>';
+            $( "#ColumnParameter" ).replaceWith( data ); 
+        }
+        if(e=="C1"){
+            var data='<tr id="ColumnParameter" ><td width="20%" style="text-align:right;vertical-align:middle;">Columns</td><td colspan="4"><label for="sel2">Mutiple select list (hold shift to select more than one):</label><select multiple class="form-control" id="sel2"><option selected>Asset Tag</option><option selected>Description</option><option selected>Category</option><option selected>Sub Category</option><option selected>Serial Number</option><option selected>Plate Number</option><option selected>Assigned To</option><option selected>Vendor Name</option><option selected>Purchase Order</option><option selected>Invoice Number</option><option selected>Purchase Cost</option><option selected>Start Date</option><option selected>Purchase Date</option><option selected>Initial Value</option><option selected>Salvage Cost</option><option selected>Depreciable Cost</option><option selected>Depreciation Frequency</option><option selected>Useful Life</option><option selected>Depreciation Cost</option><option selected>Total Accumulated Depreciation</option><option selected>Book Value</option><option selected>Transaction</option><option selected>Requested By</option><option selected>Status</option><option selected>Action</option><option selected>Note</option></select></td></tr>';
+            $( "#ColumnParameter" ).replaceWith( data ); 
+        }
+        if(e=='D1' || e=='D2' || e=='D3' || e=='D4'){
+            var data='<tr id="ColumnParameter" ><td width="20%" style="text-align:right;vertical-align:middle;">Columns</td><td colspan="4"><label for="sel2">Mutiple select list (hold shift to select more than one):</label><select multiple class="form-control" id="sel2"><option selected>Ticket No.</option><option selected>Asset Tag</option><option selected>Asset</option><option selected>Serial Number</option><option selected>Plate Number</option><option selected>Vendor Name</option><option selected>Purchase Order</option><option selected>Invoice Number</option><option selected>Purchase Cost</option><option selected>Purchase Date</option><option selected>Start Date</option><option selected>Initial Value</option><option selected>Salvage Cost</option><option selected>Depreciable Cost</option><option selected>Depreciation Frequency</option><option selected>Useful Life</option><option selected>Depreciation Cost</option><option selected>Total Accumulated Depreciation</option><option selected>Book Value</option><option selected>Requested By</option><option selected>Borrow Date</option><option selected>Due Date</option><option selected>Status</option></select></td></tr>';
+            $( "#ColumnParameter" ).replaceWith( data ); 
+
+        }
+	}
+    </script>
+    <style>
+        .card {
+            margin-bottom:0px !important;
+        }
+    </style>
     <div class="row" style="margin-left:10px;background-color:white;padding:10px;">
         <div class="col-md-5">
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapse2" onclick="SetHeight()" class="" aria-expanded="true"> <h4 class="panel-title">
-                    Asset Report
-                </h4></a>
-                </div>
-                <div id="collapse2" class="panel-collapse collapse show" style="">
-                <div class="panel-body" style="padding: 0px;">
-                    <ul class="list-group" style="margin-bottom:0px;">
-
-                        <a href="#" onclick="ShowReportDescription('A2')"><li class="list-group-item">Asset by Location And Site </li></a>
-                        <a href="#" onclick="ShowReportDescription('A3')"><li class="list-group-item">Asset by Department </li></a>
-                    
-                    </ul>
-                </div>
-                </div>
+            <div class="card">
+            <div class="card-header">
+                Asset Report
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapse3" onclick="SetHeight()" class="" aria-expanded="true"> <h4 class="panel-title">
-
+            <ul class="list-group list-group-flush">
+                <a href="#" onclick="ShowReportDescription('A2')"><li class="list-group-item">Asset by Location And Site </li></a>
+                <a href="#" onclick="ShowReportDescription('A3')"><li class="list-group-item">Asset by Department </li></a>
+            </ul>
+            </div>
+            <div class="card">
+            <div class="card-header">
                     Asset Depreciation
-                </h4></a>
-                </div>
-                <div id="collapse3" class="panel-collapse collapse show" style="">
-                <div class="panel-body" style="padding: 0px;">
-                    <ul class="list-group" style="margin-bottom:0px;">
-
-                        <a href="#" onclick="ShowReportDescription('B2')"><li class="list-group-item">Asset Depreciation by Location And Site</li></a>
-                        <a href="#" onclick="ShowReportDescription('B3')"><li class="list-group-item">Asset Depreciation by Department </li></a>
-                        <a href="#" onclick="ShowReportDescription('LS1')"><li class="list-group-item">Lapsing Schedule</li></a>
-                    <script>
-                        function DownloadExcel(){
-                            $.ajax({
-                            type: 'POST',
-                            url: 'extra/download/excel.php',
-                            data: {Type:'B3',value:'All',value2:""},
-                            success: function(data) {
-                                $( "#DownloadExcelDiv" ).replaceWith( data );
-                            } 											 
-                            })
-
-                        }
-                    </script>
-                    <div id="DownloadExcelDiv"></div>
-                    </ul>
-                </div>
-                </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                <a data-toggle="collapse" onclick="SetHeight()" data-parent="#accordion" href="#collapse4" class="collapsed" aria-expanded="false"><h4 class="panel-title">
-
+            <ul class="list-group list-group-flush">
+                <a href="#" onclick="ShowReportDescription('B2')"><li class="list-group-item">Asset Depreciation by Location And Site</li></a>
+                <a href="#" onclick="ShowReportDescription('B3')"><li class="list-group-item">Asset Depreciation by Department </li></a>
+                <a href="#" onclick="ShowReportDescription('LS1')"><li class="list-group-item">Lapsing Schedule</li></a>
+            </ul>
+            </div>
+            <div class="card">
+            <div class="card-header">
                     Audit Report
-                </h4></a>
-                </div>
-                <div id="collapse4" class="panel-collapse collapse">
-                <div class="panel-body" style="padding: 0px;">
-                    <ul class="list-group" style="margin-bottom:0px;">
-                        <a href="#" onclick="ShowReportDescription('C1')"><li class="list-group-item">Audit Report</li></a>
-                    </ul>
-                </div>
-                </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapse5" onclick="SetHeight()" class="collapsed" aria-expanded="false"><h4 class="panel-title">
-
+            <ul class="list-group list-group-flush">
+                <a href="#" onclick="ShowReportDescription('C1')"><li class="list-group-item">Audit Report</li></a>
+            </ul>
+            </div>
+            <div class="card">
+            <div class="card-header">
                     Check Out Report
-                </h4></a>
-                </div>
-                <div id="collapse5" class="panel-collapse collapse">
-                <div class="panel-body" style="padding: 0px;">
-                    <ul class="list-group" style="margin-bottom:0px;">
-
-                        <a href="#" onclick="ShowReportDescription('D2')"><li class="list-group-item">Asset by Location And Site</li></a>
-                        <a href="#" onclick="ShowReportDescription('D3')"><li class="list-group-item">Asset by Department </li></a>
-                    
-                    </ul>
-                </div>
-                </div>
             </div>
-        </div>
+            <ul class="list-group list-group-flush">
+                <a href="#" onclick="ShowReportDescription('D2')"><li class="list-group-item">Asset by Location And Site</li></a>
+                <a href="#" onclick="ShowReportDescription('D3')"><li class="list-group-item">Asset by Department </li></a>
+            </ul>
+            </div>
         </div>
         <div class="col-md-7">
-            <table class="table borderless" style="background-color:white;">
+            <table class="table borderless table-sm" style="background-color:white;">
                 <thead style="background-color:#124f62; color:white;">
                     <tr style="background-color:white;color:#124f62;">
-                        <th colspan="5" style="padding-left:0px; " id="ReportHeader">Asset Report by Location And Site</th>
+                        <th colspan="5" style="padding-left:0px; " id="ReportHeader"></th>
                     </tr>
                     <tr>
                         <th colspan="5">Report Description</th>
@@ -107,44 +165,15 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="5" id="ReportDescriptionBody">This Report displays asset Group by Asset Location. The report will display all assets or use the option in the Report Parameter Section to limit the report to a specific asset or assets.</td>
+                        <td colspan="5" id="ReportDescriptionBody"></td>
                     </tr>
                     <tr style="background-color:#124f62; color:white;">
                         <th colspan="5">Report Parameter</th>
                     </tr>
                     <tr id="ColumnParameter">
-                    <td width="20%" style="text-align:right;vertical-align:middle;">Columns</td>
+                    <td width="20%" style="text-align:right;vertical-align:middle;"></td>
                     <td colspan="4">
-                    <label for="sel2">Mutiple select list (hold shift to select more than one):</label>
-                    <select multiple="" class="form-control" id="sel2">
-                            <option selected="">Asset Tag</option>
-                            <option selected="">Asset</option>
-                            <option selected="">Category</option>
-                            <option selected="">Sub Category</option>
-                            <option selected="">Brand</option>
-                            <option selected="">Serial Number</option>
-                            <option selected="">Plate Number</option>
-                            <option selected="">Department</option>
-                            <option selected="">Assigned To</option>
-                            <option selected="">Location</option>
-                            <option selected="">Site</option>
-                            
-                            <option selected="">Vendor Name</option>
-                            <option selected="">Purchase Order</option>
-                            <option selected="">Invoice Number</option>
-                            <option selected="">Purchase Cost</option>
-                            <option selected="">Purchase Date</option>
-                            <option selected="">Start Date</option>
-                            
-                            <option selected="">Initial Value</option>
-                            <option selected="">Salvage Cost</option>
-                            <option selected="">Depreciable Cost</option>
-                            <option selected="">Depreciation Frequency</option>
-                            <option selected="">Useful Life</option>
-                            <option selected="">Depreciation Cost</option>
-                            <option selected="">Total Accumulated Depreciation</option>
-                            <option selected="">Book Value</option>
-                    </select>
+                    
                     </td>
                     </tr>
                     <tr id="AuditYearTR" style="display:none;">
@@ -175,15 +204,19 @@
                                 //alert(Timeline);
                                 if(AuditMonth!="" && AuditYear!=""){
                                     $.ajax({
-                                        type: 'POST',
-                                        url: ' ReplaceAuditParam.php',                
-                                        data: {INPUT:Timeline},
+                                    type: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    url: 'ReplaceAuditParam',
+                                    data:{AuditMonth:AuditMonth,AuditYear:AuditYear,_token: '{{csrf_token()}}'},
                                     success: function(data) {
-                                        //alert(data);
-                                        $( "#Parameter" ).replaceWith( data );
+                                        var element='<select class="form-control" id="Parameter" >'+data+'</select>';
+                                        $( "#Parameter" ).replaceWith( element );
                                         
-                                    } 											 
-                                    })
+                                    }  
+                                    }) 
+                                    
                                     document.getElementById('parameterTR').style.display="table-row";
                                 }else{
                                     document.getElementById('parameterTR').style.display="none";
@@ -196,79 +229,13 @@
                         
                     </tr>
                     <tr id="parameterTR">
-                    <td width="10%" style="text-align:right;vertical-align:middle;">Location</td>
+                    <td width="10%" style="text-align:right;vertical-align:middle;"></td>
                     <td style="vertical-align:middle;">
-                    <script>
-                        function ChangeSiteValues(){
-                            var Loca=document.getElementById('Parameter').value;
-                            
-                                $.ajax({
-                                    type: 'POST',
-                                    url: ' ReplaceSiteParam2.php',                
-                                    data: {INPUT:Loca},
-                                success: function(data) {
-                                    $( "#Parameter2" ).replaceWith( data );
-                                    
-                                } 											 
-                                })
-                                
-                            
-                        }
-                    </script>
-                    <select class="form-control" id="Parameter" onchange="ChangeSiteValues()">
-                        <option>All</option>
-                            <option>ANTIQUE</option>
-                            <option>BABAK, SAMAL</option>
-                            <option>CALATAGAN, BATANGAS</option>
-                            <option>DAVAO CITY</option>
-                            <option>DAVAO DEL SUR</option>
-                            <option>DIGOS CITY</option>
-                            <option>ILIGAN CITY</option>
-                            <option>ILOCOS NORTE</option>
-                            <option>ILOILO CITY</option>
-                            <option>MANOC MANOC, BORACAY ISLAND</option>
-                            <option>NORTHERN MINDANAO</option>
-                            <option>OZAMIZ CITY</option>
-                        </select>
+                    
                     </td>
-                    <td width="10%" style="text-align:right;vertical-align:middle;">Site</td>
+                    <td width="10%" style="text-align:right;vertical-align:middle;"></td>
                     <td>
-                        <select class="form-control" id="Parameter2">
-                            <option></option>
-                                    <option>ACCESS ROAD TO MALALAG PORT DPWH DIGOS 001</option>
-                                    <option>BUGASONG</option>
-                                    <option>CABANTIAN</option>
-                                    <option>CALATAGAN DREDGING PPA HO 005</option>
-                                    <option>CURRIMAO PORT PPA HO 004</option>
-                                    <option>DIGOS APLAYA ROAD DPWH DIGOS 002</option>
-                                    <option>DREDGING DAPITAN/ILIGAN/CDO PPA HO 006</option>
-                                    <option>DREDGING OZAMIZ PPA HO 003</option>
-                                    <option>HAMTIC &amp; BUGASONG C. PORT PPA HO 010</option>
-                                    <option>ICPC SOUTHERN SEC - PPA ILOILO 016</option>
-                                    <option>IGNATO VILLASIGA ROAD DPWH ANTIQUE 016</option>
-                                    <option>KKCCDC- HEAD OFFICE</option>
-                                    <option>MALALAG PORT PPA HO 001</option>
-                                    <option>MALALAG TAGANSULE ROAD DPWH DIGOS 002</option>
-                                    <option>MANOC MANOC PPA ILOILO 004</option>
-                                    <option>OFFICE - ANTIQUE</option>
-                                    <option>OFFICE - CURRIMAO</option>
-                                    <option>OFFICE - DIGOS </option>
-                                    <option>OFFICE - ILOILO</option>
-                                    <option>OFFICE - MALALAG</option>
-                                    <option>OPERATIONS BUILDING BABAK PPA HO 007</option>
-                                    <option>PANGALCAGAN SADSADAN  ROAD DPWH ANTIQUE 013</option>
-                                    <option>PORT ROAD SAN JOSE PPA ILOILO 017</option>
-                                    <option>RDF RIVER WHARF PPA ILOILO 015</option>
-                                    <option>RDF S. JOSE ANTIQUE PPA ILOILO 014</option>
-                                    <option>SITIO NAWILI - DPWH ANTIQUE 007</option>
-                                    <option>STREETLIGHT DUMANGAS PPA ILOILO 012</option>
-                                    <option>STREETLIGHT PPA ILIGAN 002</option>
-                                    <option>TONO AN PANGALCAGAN ROAD DPWH ANTIQUE 014</option>
-                                    <option>WAREHOUSE - ANTIQUE</option>
-                                    <option>WAREHOUSE - CABANTIAN</option>
-                                    <option>WAREHOUSE - CURRIMAO</option>
-                                    <option>WAREHOUSE - ILOILO</option>
-                                </select>
+                        
                     </td>
                     <td width="25%"></td>
                     </tr>
@@ -294,7 +261,7 @@
 
                                 var left = ((width / 2) - (w / 2)) + dualScreenLeft;
                                 var top = ((height / 2) - (h / 2)) + dualScreenTop;
-                                var myWindow = window.open("Report.php", "", "width=900,height=600,resizable=no,left="+left+"");
+                                var myWindow = window.open("Report?Columns="+values+"&Kind="+kind+"&value="+parametervalue+"&value2="+parametervalue2, "", "width=900,height=600,resizable=no,left="+left+"");
                                 myWindow.Kind=kind;
                                 myWindow.Columns=values;
                                 myWindow.value=parametervalue;

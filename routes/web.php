@@ -172,6 +172,7 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/get_asset_info_checkout', 'GetController@get_asset_info_checkout');
     Route::post('/get_asset_info_checkin', 'GetController@get_asset_info_checkin');
     Route::post('/print_qr', 'GetController@print_qr');
+    Route::post('/get_asset_setup_site_param', 'GetController@get_asset_setup_site_param');
     
     Route::post('/UploadMassAssetSetup', 'UploadController@UploadMassAssetSetup');
     Route::post('/add_asset_setup_request', 'AssetPostController@add_asset_setup_request');
@@ -225,6 +226,11 @@ Route::group(['middleware'=>['auth']], function() {
     Route::post('/SaveAssetMaintenanceAudit','AuditController@SaveAssetMaintenanceAudit');
     Route::post('/SaveAssetOtherAudit','AuditController@SaveAssetOtherAudit');
     Route::post('/FinishAudit','AuditController@FinishAudit');
+
+    Route::post('/ReportAsset_type','ReportController@ReportAsset_type');
+    Route::post('/ReplaceAuditParam','ReportController@ReplaceAuditParam');
+    Route::get('/Report','ReportController@Report');
+    
     
 });
 
