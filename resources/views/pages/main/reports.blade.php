@@ -246,26 +246,38 @@
                         <button onclick="RunReport()" id="RunBtn" style="display: inline;" class="btn btn-primary">Run Report</button>
                         <script>
                             function RunReport(){
+                                
                                 var values = $('#sel2').val();
                                 //alert(values[0]);
                                 var kind=document.getElementById('hiddenCt').value;
                                 var parametervalue=document.getElementById('Parameter').value;
                                 var parametervalue2=document.getElementById('Parameter2').value;
-                                var w='900';
-                                var h='600';
-                                var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
-                                var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+                                var go=1;
+                                if(kind=="C1"){
+                                    if(document.getElementById('AuditMonth').value=="" || document.getElementById('AuditYear').value==""){
+                                        go=0;
+                                    }
+                                }
+                                if(go==0){
+                                    alert('Please Select Month and Year to select Audit Name');
+                                }else{
+                                    var w='900';
+                                    var h='600';
+                                    var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+                                    var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
 
-                                var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-                                var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+                                    var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+                                    var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
 
-                                var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-                                var top = ((height / 2) - (h / 2)) + dualScreenTop;
-                                var myWindow = window.open("Report?Columns="+values+"&Kind="+kind+"&value="+parametervalue+"&value2="+parametervalue2, "", "width=900,height=600,resizable=no,left="+left+"");
-                                myWindow.Kind=kind;
-                                myWindow.Columns=values;
-                                myWindow.value=parametervalue;
-                                myWindow.value2=parametervalue2;
+                                    var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+                                    var top = ((height / 2) - (h / 2)) + dualScreenTop;
+                                    var myWindow = window.open("Report?Columns="+values+"&Kind="+kind+"&value="+parametervalue+"&value2="+parametervalue2, "", "width=900,height=600,resizable=no,left="+left+"");
+                                    myWindow.Kind=kind;
+                                    myWindow.Columns=values;
+                                    myWindow.value=parametervalue;
+                                    myWindow.value2=parametervalue2;
+                                }
+                                
                             }
                         </script>
                         </td>
