@@ -225,6 +225,7 @@
 					$mor=$diff->format('%m');
 					
 					if($mo=="+"){
+						
 						if($freq=="Yearly"){
 				
 							$divident=$diff->format('%y');
@@ -267,7 +268,7 @@
 							        }else{
 							            $totalaccumulateddepreciation=$totalaccumulateddepreciation+$depreciation_cost;
 							            ?>
-            							<td style="vertical-align:middle;"><?php echo number_format($depreciation_cost,2); ?></td>
+            							<td style="vertical-align:middle;"><?php  echo number_format($depreciation_cost,2); ?></td>
             							<?php
 							        }
 							       
@@ -276,7 +277,7 @@
     								$totalaccumulateddepreciation=$totalaccumulateddepreciation+$depreciation_cost;
     								
     							?>
-    							<td style="vertical-align:middle;"><?php echo number_format($depreciation_cost,2); ?></td>
+    							<td style="vertical-align:middle;"><?php   echo number_format($depreciation_cost,2); ?></td>
     							<?php
                             	}
 							}
@@ -288,7 +289,7 @@
 							<?php
 							
 						}
-						if($depreciation_frequency=="Hourly"){
+						if($freq=="Hourly"){
 				
 							$divident=$diff->format('%h');
 							$current=$depriciable_value-($depreciation_cost*$divident);
@@ -302,10 +303,10 @@
 					}else{
 						 if($mor=="0"){
 							
-							 $totalaccumulateddepreciation=$totalaccumulateddepreciation+$depreciation_cost;
-							            ?>
-            							<td style="vertical-align:middle;"><?php echo number_format($depreciation_cost,2); ?></td>
-            							<?php
+							$totalaccumulateddepreciation=$totalaccumulateddepreciation+$depreciation_cost;
+							?>
+            				<td style="vertical-align:middle;"><?php echo number_format($depreciation_cost,2); ?></td>
+            				<?php
 						}else{
 						echo "<td></td>";
 						}

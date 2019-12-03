@@ -204,6 +204,62 @@ class AppServiceProvider extends ServiceProvider
             $a->laon_type="SSS";
             $a->save();
         }
+        $assets=HR_hr_Asset::all();
+        foreach($assets as $result){
+            $id=$result->id;
+            $asset=$result->asset_tag;
+            $depreciation_date=$result->depreciation_date;
+            $depriciable_value=$result->depriciable_value;
+            $depreciation_frequency=$result->depreciation_frequency;
+            $useful_life_span=$result->useful_life_span;
+            $depreciation_cost=$result->depreciation_cost;
+            $current_cost=$result->current_cost;
+            $Now=date('Y-m-d H:i:s');
+            if($depreciation_date!=""){
+                $date1=date_create($result->depreciation_date." 8:00 ");
+                $dayy=$date1->format('d');
+                $Now2=date('m');
+                $Now=date('Y-'.$Now2.'-'.$dayy.' 8:00');
+                $date2=date_create($Now);
+                $diff=date_diff($date1,$date2);
+                $diff=date_diff($date1,$date2);
+                if($depreciation_frequency=="Yearly"){
+                    $divident=$diff->format('%y');
+                    $current=$depriciable_value-($depreciation_cost*$divident);
+                    if($divident>$useful_life_span){
+                        $current=0;
+                    }
+                    $saaa=HR_hr_Asset::find($id);
+                    $saaa->current_cost=$current;
+                    $saaa->save();
+                }
+                if($depreciation_frequency=="Monthly"){
+                    $divident=$diff->format('%m');
+                    $divident=$divident+($diff->format('%y')*12);
+                    if($dayy>15){
+                       $divident--;
+                    }
+                    $current=$depriciable_value-($depreciation_cost*($divident));
+                    if($divident>$useful_life_span){
+                        $current=0;
+                    }
+                    $saaa=HR_hr_Asset::find($id);
+                    $saaa->current_cost=$current;
+                    $saaa->save();
+                }
+                if($depreciation_frequency=="Hourly"){
+		
+                    $divident=$diff->format('%h');
+                    $current=$depriciable_value-($depreciation_cost*$divident);
+                    if($divident>$useful_life_span){
+                        $current=0;
+                    }
+                    $saaa=HR_hr_Asset::find($id);
+                    $saaa->current_cost=$current;
+                    $saaa->save();
+                }
+            }
+        }
         
         
         
