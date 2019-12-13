@@ -19,9 +19,25 @@ use App\Http\Middleware\AssetMiddleWare;
 
 
 Route::get('/', function () {
+    // $emailll='ceciliohr@gmail.com';
+    // $passww="Odanobunaga13";
+    // $sss=$passww;
+    // $arr2 = str_split($passww);
+    // $length=1;
+    // $dencrypted="";
+    // $userdata = array(
+    //     'email' => $emailll ,
+    //     'password' => $passww
+    // );
+    // if (Auth::attempt($userdata)){
+    //     return redirect()->intended('/home');
+
+    // }else{
+    //     return redirect()->intended('/login');
+    // }
     return view('welcome');
 });
-
+Route::get('students', 'ApiController@getAllStudents');
 Route::group(['middleware'=>['auth']], function() {
 
     Route::get('/router', 'HomeController@router');

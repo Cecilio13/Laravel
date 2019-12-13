@@ -62,6 +62,7 @@ use App\User;
 use App\HR_hr_Asset_setup;
 class PageController extends Controller
 {
+    
     public function access_denied(Request $request){
         return view('403');
         
