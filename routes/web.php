@@ -37,7 +37,26 @@ Route::get('/', function () {
     // }
     return view('welcome');
 });
-Route::get('students', 'ApiController@getAllStudents');
+//Custom API for ReactJS App
+
+Route::get('api/getBankInfo', 'ApiController@getBankInfo');
+Route::get('api/getBanks', 'ApiController@getBanks');
+Route::get('api/getSettingAdvance', 'ApiController@getSettingAdvance');
+Route::get('api/getSettingAdvanceNumberring', 'ApiController@getSettingAdvanceNumberring');
+Route::get('api/getSettingExpense', 'ApiController@getSettingExpense');
+Route::get('api/getSettingSales', 'ApiController@getSettingSales');
+Route::get('api/getSettingCompany', 'ApiController@getSettingCompany');
+Route::get('api/getAccount', 'ApiController@getAccount');
+Route::get('api/students', 'ApiController@getAllStudents');
+Route::get('api/getDashboardData', 'ApiController@getDashboardData');
+Route::post('api/update_setting_company', 'ApiController@update_setting_company');
+Route::post('api/update_setting_sales', 'ApiController@update_setting_sales');
+Route::post('api/update_setting_expense', 'ApiController@update_setting_expense');
+Route::post('api/update_setting_advance', 'ApiController@update_setting_advance');
+Route::post('api/add_bank', 'ApiController@add_bank');
+
+// END Custom API for ReactJS App
+
 Route::group(['middleware'=>['auth']], function() {
 
     Route::get('/router', 'HomeController@router');
